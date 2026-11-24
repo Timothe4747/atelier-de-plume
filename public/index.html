@@ -175,6 +175,17 @@ repeating-linear-gradient(transparent 0 calc(var(--lh) - 2px),var(--line) calc(v
 .tourDots{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}.tourDots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tourDots i.past{background:var(--accent);opacity:.45}.tourDots i.on{background:var(--accent);width:20px;border-radius:5px}
 .tourBtns{display:flex;justify-content:space-between;gap:10px}.tourBtns .btn{min-width:110px}
 @media(prefers-reduced-motion:reduce){.tourHole,.tourAv,.tourBox.pop{animation:none}.tourHole,.tourBox{transition:none}}
+.rwHead{display:flex;gap:12px;align-items:center;background:var(--card,rgba(0,0,0,.03));border:2px solid var(--line);border-radius:18px;padding:12px;margin:6px 0 4px}.rwHead>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.rwHead b.f{font-size:19px;color:var(--accentInk)}.rwHead small{color:var(--soft);font-size:13px}.rwHead small b{color:var(--ink)}
+.rwAv{width:68px;height:68px;flex:none;animation:pfloat 3.5s ease-in-out infinite}body.plGold .rwAv,body.plGold #plumeAv{filter:drop-shadow(0 0 6px rgba(255,200,40,.75))}
+.rwGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.rw{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px 8px;border:2px solid var(--line);border-radius:16px;text-align:center;color:var(--ink);background:var(--paper)}.rw svg{width:42px;height:42px}.rw b{font-size:13px;line-height:1.2}.rw small{font-size:11.5px;color:var(--soft)}
+.rw.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}.rw.on small{color:var(--accentInk);font-weight:700}.rw:not(.lock):hover{transform:translateY(-2px)}
+.rw.lock{opacity:.5;filter:grayscale(1)}
+.page{position:relative}
+body.deco-stars .page::after{content:'';position:absolute;left:4px;top:0;bottom:0;width:26px;pointer-events:none;opacity:.8;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='120' viewBox='0 0 26 120'%3E%3Cpath d='M9 8l1.6 3.6 3.9.4-2.9 2.6.8 3.9L9 16.5l-3.4 2 .8-3.9-2.9-2.6 3.9-.4z' fill='%23ffd23f'/%3E%3Cpath d='M18 48l1.1 2.4 2.6.3-1.9 1.8.5 2.6-2.3-1.3-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z' fill='%23ff9f1a'/%3E%3Cpath d='M8 86l1.3 2.9 3.1.3-2.3 2.1.7 3.1L8 92.8l-2.8 1.6.7-3.1-2.3-2.1 3.1-.3z' fill='%23ffd23f'/%3E%3Ccircle cx='19' cy='104' r='1.6' fill='%23ffd23f'/%3E%3Ccircle cx='16' cy='28' r='1.3' fill='%23ffb000'/%3E%3C/svg%3E") repeat-y}
+body.deco-ribbon .page::before{content:'';position:absolute;top:-4px;right:34px;width:22px;height:74px;background:linear-gradient(90deg,#c2381b,#e4462b 40%,#c2381b);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);box-shadow:0 2px 4px rgba(0,0,0,.2);pointer-events:none;z-index:2}
+.spark{position:fixed;width:8px;height:8px;pointer-events:none;z-index:8000;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:sparkUp .8s ease-out forwards}
+@keyframes sparkUp{from{transform:translate(0,0) scale(1.3);opacity:1}to{transform:translate(var(--dx),-34px) scale(.3) rotate(120deg);opacity:0}}
 .lgintro{color:var(--soft);margin:0 0 6px}.lgnote{color:var(--soft);font-size:13px;margin:6px 0 0}.lgchk{display:flex;gap:8px;align-items:center;font-family:Andika!important;font-weight:400!important}
 .inbox{border:2px dashed var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
 .btn.danger{background:#e4462b}.btn.danger.sure{background:#9b1c0c}
@@ -327,7 +338,7 @@ body.focus .focusExit{display:block}
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
- <defs><radialGradient id="shine" cx="35%" cy="25%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+ <defs><radialGradient id="shine" cx="35%" cy="25%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="plGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset=".45" stop-color="#ffcc1f"/><stop offset="1" stop-color="#e09a00"/></linearGradient><linearGradient id="plRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4f6d"/><stop offset=".22" stop-color="#ff9f1a"/><stop offset=".42" stop-color="#ffd23f"/><stop offset=".62" stop-color="#2fc46b"/><stop offset=".8" stop-color="#2f7fe0"/><stop offset="1" stop-color="#8a4ef0"/></linearGradient></defs>
 
  <symbol id="icWrite" viewBox="0 0 48 48"><rect x="5" y="9" width="27" height="33" rx="5" fill="#fff" stroke="#ffb09d" stroke-width="2.5"/><path d="M11 18h14M11 24h12M11 30h8" stroke="#ffb09d" stroke-width="2.5" stroke-linecap="round"/><path d="M43 4c-9 1-16 8-18 17-.6 3 0 6 1 8l-4 5 2 2 4-5c3 1 6 .5 9-1.5 6-4 8-12 7-21-.2-2-.6-3.5-1-4.5z" fill="#ff6b4a"/><path d="M24 35 37 15" stroke="#c2381b" stroke-width="2" stroke-linecap="round"/><circle cx="31" cy="22" r="2.4" fill="#fff"/><circle cx="37" cy="19.5" r="2.4" fill="#fff"/><circle cx="31.7" cy="22.4" r="1.2" fill="#1d2142"/><circle cx="37.7" cy="19.9" r="1.2" fill="#1d2142"/><path d="M8 37c3-3 5 2 8-1s5 1 7-1" stroke="#ff6b4a" stroke-width="2.2" fill="none" stroke-linecap="round"/></symbol>
  <symbol id="icHelp" viewBox="0 0 48 48"><path d="M8 8h32a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5H22l-9 8v-8H8a5 5 0 0 1-5-5V13a5 5 0 0 1 5-5z" fill="#ff6b4a"/><circle cx="17" cy="19" r="4" fill="#fff"/><circle cx="30" cy="19" r="4" fill="#fff"/><circle cx="17.7" cy="19.4" r="2.0" fill="#1d2142"/><circle cx="30.7" cy="19.4" r="2.0" fill="#1d2142"/><path d="M19 27c2.5 2.5 6.5 2.5 9 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M40 2l1.4 3 3 1.4-3 1.4L40 11l-1.4-3.2-3-1.4 3-1.4z" fill="#ffd23f"/></symbol>
@@ -421,7 +432,7 @@ body.focus .focusExit{display:block}
   <div class="panel" id="pLieu"><button class="act big" id="bNewPlace" style="width:100%;margin-bottom:12px">Créer un lieu</button><div id="placeList"></div></div>
   <div class="panel" id="pTre">
    <p class="treCount f" id="treCount"></p><div class="stats"><div class="stat"><b id="stDays">0</b><span>jours de suite</span></div><div class="stat"><b id="stWords">0</b><span>mots écrits</span></div><div class="stat"><b id="stStories">0</b><span>histoires</span></div></div>
-   <div id="badges"></div>
+   <div id="rewards"></div><div id="badges"></div>
    <div class="style" id="styleBox"></div>
   </div>
   <div id="aiZone">
@@ -872,7 +883,7 @@ const BADGES=[
  C('n81','Grand écran','Agrandir la zone de Plume','star','#ff6b4a','Atelier',()=>st('bigPlume'),1),
  C('n82','Visite guidée','Ouvrir tous les onglets de Plume','gem','#8a3ee8','Atelier',()=>(stats.tabsSeen||[]).length,5),
 ];
-function checkBadges(){let got=0,last=null;for(const b of BADGES){let ok=false;try{ok=b.t()}catch(e){}if(ok&&!stats.badges.includes(b.id)){stats.badges.push(b.id);got++;last=b}}if(got){toast(got===1?'Nouveau trésor : '+last.n+' !':got+' nouveaux trésors ! Va voir l\'onglet Trésors');plumeAnim('jump')}if(got&&stats.badges.length===BADGES.length)setTimeout(()=>{celebrate();say({k:'Incroyable !',m:'Tu as trouvé les 100 trésors de l\'atelier. Tu es un vrai maître des mots !',cls:'defi'})},800);renderTre()}
+function checkBadges(){let got=0,last=null;for(const b of BADGES){let ok=false;try{ok=b.t()}catch(e){}if(ok&&!stats.badges.includes(b.id)){stats.badges.push(b.id);got++;last=b}}if(got){toast(got===1?'Nouveau trésor : '+last.n+' !':got+' nouveaux trésors ! Va voir l\'onglet Trésors');plumeAnim('jump')}if(got)rewardCheck();if(got&&stats.badges.length===BADGES.length)setTimeout(()=>{celebrate();say({k:'Incroyable !',m:'Tu as trouvé les 100 trésors de l\'atelier. Tu es un vrai maître des mots !',cls:'defi'})},800);renderTre()}
 function renderTre(){
  const n=stats.badges.filter(id=>BADGES.some(b=>b.id===id)).length;
  $('#treCount').innerHTML=`${n} trésor${n>1?'s':''} sur ${BADGES.length}<span class="tbar"><i style="width:${Math.round(n/BADGES.length*100)}%"></i></span>`;
@@ -880,6 +891,7 @@ function renderTre(){
  $('#badges').innerHTML=BGROUPS.map(g=>{const L=BADGES.filter(b=>b.g===g),on=L.filter(b=>stats.badges.includes(b.id)).length;
   return`<h3 class="bgh">${esc(g)} <small>${on} / ${L.length}</small></h3><div class="badges">${L.map(b=>{const got=stats.badges.includes(b.id);let pr='';if(!got&&b.p){try{const [v,m]=b.p();if(m>1&&v>0)pr=`<span class="bp"><i style="width:${Math.round(v/m*100)}%"></i></span><small class="bpn">${v.toLocaleString('fr-FR')} / ${m.toLocaleString('fr-FR')}</small>`}catch(e){}}
    return`<div class="badge ${got?'':'off'}"><svg style="color:${got?b.c:'#9aa0c0'}"><use href="#${b.i||'star'}"/></svg><div><b>${esc(b.n)}</b>${esc(b.d)}${pr}</div></div>`}).join('')}</div>`}).join('');
+ renderRewards();
  $('#styleBox').innerHTML=stats.style?`<b class="f">Ce que Plume a remarqué sur ton style</b><br>${esc(stats.style)}`:'Quand Plume aura lu un peu de ton texte, elle notera ici ce qui rend ton écriture unique.';
 }
 /* compter ce que l'enfant fait dans l'atelier */
@@ -4132,6 +4144,76 @@ function endTour(skipped){
  if(typeof toast==='function')toast(skipped?'Tu pourras revoir la visite dans les Réglages.':'Bonne écriture ! Tu peux revoir la visite dans les Réglages.');
  setTimeout(()=>{try{ed.focus()}catch(e){}},50)}
 
+/* ---- les récompenses : plus tu as de trésors, plus Plume et ton atelier se parent ---- */
+const PCOL={orange:['#ff6b4a','#ffb09d','#c2381b'],bleu:['#2f7fe0','#a6ccff','#1a4fa0'],vert:['#22a35a','#a3e4bb','#136b3a'],violet:['#8a4ef0','#d2b8ff','#5a28a8'],or:['url(#plGold)','#fff3b0','#a86f00'],arc:['url(#plRainbow)','#ffffff','#5a28a8']};
+const ACC={
+ bow:'<path d="M0 14 L-7 9.5 L-7 18.5 Z M0 14 L7 9.5 L7 18.5 Z" fill="#3150f0"/><circle cx="0" cy="14" r="2.3" fill="#1d2f9e"/>',
+ hat:'<ellipse cx="0" cy="-8" rx="11.5" ry="2.8" fill="#33247d"/><path d="M-7.5 -8.5 L0 -27 L7.5 -8.5 Z" fill="#4b38b0"/><path d="M-6.6 -11 L6.6 -11 L5.8 -13.4 L-5.8 -13.4 Z" fill="#ffd23f"/><path d="M0 -21.5l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="#ffd23f"/>',
+ glasses:'<circle cx="-6" cy="0" r="5.3" fill="rgba(255,255,255,.25)" stroke="#1d2142" stroke-width="1.7"/><circle cx="6" cy="0" r="5.3" fill="rgba(255,255,255,.25)" stroke="#1d2142" stroke-width="1.7"/><path d="M-.8 -.4 Q0 -1.8 .8 -.4" fill="none" stroke="#1d2142" stroke-width="1.6"/>',
+ scarf:'<path d="M-12 10.5 Q0 15.5 12 8.5 L12 13.5 Q0 20.5 -12 15.5 Z" fill="#e4462b"/><path d="M-9 14.5 L-11 25 L-6 25 L-5 15.8 Z" fill="#e4462b"/><path d="M-4 12.6 L-3 17.6 M3 11.6 L4 16.4 M-10.4 21 L-6.4 21" stroke="#ffd23f" stroke-width="1.5"/>',
+ crown:'<path d="M-9.5 -7 L-9.5 -16 L-4.8 -11 L0 -18 L4.8 -11 L9.5 -16 L9.5 -7 Z" fill="#ffd23f" stroke="#d99a00" stroke-width="1.2" stroke-linejoin="round"/><circle cx="0" cy="-10" r="1.6" fill="#e4462b"/><circle cx="-5.5" cy="-9.4" r="1.2" fill="#3150f0"/><circle cx="5.5" cy="-9.4" r="1.2" fill="#1b9a5a"/>'
+};
+const REWARDS=[
+ {id:'orange',at:0,kind:'color',n:'Plume classique',d:'La couleur de Plume au début.'},
+ {id:'bow',at:5,kind:'acc',slot:'neck',n:'Nœud papillon',d:'Plume se fait tout beau.'},
+ {id:'stars',at:10,kind:'deco',n:'Étoiles dans la marge',d:'De petites étoiles décorent ta page.'},
+ {id:'bleu',at:15,kind:'color',n:'Plume bleu océan',d:'Plume change de couleur.'},
+ {id:'hat',at:20,kind:'acc',slot:'head',n:'Chapeau de magicien',d:'Pour écrire des histoires magiques.'},
+ {id:'sparkle',at:30,kind:'deco',n:'Étincelles',d:'Des étincelles jaillissent quand tu écris.'},
+ {id:'vert',at:40,kind:'color',n:'Plume vert forêt',d:'Une nouvelle couleur pour Plume.'},
+ {id:'glasses',at:50,kind:'acc',slot:'eyes',n:'Lunettes d\'écrivain',d:'Plume lit encore mieux tes histoires.'},
+ {id:'ribbon',at:60,kind:'deco',n:'Ruban marque-page',d:'Un joli ruban pend sur ta page.'},
+ {id:'violet',at:70,kind:'color',n:'Plume violet magique',d:'Une couleur pleine de mystère.'},
+ {id:'scarf',at:80,kind:'acc',slot:'neck',n:'Écharpe douillette',d:'Bien au chaud pour écrire l\'hiver.'},
+ {id:'crown',at:90,kind:'acc',slot:'head',n:'Couronne',d:'Pour les reines et les rois des mots.'},
+ {id:'or',at:100,kind:'color',n:'Plume dorée',d:'Les 100 trésors ! Plume devient tout en or.'},
+ {id:'arc',at:100,kind:'color',n:'Plume arc-en-ciel',d:'Les 100 trésors ! Toutes les couleurs à la fois.'}
+];
+const RANKS=[[0,'Petite graine d\'écrivain'],[5,'Apprenti·e conteur·se'],[20,'Conteur·se'],[40,'Écrivain·e'],[60,'Grand·e auteur·e'],[80,'Magicien·ne des mots'],[100,'Légende de la plume']];
+const treN=()=>stats.badges.filter(id=>BADGES.some(b=>b.id===id)).length;
+const rankOf=n=>RANKS.filter(r=>n>=r[0]).pop()[1];
+function look(){if(!prefs)return{color:'orange',acc:{},deco:{}};if(!prefs.look)prefs.look={color:'orange',acc:{},deco:{}};const L=prefs.look;L.acc=L.acc||{};L.deco=L.deco||{};return L}
+function rwOwned(r){return treN()>=r.at}
+function rwOn(r){const L=look();return r.kind==='color'?L.color===r.id:r.kind==='acc'?L.acc[r.slot]===r.id:!!L.deco[r.id]}
+function applyLook(){
+ const L=look(),n=treN(),col=PCOL[L.color]&&REWARDS.find(r=>r.id===L.color&&n>=r.at)?PCOL[L.color]:PCOL.orange;
+ const acc=['neck','eyes','head'].map(sl=>{const id=L.acc[sl],r=REWARDS.find(x=>x.id===id);return r&&n>=r.at?ACC[id]:''}).join('');
+ for(const host of [document.getElementById('plume'),document.querySelector('#plumeAv .pl-b')]){if(!host)continue;
+  const [b,s,q]=host.querySelectorAll(':scope > path');b.setAttribute('fill',col[0]);s.setAttribute('stroke',col[1]);q.setAttribute('stroke',col[2]);
+  let g=host.querySelector(':scope > .plAcc');if(!g){g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','plAcc');g.setAttribute('transform','translate(35.5 35.5) rotate(-24)');host.appendChild(g)}
+  g.innerHTML=acc}
+ for(const d of ['stars','sparkle','ribbon']){const r=REWARDS.find(x=>x.id===d);document.body.classList.toggle('deco-'+d,!!L.deco[d]&&n>=r.at)}
+ document.body.classList.toggle('plGold',(L.color==='or'||L.color==='arc')&&n>=100)}
+function equip(r,on){const L=look();if(r.kind==='color')L.color=on?r.id:'orange';else if(r.kind==='acc'){if(on)L.acc[r.slot]=r.id;else if(L.acc[r.slot]===r.id)delete L.acc[r.slot]}else L.deco[r.id]=on;LS.set('prefs',prefs);applyLook();renderRewards()}
+function rwIcon(r){
+ if(r.kind==='color'){const c=PCOL[r.id];return`<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="${c[0]}" stroke="${c[2]}" stroke-width="2"/><path d="M13 24c4-6 9-10 15-12" stroke="${c[1]}" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`}
+ if(r.kind==='acc')return`<svg viewBox="${{bow:'-9 5 18 18',hat:'-14 -29 28 28',glasses:'-12.5 -10 25 20',scarf:'-14 5 28 22',crown:'-11 -19.5 22 22'}[r.id]}">${ACC[r.id]}</svg>`;
+ if(r.id==='stars')return'<svg viewBox="0 0 40 40"><path d="M12 6l2 4.5 5 .6-3.7 3.4 1 5-4.3-2.5-4.3 2.5 1-5L5 11.1l5-.6z" fill="#ffd23f"/><path d="M27 18l1.5 3.3 3.6.4-2.7 2.5.7 3.6-3.1-1.8-3.1 1.8.7-3.6-2.7-2.5 3.6-.4z" fill="#ffb000"/><path d="M14 27l1 2.2 2.4.3-1.8 1.7.5 2.4-2.1-1.2-2.1 1.2.5-2.4-1.8-1.7 2.4-.3z" fill="#ffd23f"/></svg>';
+ if(r.id==='sparkle')return'<svg viewBox="0 0 40 40"><path d="M20 4c1.5 9 3 10.5 12 12-9 1.5-10.5 3-12 12-1.5-9-3-10.5-12-12 9-1.5 10.5-3 12-12z" fill="#ffd23f"/><path d="M31 26c.7 3.5 1.3 4.1 5 5-3.7.9-4.3 1.5-5 5-.7-3.5-1.3-4.1-5-5 3.7-.9 4.3-1.5 5-5z" fill="#ff6b4a"/></svg>';
+ return'<svg viewBox="0 0 40 40"><path d="M14 2h12v34l-6-6-6 6z" fill="#e4462b"/><path d="M14 2h12v5H14z" fill="#b8301a"/></svg>'}
+function renderRewards(){
+ const box=document.getElementById('rewards');if(!box)return;const n=treN(),next=REWARDS.find(r=>r.at>n),prev=[...REWARDS].reverse().find(r=>r.at<=n);
+ const pct=next?Math.round((n-(prev?prev.at:0))/(next.at-(prev?prev.at:0))*100):100;
+ const own=REWARDS.filter(r=>r.at>0&&n>=r.at).length,tot=REWARDS.filter(r=>r.at>0).length;
+ box.innerHTML=`<div class="rwHead"><svg class="rwAv" viewBox="0 0 64 64"><use href="#plume"/></svg><div><small>Ton titre</small><b class="f">${esc(rankOf(n))}</b>
+  <small>${next?`Prochain cadeau : <b>${esc(next.n)}</b> à ${next.at} trésors (encore ${next.at-n})`:'Tu as gagné tous les cadeaux ! Bravo !'}</small><span class="tbar"><i style="width:${pct}%"></i></span></div></div>
+  <h3 class="bgh">Mes cadeaux <small>${own} / ${tot}</small></h3><div class="rwGrid">${REWARDS.map(r=>{const ok=n>=r.at,on=ok&&rwOn(r);
+  return`<button type="button" class="rw ${ok?'':'lock'} ${on?'on':''}" data-rw="${r.id}" ${ok?`aria-pressed="${on}"`:'aria-disabled="true"'} title="${esc(r.d)}">${rwIcon(r)}<b>${esc(r.n)}</b><small>${ok?(on?(r.kind==='color'?'Choisie':r.kind==='acc'?'Porté':'Activé'):(r.kind==='color'?'Choisir':r.kind==='acc'?'Mettre':'Activer')):'À '+r.at+' trésors'}</small></button>`}).join('')}</div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('.rw[data-rw]');if(!b)return;const r=REWARDS.find(x=>x.id===b.dataset.rw);if(!r)return;
+ if(!rwOwned(r)){toast('Encore '+(r.at-treN())+' trésors pour gagner : '+r.n);return}
+ if(r.kind==='color'&&r.id==='orange'){equip(r,true);return}equip(r,!rwOn(r));plumeAnim('jump')});
+function rewardCheck(){
+ const n=treN();if(stats.tierSeen===undefined){stats.tierSeen=n;LS.set('stats',stats);
+  if(n>=5)setTimeout(()=>say({k:'Nouveau : des cadeaux !',m:`Maintenant, tes trésors te font gagner des cadeaux : des couleurs pour moi, des accessoires, des décorations… Avec tes ${n} trésors, tu en as déjà ${REWARDS.filter(r=>r.at>0&&n>=r.at).length} ! Va les essayer dans l'onglet Trésors.`,cls:'defi'}),1500);return}
+ if(n<=stats.tierSeen){return}
+ const fresh=REWARDS.filter(r=>r.at>stats.tierSeen&&r.at<=n);stats.tierSeen=n;LS.set('stats',stats);if(!fresh.length)return;
+ const L=look();for(const r of fresh){if(r.kind==='acc')L.acc[r.slot]=r.id;else if(r.kind==='deco')L.deco[r.id]=true}const cols=fresh.filter(r=>r.kind==='color');if(cols.length){const mx=Math.max(...cols.map(r=>r.at));L.color=cols.find(r=>r.at===mx).id}LS.set('prefs',prefs);applyLook();
+ const names=fresh.map(r=>r.n),list=names.length>1?names.slice(0,-1).join(', ')+' et '+names[names.length-1]:names[0];const rk=RANKS.some(x=>x[0]>0&&fresh.some(r=>r.at===x[0]))?[0,rankOf(n)]:null;
+ setTimeout(()=>{celebrate();plumeAnim('spin');say({k:'Nouveau cadeau !',m:`Avec tes ${n} trésors, tu as gagné : ${list} ! ${names.length>1?'Je les ai mis':'Je l\'ai mis'} tout de suite, tu peux changer ça dans l'onglet Trésors.${rk?` Ton nouveau titre : ${rk[1]} !`:''}`,cls:'defi'})},700)}
+/* les étincelles quand on écrit */
+let sparkT=0;ed.addEventListener('input',()=>{if(!document.body.classList.contains('deco-sparkle')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const now=Date.now();if(now-sparkT<110)return;sparkT=now;
+ const rc=caretRect();if(!rc||!rc.height)return;const s=document.createElement('i');s.className='spark';s.style.left=(rc.right+Math.random()*6-3)+'px';s.style.top=(rc.top+rc.height/2)+'px';s.style.setProperty('--dx',(Math.random()*30-15)+'px');s.style.background=['#ffd23f','#ff6b4a','#3150f0','#8a3ee8','#1b9a5a'][Math.floor(Math.random()*5)];document.body.appendChild(s);setTimeout(()=>s.remove(),800)});
+
 /* ---- onglets, fenêtres, réglages ---- */
 $$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));$$('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.t));if(b.dataset.t==='pTre')renderTre();if(b.dataset.t==='pPerso')renderChars();if(b.dataset.t==='pLieu')renderPlaces()});
 $('#toPlume').onclick=()=>$('#side').scrollIntoView({behavior:'smooth'});
@@ -4142,7 +4224,7 @@ function seg(id,val,cb){const el=$(id);el.querySelectorAll('button').forEach(b=>
 function applyPrefs(){
  const fi=fontInfo(prefs.font||'Andika');loadFont(fi[0]);
  document.documentElement.style.setProperty('--edFont',`'${fi[0]}',Andika,system-ui,sans-serif`);
- document.documentElement.style.setProperty('--edSize',Math.round((prefs.size||19)*fi[2])+'px');$('#watch').checked=prefs.watch!==false;renderCounts();applyUI();
+ document.documentElement.style.setProperty('--edSize',Math.round((prefs.size||19)*fi[2])+'px');$('#watch').checked=prefs.watch!==false;renderCounts();applyUI();try{applyLook()}catch(e){}
 }
 seg('#wAge','9-11');
 $('#wGo').onclick=()=>{prefs={name:$('#wName').value.trim(),age:$('#wAge [aria-pressed=true]').dataset.v,font:'Andika',size:19,goal:100,watch:true};fresh=false;LS.set('prefs',prefs);pushStats();applyPrefs();close('#ovWelcome');greet()};
@@ -4174,7 +4256,7 @@ function renderAll(){renderCounts();renderTre();renderNotes()}
 /* ---- démarrage ---- */
 loadStory(cur);doRoll();renderAll();
 if(!prefs){if(profile){fresh=true;open('#ovWelcome')}prefs={age:'9-11',goal:100,size:19,font:'Andika',watch:true}}
-applyPrefs();greet();initAI();if(profile){renderUserChip();bootSync();if(prefs&&prefs.tour===1)setTimeout(startTour,900)}else showLogin();
+applyPrefs();greet();initAI();if(profile){renderUserChip();bootSync();applyLook();rewardCheck();if(prefs&&prefs.tour===1)setTimeout(startTour,900)}else showLogin();
 }
 </script>
 </body>
