@@ -351,6 +351,13 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
 .toPlume{display:inline-flex;position:fixed;right:14px;bottom:14px;z-index:10;background:var(--accent);color:#fff;font-family:Fredoka;padding:0 18px;box-shadow:0 8px 20px rgba(0,0,0,.3);align-items:center;gap:6px}}
 @media(max-width:600px){.g2{grid-template-columns:minmax(0,1fr)}.chHead{flex-direction:column;align-items:flex-start}.top .tb span{display:none}.logo span{display:none}.page{padding-left:30px;background-image:repeating-linear-gradient(transparent 0 calc(var(--lh) - 2px),var(--line) calc(var(--lh) - 2px) var(--lh))}.tools .lab{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.act.reading{position:relative;overflow:hidden;pointer-events:none;display:inline-flex;align-items:center;justify-content:center;gap:.45em}
+.act.reading::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.55) 50%,transparent 80%);transform:translateX(-100%);animation:rdShine 1.1s ease-in-out infinite}
+.act.reading .rdq{width:1.05em;height:1.05em;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 3c-6 1-11 5-13 11l-2 6 2 1 2-5c2 0 5-1 7-3l-3-1 4-1c2-2 3-5 3-8z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 3c-6 1-11 5-13 11l-2 6 2 1 2-5c2 0 5-1 7-3l-3-1 4-1c2-2 3-5 3-8z'/%3E%3C/svg%3E") center/contain no-repeat;animation:rdWrite .7s ease-in-out infinite alternate;transform-origin:20% 90%}
+.act.reading .rdd{display:inline-flex;gap:.18em}.act.reading .rdd i{width:.32em;height:.32em;border-radius:50%;background:currentColor;opacity:.3;animation:rdDot 1s infinite}
+.act.reading .rdd i:nth-child(2){animation-delay:.18s}.act.reading .rdd i:nth-child(3){animation-delay:.36s}
+@keyframes rdShine{to{transform:translateX(100%)}}@keyframes rdWrite{from{transform:rotate(-14deg) translateX(-2px)}to{transform:rotate(10deg) translateX(3px)}}@keyframes rdDot{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.act.reading::after,.act.reading .rdq,.act.reading .rdd i{animation:none}}
 </style>
 </head>
 <body>
@@ -1452,7 +1459,13 @@ function help(kind,auto){
  lastLookWords=count();lastLookAt=Date.now();checkBadges();scheduleSave();
 }
 function runAI(kind,auto){help(kind,auto)}
-$$('[data-ai]').forEach(b=>b.onclick=()=>b.dataset.ai==='fautes'?checkFautes():help(b.dataset.ai));
+let aiBusy=false;
+async function withReading(b,fn){if(aiBusy)return;aiBusy=true;const html=b.innerHTML,w0=b.offsetWidth;b.style.minWidth=w0+'px';b.classList.add('reading');b.setAttribute('aria-busy','true');
+ const lab=['Plume lit','Plume relit','Plume réfléchit','Plume vérifie'];let k=0;b.innerHTML='<span class="rdq" aria-hidden="true"></span><span class="rdt">'+lab[0]+'</span><span class="rdd" aria-hidden="true"><i></i><i></i><i></i></span>';
+ const tick=setInterval(()=>{k=(k+1)%lab.length;const t=b.querySelector('.rdt');if(t)t.textContent=lab[k]},700);
+ const t0=performance.now();await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,30)));
+ try{fn()}finally{const left=1400-(performance.now()-t0);if(left>0)await new Promise(r=>setTimeout(r,left));clearInterval(tick);b.innerHTML=html;b.classList.remove('reading');b.removeAttribute('aria-busy');b.style.minWidth='';aiBusy=false}}
+$$('[data-ai]').forEach(b=>b.onclick=()=>b.dataset.ai==='fautes'?withReading(b,checkFautes):b.dataset.ai==='regard'?withReading(b,()=>help('regard')):help(b.dataset.ai));
 function wordHelp(w,prev,rep){
  const ls=LEX.ready?lexSyn(w):null,alt=ls||lookup(w,prev),info=LEX.ready?describe(w):'',hom=LEX.ready?homophones(w):[];
  if(!info&&!alt&&!hom.length)return false;
@@ -2919,7 +2932,7 @@ const R=(src,why,fix,g=1,test=null,soft=false)=>({re:new RegExp(src,'giud'),why,
 /* « de » + mot en -é : faute seulement après un verbe (« il décide de mangé ») ; « quelque chose de mouillé » est correct */
 const DE_NOUNS=new Set('envie peur besoin temps droit moyen façon heure raison plaisir permis capable prêt prête obligé obligée fini essayé arrêté décidé oublié commencé honte hâte mal'.split(' '));
 /* « Lupin les roule », « la mort les ferme » : ici « les » remplace un nom, ce n'est pas un pluriel */
-function lesPronoun(w,m){if(!/^les\s/i.test(m[0]))return false;const e=entry(w);if(!e||!finiteTenses(e).length)return false;const pw=(m.input.slice(0,m.index).match(/([\p{L}'’]+)\s*$/u)||[])[1];if(!pw)return false;const l=pw.toLowerCase();if(/^\p{Lu}/u.test(pw)||SUBJ_P[l]!=null||['qui','ne','que','me','te','se','nous','vous'].includes(l))return true;const pe=entry(l);return!!pe&&pe.r.some(r=>r.c==='N')&&!pe.r.some(r=>['P','D','V','X'].includes(r.c))}
+function lesPronoun(w,m){if(!/^les\s/i.test(m[0]))return false;const e=entry(w);if(!e||!finiteTenses(e).length)return false;const pw=(m.input.slice(0,m.index).match(/([\p{L}'’]+)\s*$/u)||[])[1];if(!pw)return false;const l=pw.toLowerCase();{const nw=(m.input.slice(m.index+m[0].length).match(/^\s+([\p{L}'’]+)/u)||[])[1],ne=nw&&entry(nw);if(ne&&finiteTenses(ne).length&&/nt$/.test(nw)&&!ne.r.some(r=>['N','A','D','P','p','r','a','C'].includes(r.c)))return false}if(/^\p{Lu}/u.test(pw)&&(!entry(l)||entry(l).r.every(r=>r.c==='N'))&&!TIMEN.has(l)||SUBJ_P[l]!=null||['qui','ne','que','me','te','se','nous','vous'].includes(l))return true;const pe=entry(l);return!!pe&&pe.r.some(r=>r.c==='N')&&!pe.r.some(r=>['P','D','V','X'].includes(r.c))}
 function deOk(m){const s=m.input.slice(0,m.index+m[0].length-m[1].length);if(!/(^|[^\p{L}])(de|d['’])\s*$/iu.test(s))return true;const pw=(s.replace(/(de|d['’])\s*$/i,'').match(/([\p{L}'’]+)\s*$/u)||[])[1];if(!pw)return false;const l=pw.toLowerCase();if(DE_NOUNS.has(l))return true;const e=entry(l);return!!e&&e.r.some(r=>r.c==='V'||r.c==='X')&&!e.r.some(r=>r.c==='N'||r.c==='A'||r.c==='D'||r.c==='P'||r.c==='p')}
 const RULES=[
  R(`(?<![${L}'’])(?:ils|elles)\\s+(on)(?![${L}])`,'Avec « ils » ou « elles », on écrit « ont » : c\'est le verbe avoir.',()=>'ont'),
@@ -2928,9 +2941,9 @@ const RULES=[
  R(`(?<![${L}'’])(?<!(?:sur|avec|pour|chez|à|de|contre|sans|vers|derrière|devant|entre|comme|qu['’]|que|et|ou|ni|moi|lui|en|dans|par|sous|envers|après|avant|malgré|selon)\\s+)(?:il|elle|on|c['’])\\s*(et)(?![${L}])`,'Ici, c\'est le verbe être : « est ». Astuce : on peut dire « était ».',()=>'est',1,(w,m)=>{const nx=(m.input.slice(m.index+m[0].length).match(/^\s*([\p{L}'’]+)/u)||[])[1];if(!nx)return true;const l=nx.toLowerCase();if(/^(l['’]|le|la|les|lui|leur|me|m['’]|te|t['’]|se|s['’]|nous|vous|y|en)$/.test(l))return false;const e=entry(l);return!(e&&finiteTenses(e).length&&!e.r.some(r=>r.c==='A'||r.c==='N'||(r.c==='V'&&tags(r).includes('par:pas'))))}),
  R(`(?<![${L}'’]|(?:il|elle|on|qui|y|ça|cela|n['’]|elle)\\s)(a)(?=\\s+(?:la|le|les|l['’]|cause|côté|cote|travers|peine|nouveau|bientôt|demain|droite|gauche|pied|cheval|minuit|midi|moi|toi|lui|eux|nouveau|jamais)(?![${L}]))`,'Ici, c\'est peut-être « à » avec un accent. Astuce : si on ne peut pas dire « avait », on écrit « à ».',()=>'à',1,(w,m)=>{const pw=(m.input.slice(0,m.index).match(/([\p{L}'’]+)\s*$/u)||[])[1];if(!pw||/^\p{Lu}/u.test(pw))return false;const e=entry(pw.toLowerCase());return!!e&&e.r.some(r=>r.c==='V'||r.c==='X')&&!e.r.some(r=>r.c==='N'||r.c==='A'||r.c==='p'||r.c==='D')}),
  R(`(?<![${L}'’])(sa)(?=\\s*(?:[,.!?]|(?:va|fait|marche|suffit|dépend|ressemble|sent|me|m['’]|te|t['’]|ne|n['’]|y|alors)(?![${L}])))`,'Ici, on écrit « ça » (qui veut dire « cela »). « sa » s\'utilise devant un nom : sa maison.',t=>t[0]==='S'?'Ça':'ça'),
- R(`(?<![${L}])(quant)(?=\\s+(?:il|elle|on|je|j['’]|tu|nous|vous|ils|elles|le|la|les|un|une|soudain)(?![${L}]))`,'Pour parler du moment, on écrit « quand » : quand il arrive.',t=>t[0]==='Q'?'Quand':'quand'),
- R(`(?<![${L}'’])(?:a|ai|as|avons|avez|ont|avait|avais|avaient|aura|est|sont|était|étais|étaient|suis|es|été)\\s+(${L}{2,}er)(?![${L}])`,'Après « a » ou « est », on écrit souvent « é ». Astuce : remplace par « vendu ». Si ça marche, c\'est « é ».',t=>t.slice(0,-2)+'é',1,(w,m)=>!(/^(est|sont|était|étais|étaient|suis|es|été)\s/i.test(m[0])&&(entry(w)||{r:[]}).r.some(r=>r.c==='N'))&&!ER_EXC.has(norm(w))&&(!LEX.ready||lexInf(w))),
- R(`(?<![${L}'’])(?:(?:pour|de|sans|va|vais|vas|vont|allons|allez|aller|veut|veux|voulait|voulais|peut|peux|pouvait|pouvais|doit|dois|devait|faut|fallait|aime|aimait|adore|adorait|sait|savait)\\s+|d['’])(${L}{2,}é)(?![${L}])`,'Après « pour » ou « va », le verbe reste à l\'infinitif, en « er ». Astuce : remplace par « vendre ».',t=>(LEX.ready&&lexPart(t))||t.slice(0,-1)+'er',1,(w,m)=>deOk(m)&&!E_EXC.has(norm(w))&&(!LEX.ready||!!lexPart(w))),
+ R(`(?<![${L}])(quant)(?!\\s+(?:à|au|aux|a)(?![${L}]))(?=\\s+(?:il|elle|on|je|j['’]|tu|nous|vous|ils|elles|le|la|les|l['’]|un|une|soudain|mon|ma|mes|ton|ta|tes|son|sa|ses|notre|nos|votre|vos|leur|leurs|ce|cet|cette|ces|tout|toute|tous|\\p{Lu}[${L}]+)(?![${L}]))`,'Pour parler du moment, on écrit « quand » : quand il arrive.',t=>t[0]==='Q'?'Quand':'quand'),
+ R(`(?<![${L}'’])(?:a|ai|as|avons|avez|ont|avait|avais|avaient|aura|est|sont|sommes|êtes|était|étais|étaient|suis|es|été)\\s+(${L}{2,}er)(?![${L}])`,'Après « a » ou « est », on écrit souvent « é ». Astuce : remplace par « vendu ». Si ça marche, c\'est « é ».',t=>t.slice(0,-2)+'é',1,(w,m)=>!(/^(est|sont|était|étais|étaient|suis|es|été)\s/i.test(m[0])&&(entry(w)||{r:[]}).r.some(r=>r.c==='N'))&&!ER_EXC.has(norm(w))&&(!LEX.ready||lexInf(w))),
+ R(`(?<![${L}'’])(?:(?:pour|de|sans|va|vais|vas|vont|allons|allez|aller|allait|allaient|veut|veux|voulons|voulez|veulent|voulait|voulais|voulaient|peut|peux|pouvons|pouvez|peuvent|pouvait|pouvais|pouvaient|doit|dois|devons|devez|doivent|devait|devaient|faut|fallait|aime|aimes|aimons|aimez|aiment|aimait|adore|adorait|sait|savait|savent)\\s+|d['’])(${L}{2,}é)(?![${L}])`,'Après « pour » ou « va », le verbe reste à l\'infinitif, en « er ». Astuce : remplace par « vendre ».',t=>(LEX.ready&&lexPart(t))||t.slice(0,-1)+'er',1,(w,m)=>deOk(m)&&!E_EXC.has(norm(w))&&(!LEX.ready||!!lexPart(w))),
  R(`(?<![${L}'’])(?:les|des|ses|mes|tes|ces|nos|vos|leurs|plusieurs|quelques|deux|trois|quatre|cinq|six|sept|huit|dix|cent|mille)\\s+(${L}{2,})(?![${L}'’-])`,'Après « les », « des » ou un nombre, le nom se met au pluriel (souvent avec un « s »).',t=>(LEX.ready&&lexPlural(t))||plural(t),1,(w,m)=>!lesPronoun(w,m)&&(LEX.ready?(!!lexPlural(w)&&!(entry(w)?.r.some(r=>r.c==='V'&&tags(r).includes('par:pas')))):(NOUNSET.has(norm(w))&&!/[sxz]$/i.test(w)))),
  R(`(?<![${L}])(${L}+)\\s+\\1(?![${L}])`,'Ce mot est écrit deux fois de suite.',(t,m)=>m[1],0,(w,m)=>!['nous','vous','faire','si','très','beaucoup','tout'].includes(norm(m[1]))),
  R(`(?<=\\.\\s+)(\\p{Ll}[\\p{L}'’]*)`,'Après un point, la phrase commence par une majuscule.',t=>cap(t),1,(w,m)=>capAfterOk(w,m)),
@@ -2964,25 +2977,29 @@ function scanAll(root){const SR=root||ed;SCANROOT=SR;try{
   const tw2=document.createTreeWalker(bl,NodeFilter.SHOW_TEXT);let ln=null,n2;while(n2=tw2.nextNode())if(n2.data.trim())ln=n2;if(!ln)continue;const m2=/([\p{L}\p{N}'’-]+)\s*$/u.exec(ln.data);if(!m2)continue;
   const s2=m2.index,w2=m2[1];if(out.some(x=>x.node===ln&&x.e>s2))continue;out.push({node:ln,s:s2,e:s2+w2.length,wrong:w2,fix:w2+'.',alts:[w2+' !',w2+' ?'],why:'Il manque un point à la fin de ta phrase. Une phrase se termine par un point, un « ! » ou un « ? ».'})}}
  for(const g of grammarLex(names))if(!out.some(x=>x.node===g.node&&x.s<g.e&&g.s<x.e))out.push(g);
- {const g=[];const tw3=document.createTreeWalker(SR,NodeFilter.SHOW_TEXT);let n3;while(n3=tw3.nextNode()){if(n3.data.trim())ctxPass(n3,n3.data,g)}for(const x of g)if(!out.some(y=>y.node===x.node&&y.s<x.e&&x.s<y.e))out.push(x)}
+ {const g=[];const tw3=document.createTreeWalker(SR,NodeFilter.SHOW_TEXT);let n3;while(n3=tw3.nextNode()){if(n3.data.trim())ctxPass(n3,n3.data,g,out)}for(const x of g)if(!out.some(y=>y.node===x.node&&y.s<x.e&&x.s<y.e))out.push(x)}
  return out;}finally{SCANROOT=null}
 }
 /* deuxième lecture : Plume corrige en pensée les fautes trouvées, puis relit toute la phrase pour trouver ce qui restait caché (le sujet, les accords…) */
-function deepScan(){const first=scanAll();if(!LEX.ready)return first;
- const hard=first.filter(x=>!x.soft&&typeof x.fix==='string'&&x.fix);if(!hard.length)return first;
+function deepScan(maxPass){const first=scanAll();deepScan.passes=1;if(!LEX.ready)return first;
+ const isHard=x=>!x.soft&&typeof x.fix==='string'&&x.fix;if(!first.some(isHard))return first;
  const clone=ed.cloneNode(true);clone.removeAttribute('id');clone.setAttribute('aria-hidden','true');clone.removeAttribute('contenteditable');clone.style.cssText='position:absolute;left:-99999px;top:0;width:'+Math.max(300,ed.clientWidth)+'px';document.body.appendChild(clone);
+ const all=first.slice();
  try{const walk=r=>{const a=[],tw=document.createTreeWalker(r,NodeFilter.SHOW_TEXT);let n;while(n=tw.nextNode())a.push(n);return a};const O=walk(ed),Cn=walk(clone);if(O.length!==Cn.length)return first;
-  const maps=new Map();
-  O.forEach((n,k)=>{const L=hard.filter(x=>x.node===n).sort((a,b)=>a.s-b.s);if(!L.length)return;let out='',pos=0,end=-1;const seg=[];
-   for(const x of L){if(x.s<end)continue;out+=n.data.slice(pos,x.s);const ns=out.length;out+=x.fix;seg.push({os:x.s,oe:x.e,ns,ne:out.length});pos=x.e;end=x.e}
-   out+=n.data.slice(pos);Cn[k].data=out;maps.set(Cn[k],seg)});
-  const second=scanAll(clone),extra=[];
-  for(const x of second){const k=Cn.indexOf(x.node);if(k<0)continue;const seg=maps.get(x.node)||[];let shift=0,bad=false;
-   for(const sg of seg){if(x.s<sg.ne&&sg.ns<x.e){bad=true;break}if(sg.ne<=x.s)shift+=(sg.oe-sg.os)-(sg.ne-sg.ns)}if(bad)continue;
-   const orig=O[k],s=x.s+shift,e=x.e+shift;if(orig.data.slice(s,e)!==x.wrong)continue;
-   if(first.some(y=>y.node===orig&&y.s<e&&s<y.e)||extra.some(y=>y.node===orig&&y.s<e&&s<y.e))continue;
-   extra.push(Object.assign({},x,{node:orig,s,e,deep:true}))}
-  return first.concat(extra)}catch(err){console.warn(err);return first}finally{clone.remove()}}
+  /* Plume relit le texte encore et encore : à chaque lecture, il applique en pensée toutes les corrections déjà trouvées, puis relit pour voir si d'autres mots n'ont plus de sens. */
+  for(let pass=2;pass<=(maxPass||8);pass++){
+   const maps=new Map();
+   O.forEach((n,k)=>{const L=all.filter(x=>x.node===n&&isHard(x)).sort((a,b)=>a.s-b.s);let out='',pos=0,end=-1;const seg=[];
+    for(const x of L){if(x.s<end)continue;out+=n.data.slice(pos,x.s);const ns=out.length;out+=x.fix;seg.push({os:x.s,oe:x.e,ns,ne:out.length});pos=x.e;end=x.e}
+    out+=n.data.slice(pos);Cn[k].data=out;maps.set(Cn[k],seg)});
+   const again=scanAll(clone);deepScan.passes=pass;let found=0;
+   for(const x of again){const k=Cn.indexOf(x.node);if(k<0)continue;const seg=maps.get(x.node)||[];let shift=0,bad=false;
+    for(const sg of seg){if(x.s<sg.ne&&sg.ns<x.e){bad=true;break}if(sg.ne<=x.s)shift+=(sg.oe-sg.os)-(sg.ne-sg.ns)}if(bad)continue;
+    const orig=O[k],s=x.s+shift,e=x.e+shift;if(orig.data.slice(s,e)!==x.wrong)continue;
+    if(all.some(y=>y.node===orig&&y.s<e&&s<y.e))continue;
+    all.push(Object.assign({},x,{node:orig,s,e,deep:pass}));if(isHard(x))found++}
+   if(!found)break}
+  return all}catch(err){console.warn(err);return all}finally{clone.remove()}}
 function locate(it){const fresh=deepScan().filter(f=>f.wrong===it.wrong&&f.fix===it.fix);if(!fresh.length)return null;const same=fresh.filter(f=>f.node===it.node);return(same.length?same:fresh).sort((a,b)=>Math.abs(a.s-it.s)-Math.abs(b.s-it.s))[0]}
 function selectIssue(f){const r=document.createRange();r.setStart(f.node,f.s);r.setEnd(f.node,f.e);ed.focus();const s=getSelection();s.removeAllRanges();s.addRange(r);savedRange=r.cloneRange();f.node.parentElement?.scrollIntoView({block:'center',behavior:'smooth'})}
 function checkFautes(){
@@ -2991,7 +3008,7 @@ function checkFautes(){
  if(!a.n){say({m:'Ta page est encore vide ! Écris quelques phrases et je les lirai.'});return}
  const names=charNames().filter(n=>t.includes(n)),ns=a.sent.length||1;
  say({k:'Lecture de Plume',m:`J'ai lu toute ton histoire : ${a.n} mots et ${ns} phrase${ns>1?'s':''}.`+(names.length?` J'y ai croisé ${names.join(', ')}.`:'')+' '+compliment(a)});
- const iss=deepScan().filter(x=>!x.soft);if(LEX.ready&&iss.some(x=>{const a=entry(x.wrong),b=entry(String(x.fix||'').split(' ')[0]);return a&&b&&a.ph&&a.ph===b.ph&&a!==b})){stats.homSeen=1;bump('_x',0)}
+ const iss=deepScan(12).filter(x=>!x.soft);const reads=deepScan.passes||1;if(reads>1)say({k:'Relecture',m:`J'ai relu ton histoire ${reads} fois : à chaque lecture, je regarde chaque mot avec celui d'avant et celui d'après, et je vérifie que la phrase garde son sens.`});if(LEX.ready&&iss.some(x=>{const a=entry(x.wrong),b=entry(String(x.fix||'').split(' ')[0]);return a&&b&&a.ph&&a.ph===b.ph&&a!==b})){stats.homSeen=1;bump('_x',0)}
  if(!iss.length&&a.n>=50)stats.zeroFaute=1;
  if(!iss.length){say({k:'Super !',m:'Je n\'ai trouvé aucune des fautes que je connais. Bravo ! Si ton ordinateur souligne un mot en rouge, vérifie-le quand même.',cls:'defi'});checkBadges();return}
  const self=!!prefs?.selfFix,show=iss.slice(0,8),el=document.createElement('div');el.className='msg';
@@ -3474,6 +3491,8 @@ feed.addEventListener('click',e=>{const b=e.target.closest('.cjb');if(b)openConj
 const SUBW=new Set(['que',"qu'",'qui','dont','où','si','quand','lorsque','comme','parce','puisque','auquel','auxquels','auxquelles','lequel','laquelle','lesquels','lesquelles','duquel','quoi','quoique','sans']);
 const CLAUSEW=new Set(['et','mais','ou','donc','car','puis','alors','que',"qu'",'quand','lorsque','si','comme','où','dont','pourquoi','parce','puisque','ensuite','enfin','soudain','aussi','pendant','tandis','bien','afin']);
 const SUBJ_P={je:0,"j'":0,tu:1,il:2,elle:2,on:2,nous:3,vous:4,ils:5,elles:5};
+const DETG={le:'m',un:'m',ce:'m',cet:'m',mon:'m',ton:'m',son:'m',du:'m',au:'m',la:'f',une:'f',cette:'f',ma:'f',ta:'f',sa:'f'};
+const DETSW={le:'la',la:'le',un:'une',une:'un',ce:'cette',cet:'cette',cette:'ce',mon:'ma',ma:'mon',ton:'ta',ta:'ton',son:'sa',sa:'son',du:'de la',au:'à la'};
 const DET_S=new Set("le la l' un une ce cet cette mon ton son ma ta sa notre votre".split(' ')),DET_P=new Set("les des ces mes tes ses nos vos leurs plusieurs quelques deux trois quatre cinq six sept huit neuf dix".split(' '));
 const PREPS=new Set('avec pour sans chez à contre entre vers derrière devant sur sous par selon envers près de du comme dans en au aux après avant depuis pendant parmi malgré jusque hors dès travers autour auprès loin lors grâce durant outre voici voilà'.split(' '));
 const ADVW=new Set('ne pas plus jamais très si trop tout toute tous toutes bien vraiment assez aussi tellement déjà encore toujours vite fort peu plutôt presque moins'.split(' '));
@@ -3533,7 +3552,7 @@ function grammarLex(names){
    let pairBad=false;
    const nextVerb=k=>{while(k<T.length&&(SKIPW.has(T[k].w.toLowerCase().replace(/’/g,"'"))||/^l['’]$/i.test(T[k].w)))k++;return k};
    const clauseStart=i===0||/[.;:!?«»—–()]/.test(d.slice(T[i-1].e,t.s))||(CLAUSEW.has(pv)&&!['que',"qu'"].includes(pv));
-   if(sp!=null&&!(lw==='on'&&plSubjBefore(i-1))&&!PREPS.has(pv)&&!['de',"d'",'à'].includes(pv)&&!((lw==='nous'||lw==='vous')&&!clauseStart)&&!((lw==='nous'||lw==='vous')&&SUBJ_P[pv]!=null)&&!(lw==='elle'&&pv==='et')&&!(T[i+1]&&T[i+1].w.toLowerCase()==='et')){
+   if(sp!=null&&!(lw==='on'&&(i>0&&gapOk(T[i-1],t)&&plSubjBefore(i-1)||T[i+1]&&gapOk(t,T[i+1])&&(e1=>e1&&e1.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&!e1.r.some(r=>['p','P','D','a','r','C','O'].includes(r.c))&&!fits(e1,2))(entry(T[i+1].w))))&&!PREPS.has(pv)&&!['de',"d'",'à'].includes(pv)&&!((lw==='nous'||lw==='vous')&&!clauseStart)&&!((lw==='nous'||lw==='vous')&&SUBJ_P[pv]!=null)&&!(lw==='elle'&&pv==='et')&&!(T[i+1]&&T[i+1].w.toLowerCase()==='et')){
     let k=i+1;while(k<T.length&&(SKIPW.has(T[k].w.toLowerCase().replace(/’/g,"'"))||/^l['’]$/i.test(T[k].w)||((lw==='nous'||lw==='vous')&&T[k].w.toLowerCase()===lw)))k++;
     const vt=T[k];if(vt&&gapOk(t,vt)&&!/^\p{Lu}/u.test(vt.w)&&!/['’]$/.test(vt.w)&&!(vt.w.toLowerCase()==='puis'&&lw!=='je')&&!(k>i+1&&['la','ma','ta'].includes(T[k-1].w.toLowerCase())&&(entry(vt.w)||{r:[]}).r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&!finiteTenses(entry(vt.w)).length)){const ve=entry(vt.w);
      if(ve&&ve.r.some(r=>r.c==='V'||r.c==='X')&&!((lw==='nous'||lw==='vous')&&!finiteTenses(ve).length)){
@@ -3553,11 +3572,11 @@ function grammarLex(names){
    }
    /* le groupe du nom : les petits chats, un enfant */
    if((DET_S.has(lw)||DET_P.has(lw))&&!(T[i+1]&&['peu','des','de',"d'"].includes(T[i+1].w.toLowerCase()))&&!(['les','la','le'].includes(lw)&&T[i+1]&&(e1=>e1&&e1.r.some(r=>r.c==='V'&&tags(r).includes('inf'))&&(PREPS.has(pv)||['de',"d'",'à','pour'].includes(pv)||(entry(pv)||{r:[]}).r.some(r=>r.c==='V'||r.c==='X')))(entry(T[i+1].w)))&&!(['les','le','la'].includes(lw)&&i>0&&(SUBJ_P[pv]!=null||['qui','que',"qu'",'ne',"n'"].includes(pv)))&&!(lw==='leur'&&i>0&&SUBJ_P[pv]!=null)&&!(lw==='son'&&(plSubjBefore(i-1)||SUBJ_P[pv]!=null))){
-    const pl=DET_P.has(lw);let k=i+1,seenN=false;const NP=[];if(lw==='les'&&T[i+1]&&(e1=>e1&&finiteTenses(e1).length)(entry(T[i+1].w))&&i>0&&(/^\p{Lu}/u.test(T[i-1].w)||(entry(pv)||{r:[]}).r.some(r=>r.c==='N'||r.c==='A')))k=99;
+    const pl=DET_P.has(lw);let k=i+1,seenN=false;const NP=[];if(lw==='les'&&T[i+1]&&(e1=>e1&&finiteTenses(e1).length)(entry(T[i+1].w))&&i>0&&((/^\p{Lu}/u.test(T[i-1].w)&&(names.has(norm(T[i-1].w))||!entry(T[i-1].w.toLowerCase())||entry(T[i-1].w.toLowerCase()).r.every(r=>r.c==='N')))||(entry(pv)||{r:[]}).r.some(r=>r.c==='N'||r.c==='A')&&!TIMEN.has(pv)&&!["aujourd'hui",'hier','demain','soudain','ensuite','enfin','alors'].includes(pv)))k=99;
     while(k<T.length&&k<=i+3){const w=T[k],e=entry(w.w);if(!e||!gapOk(T[k-1],w)||/^\p{Lu}/u.test(w.w)||ADVW.has(w.w.toLowerCase()))break;if(e.r.some(r=>['a','p','r','P','C'].includes(r.c)))break;if(e.r.some(r=>(r.c==='V'||r.c==='X')&&(r.l==='être'||r.l==='avoir')))break;const hasN=e.r.some(r=>r.c==='N'),hasA=e.r.some(r=>r.c==='A');if(!hasN&&!hasA)break;if(e.r.some(r=>r.c==='V'||r.c==='X')&&!hasN)break;
      if(pl){const p2=lexPlural(w.w);if(p2&&p2!==w.w.toLowerCase())NP.push({node,s:w.s,e:w.e,wrong:w.w,fix:/^\p{Lu}/u.test(w.w)?cap(p2):p2,why:`Après « ${t.w} », c'est au pluriel : le ${hasN&&!hasA?'nom':'mot'} prend souvent un « s » (ou un « x »).`})}
      else if(['un','le','mon','ton','son','ce','cet','une','la','ma','ta','sa','cette'].includes(lw)){const s2=lexSingular(w.w);if(s2&&s2!==w.w.toLowerCase())NP.push({node,s:w.s,e:w.e,wrong:w.w,fix:/^\p{Lu}/u.test(w.w)?cap(s2):s2,why:`Après « ${t.w} », il n'y en a qu'un : le mot reste au singulier, sans « s ».`})}
-     const nE=T[k+1]&&gapOk(w,T[k+1])&&entry(T[k+1].w),asAdj=hasA&&!seenN&&!!nE&&nE.r.some(r=>r.c==='N')&&!nE.r.some(r=>['a','p','r','P','C','D'].includes(r.c));
+     const nE=T[k+1]&&gapOk(w,T[k+1])&&entry(T[k+1].w),asAdj=hasA&&!seenN&&!!nE&&nE.r.some(r=>r.c==='N')&&!nE.r.some(r=>['a','p','r','P','C','D'].includes(r.c))&&!(hasN&&nE.r.some(r=>r.c==='V'||r.c==='X')&&!/(ions|iez|ons|ez)$/.test(T[k+1].w)&&!PRENOM.has(w.w.toLowerCase()));
      if(hasN&&!asAdj&&!(hasA&&seenN)){if(seenN)break;seenN=true;if(/^(fois|heures?|jours?|minutes?|secondes?|ans|années?|mois|semaines?|instants?|moments?)$/i.test(w.w))break}k++;if(seenN&&!(T[k]&&entry(T[k].w)?.r.some(r=>r.c==='A')))break}
     if(seenN)out.push(...NP);
    }
@@ -3569,16 +3588,72 @@ function grammarLex(names){
       if(ve&&ve.r.some(r=>r.c==='V'||r.c==='X')&&!PREPS.has(vt.w.toLowerCase())&&(!ve.r.some(r=>r.c==='A'||r.c==='P'||r.c==='D'||r.c==='N')||ve.r.some(r=>r.l==='être'||r.l==='avoir'))){const pi=DET_P.has(lw)?5:2;agreeIssue(out,node,vt,ve,pi,t.w+' '+n1.w,false);
        /* … et l'adjectif après « être » : les enfants sont contents */
        if(fits(ve,pi)&&ve.r.some(r=>r.l==='être')){let k2=k+1;while(k2<T.length&&ADVW.has(T[k2].w.toLowerCase()))k2++;const w2=T[k2];
-        if(w2&&gapOk(vt,w2)&&!/^\p{Lu}/u.test(w2.w)){const e2=entry(w2.w),NR=ne.r.filter(r=>r.c==='N'),gN=NR.some(r=>r.g==='f')&&!NR.some(r=>r.g==='m')?'f':NR.some(r=>r.g==='m')&&!NR.some(r=>r.g==='f')?'m':'',fx=gN&&e2&&agreeAdjGN(e2,gN,pi===5?'p':'s');
+        if(w2&&gapOk(vt,w2)&&!/^\p{Lu}/u.test(w2.w)){const e2=entry(w2.w),NR=ne.r.filter(r=>r.c==='N'),gN=NR.some(r=>r.g==='f')&&!NR.some(r=>r.g==='m')?'f':NR.some(r=>r.g==='m')&&!NR.some(r=>r.g==='f')?'m':(DETG[lw]&&!['mon','ton','son'].includes(lw)?DETG[lw]:''),fx=gN&&e2&&agreeAdjGN(e2,gN,pi===5?'p':'s');
          if(fx&&fx!==w2.w.toLowerCase())out.push({node,s:w2.s,e:w2.e,wrong:w2.w,fix:fx,why:`Après « ${t.w} ${n1.w} ${vt.w} », ce mot s'accorde avec « ${n1.w} » (${gN==='f'?'féminin':'masculin'} ${pi===5?'pluriel':'singulier'}).`})}}}}}
    }
    /* ma / m'a, ta / t'a, la / l'a : il m'a donné, il t'a vu, il l'a mangé */
-   if(['ma','ta','la'].includes(lw)&&T[i+1]&&gapOk(t,T[i+1])){const ne=entry(T[i+1].w);const subjB=SUBJ_P[pv]!=null||pv==='ne'||pv==="n'";if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&(subjB||!ne.r.some(r=>r.c==='N'||r.c==='D'||r.c==='P'))&&(lw!=='la'||subjB)&&!/s$/.test(T[i+1].w)){
+   if(['ma','ta','la'].includes(lw)&&T[i+1]&&gapOk(t,T[i+1])){const ne=entry(T[i+1].w);const subjB=SUBJ_P[pv]!=null||pv==='ne'||pv==="n'"||(i>0&&gapOk(T[i-1],t)&&!CTX_FW.has(pv)&&(/^\p{Lu}/u.test(T[i-1].w)&&i>0||(entry(pv)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(pv)||{r:[]}).r.some(r=>['V','X','P','D'].includes(r.c))));if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&(subjB||!ne.r.some(r=>r.c==='N'||r.c==='D'||r.c==='P'))&&(lw!=='la'||subjB)&&!/s$/.test(T[i+1].w)){
     const ap=lw[0]+"'a";out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?cap(ap):ap,why:`Devant « ${T[i+1].w} », c'est le verbe avoir : « ${ap} » (on peut dire « ${lw[0]}'avait »). « ${lw} » s'utilise devant un nom : ${lw} maison.`})}}
+   /* « Ce matin le lapin… » : un mot de temps mal écrit (marin → matin) */
+   if(['ce','cet','cette'].includes(lw)&&T[i+1]&&T[i+2]&&gapOk(t,T[i+1])&&(DET_S.has(T[i+2].w.toLowerCase())||DET_P.has(T[i+2].w.toLowerCase())||SUBJ_P[T[i+2].w.toLowerCase()]!=null||/^\p{Lu}/u.test(T[i+2].w))&&(i===0||/[.!?;:]/.test(d.slice(T[i-1].e,t.s)))){
+    const x=T[i+1].w.toLowerCase(),TL=lw==='cette'?['nuit','année','semaine','fois','journée','soirée','matinée','saison']:['matin','soir','jour','midi','week-end','après-midi','été','hiver','printemps','automne','moment','mois','an'];
+    const TALL=['matin','soir','jour','midi','week-end','après-midi','été','hiver','printemps','automne','moment','mois','an','nuit','année','semaine','fois','journée','soirée','matinée','saison'];if(!TALL.includes(x)){const best=TL.map(c=>[c,dist(stripAcc(x),stripAcc(c),2)]).filter(z=>z[1]<=(z[0].length<=4?1:2)).sort((a,b)=>a[1]-b[1])[0];
+     if(best)out.push({node,s:T[i+1].s,e:T[i+1].e,wrong:T[i+1].w,fix:best[0],why:`Au début de la phrase, « ${t.w} ${best[0]} » dit quand ça se passe. Tu voulais sans doute écrire « ${best[0]} » (avec « ${x} », la phrase n'a pas de sens).`})}}
+   /* « Le lapin ce lave » : devant un verbe, après le sujet, c'est « se » */
+   if(lw==='ce'&&i>0&&T[i+1]&&gapOk(T[i-1],t)&&gapOk(t,T[i+1])){const pe=entry(T[i-1].w),ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).some(x=>/^ind:pre:3s/.test(x)||x==='ind:pre:3s'||/^ind:/.test(x)))&&!TIMEN.has(T[i+1].w.toLowerCase())&&(!ne.r.some(r=>r.c==='N')||!T[i+2]||!gapOk(T[i+1],T[i+2])||(entry(T[i+2].w)||{r:[]}).r.some(r=>['D','P','p','r','a'].includes(r.c)))&&!ne.r.some(r=>['être','avoir','pouvoir','devoir','sembler','paraître','faire','aller','venir'].includes(r.l))&&(/^\p{Lu}/u.test(T[i-1].w)&&i>0&&!/[.!?;:…«»—–]/.test(d.slice(T[i-1].e>0?(T[i-2]?T[i-2].e:0):0,T[i-1].s))&&!(pe&&pe.r.some(r=>['C','P','D','p','r','a','V','X'].includes(r.c)))||pe&&pe.r.some(r=>r.c==='N')&&(!pe.r.some(r=>r.c==='V'||r.c==='X')||i>1&&(DET_S.has(T[i-2].w.toLowerCase())||DET_P.has(T[i-2].w.toLowerCase())||(entry(T[i-2].w)||{r:[]}).r.some(r=>r.c==='A')&&!(entry(T[i-2].w)||{r:[]}).r.some(r=>r.c==='V'))))&&!PREPS.has(T[i-1].w.toLowerCase())){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'se',why:`Devant le verbe « ${T[i+1].w} », c'est « se » (il se lave, elle se cache). « ce » s'utilise devant un nom : ce livre.`});continue}}
+   /* le déterminant s'accorde avec le nom : « le lapin », « la carotte », « un chat », « une souris » */
+   if(DETG[lw]&&pv!=='tout'&&T[i+1]&&gapOk(t,T[i+1])&&!/^\p{Lu}/u.test(T[i+1].w)&&!(['la','le'].includes(lw)&&(SUBJ_P[pv]!=null||['ne',"n'",'me','te','se','nous','vous'].includes(pv)))){
+    let k=i+1,adj=[];while(k<T.length&&k<=i+3&&gapOk(T[k-1],T[k])){const ek=entry(T[k].w);if(!ek)break;if(ek.r.some(r=>r.c==='N'&&r.g===DETG[lw]))break;if(ek.r.some(r=>r.c==='A')&&T[k+1]&&gapOk(T[k],T[k+1])&&(entry(T[k+1].w)||{r:[]}).r.some(r=>r.c==='N'&&r.g===DETG[lw])&&!(entry(T[k+1].w)||{r:[]}).r.some(r=>['X','D','P','p','r','a','C'].includes(r.c))){adj.push(k);k++;continue}if(ek.r.some(r=>r.c==='N')&&!(ek.r.some(r=>r.c==='A')&&T[k+1]&&gapOk(T[k],T[k+1])&&(entry(T[k+1].w)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(T[k+1].w)||{r:[]}).r.some(r=>['V','X','D','P','p','r','a','C'].includes(r.c))))break;if(ek.r.some(r=>r.c==='A')&&!ek.r.some(r=>['V','X','P','p','r','a','C'].includes(r.c))){adj.push(k);k++;continue}k=-1;break}
+    const nt=k>0&&T[k],ne=nt&&!/-/.test(nt.w)&&!/^-/.test(d.slice(nt.e,nt.e+1))&&entry(nt.w);
+    if(ne&&ne.r.some(r=>r.c==='N')&&!ne.r.some(r=>['D','P','p','r','a','C'].includes(r.c))&&!names.has(norm(nt.w))){
+     const NR=ne.r.filter(r=>r.c==='N'),g=NR.every(r=>r.g==='m')?'m':NR.every(r=>r.g==='f')?'f':'';
+     const dg=DETG[lw],vow=/^[aeiouyhéèêàâîôûœ]/i.test(T[i+1].w);
+     if(g&&dg!==g&&!(vow&&['mon','ton','son'].includes(lw))&&!(nt.w.toLowerCase()!==nt.w)&&ne.f>=20){
+      let fx=DETSW[lw];if(lw==='ce'&&g==='m')fx='ce';if(g==='m'&&['cette'].includes(lw))fx=vow?'cet':'ce';if(g==='f'&&['mon','ton','son'].includes(lw)&&vow)fx=null;
+      if(g==='m'&&lw==='la')fx=vow?"l'":'le';if(g==='f'&&lw==='le')fx=vow?"l'":'la';
+      if(fx&&fx!==lw)out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?cap(fx):fx,why:`« ${nt.w} » est ${g==='m'?'masculin':'féminin'} : on dit « ${fx} ${nt.w} » (${g==='m'?'un':'une'} ${nt.w}).`})}
+    }
+   }
+   /* « ça » devant un nom : c'est « sa » (sa carotte) */
+   if(lw==='ça'&&T[i+1]&&gapOk(t,T[i+1])&&!(i===0||/[.!?;:]/.test(d.slice(Math.max(0,T[i-1].e),t.s)))){const ne=entry(T[i+1].w),pe=i>0&&entry(T[i-1].w),afterVP=PREPS.has(pv)||['ou','et','mais'].includes(pv)&&!!ne&&!(ne.r.some(r=>r.c==='V'||r.c==='X')&&T[i+2]&&gapOk(T[i+1],T[i+2])&&(PREPS.has(T[i+2].w.toLowerCase())||DET_S.has(T[i+2].w.toLowerCase())||DET_P.has(T[i+2].w.toLowerCase())||ADVW.has(T[i+2].w.toLowerCase())||['que',"qu'",'à','de','comme','chez'].includes(T[i+2].w.toLowerCase())))||(!!pe&&pe.r.some(r=>r.c==='V'||r.c==='X')&&(!pe.r.some(r=>r.c==='N'||r.c==='p')||(i>1&&(SUBJ_P[T[i-2].w.toLowerCase()]!=null||T[i-2].w.toLowerCase()==='y'))||pe.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&i>1&&['a','ai','as','ont','avons','avez','est','sont','suis','es'].includes(T[i-2].w.toLowerCase())||pe.r.some(r=>(r.c==='V'||r.c==='X')&&tags(r).some(x=>/^ind:pre/.test(x)))&&!(i>1&&(DET_S.has(T[i-2].w.toLowerCase())||DET_P.has(T[i-2].w.toLowerCase())))));if(ne&&ne.r.some(r=>r.c==='N')&&!ne.r.some(r=>['D','P','p','r','a','C','O'].includes(r.c))&&(afterVP||!ne.r.some(r=>['V','X','A'].includes(r.c)))&&!/s$/.test(T[i+1].w)){const NR=ne.r.filter(r=>r.c==='N'),g=NR.every(r=>r.g==='m')?'m':'f',fx=g==='m'&&!/^[aeiouyhéèêàâîôûœ]/i.test(T[i+1].w)?'son':'sa';
+    out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?cap(fx):fx,alts:fx==='son'?['sa']:['son'],why:`Devant un nom, on écrit « ${fx} » (${fx} ${T[i+1].w} = ${fx==='sa'?'la sienne':'le sien'}). « ça » veut dire « cela » : ça va, ça marche.`})}}
+   /* « à » devant un participe : c'est le verbe avoir (il a mangé) */
+   if(lw==='à'&&T[i+1]&&gapOk(t,T[i+1])){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&/(é|i|u|is|it|ert|int|ait)$/.test(T[i+1].w.toLowerCase())&&!ne.r.some(r=>['D','P','p','r','a','C','O'].includes(r.c))&&(!ne.r.some(r=>r.c==='N')||pv==='et'&&gapOk(T[i-1],t)||/é$/.test(T[i+1].w)&&i>0&&gapOk(T[i-1],t)&&(SUBJ_P[pv]!=null||/^\p{Lu}/u.test(T[i-1].w)&&!CTX_FW.has(pv)||(entry(pv)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(pv)||{r:[]}).r.some(r=>['V','X','P'].includes(r.c))))&&!['moitié','peine'].includes(T[i+1].w.toLowerCase()))
+    out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'A':'a',why:`Devant « ${T[i+1].w} », c'est le verbe avoir : « a » sans accent (on peut dire « avait ${T[i+1].w} »).`})}
+   /* « est » entre deux actions : « il regarde le chat est part » → « et » */
+   if(lw==='est'&&T[i+1]&&gapOk(t,T[i+1])&&i>0){const ne=entry(T[i+1].w),nl=T[i+1].w.toLowerCase();
+    if(ne&&finiteTenses(ne).length&&ne.r.some(r=>r.c==='V'||r.c==='X')&&!ne.r.some(r=>r.c==='P')&&!(ne.r.some(r=>r.c==='D')&&!ne.r.some(r=>r.c==='V'))&&(!ne.r.some(r=>r.c==='A')||T[i+2]&&gapOk(T[i+1],T[i+2])&&(PREPS.has(T[i+2].w.toLowerCase())||DET_S.has(T[i+2].w.toLowerCase())||DET_P.has(T[i+2].w.toLowerCase())||['à','au','aux','dans','sur','vers'].includes(T[i+2].w.toLowerCase())))&&(ne.r.some(r=>r.c==='X')||!ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas')))&&!/(er|ir)$/.test(nl)){
+     let k=i-1,vb=false;while(k>=0){if(/[.!?;:,«»—–()]/.test(d.slice(T[k].e,k+1<T.length?T[k+1].s:d.length))&&k<i-1)break;const wk=T[k].w.toLowerCase();if(CLAUSEW.has(wk)||['qui','que',"qu'"].includes(wk))break;const ek=entry(T[k].w);if(ek&&ek.r.some(r=>r.c==='V'||r.c==='X')&&finiteTenses(ek).length&&(!ek.r.some(r=>['N','A','D','P'].includes(r.c))||ek.r.some(r=>r.l==='être'||r.l==='avoir')||k>0&&!ek.r.some(r=>['D','P'].includes(r.c))&&(SUBJ_P[T[k-1].w.toLowerCase()]!=null||['se',"s'",'me',"m'",'te',"t'",'ne',"n'"].includes(T[k-1].w.toLowerCase())||(entry(T[k-1].w)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(T[k-1].w)||{r:[]}).r.some(r=>['V','X','P','D'].includes(r.c))))&&!(k>0&&(DET_S.has(T[k-1].w.toLowerCase())||DET_P.has(T[k-1].w.toLowerCase())))){vb=true;break}k--}
+     if(vb)out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'et',why:`Ici, « ${t.w} » relie deux actions : c'est « et » (on peut dire « et puis »). « est » est le verbe être : il est content.`})}}
+   /* « et » après le sujet, devant un adjectif : « le chat et content » → « est » */
+   if(lw==='et'&&i>0&&T[i+1]&&gapOk(T[i-1],t)&&gapOk(t,T[i+1])){
+    const pe=entry(T[i-1].w),subjOK=['il','elle','on'].includes(pv)||(/^\p{Lu}/u.test(T[i-1].w)&&!entry(pv)&&!CTX_FW.has(pv))||(!!pe&&pe.r.some(r=>r.c==='N'&&r.n!=='p')&&!/[sx]$/.test(pv)&&!pe.r.some(r=>r.c==='A'&&!PRENOM.has(pv)&&false));
+    let k=i+1;while(T[k]&&gapOk(T[k-1],T[k])&&['très','si','trop','vraiment','bien','tellement','assez','super','toujours','encore','déjà'].includes(T[k].w.toLowerCase()))k++;
+    const w2=T[k],e2=w2&&gapOk(T[k-1],w2)&&entry(w2.w);
+    if(subjOK&&e2&&(e2.r.some(r=>r.c==='A')||e2.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&/(é|ée|i|ie|u|ue|t|te)$/.test(w2.w))&&!e2.r.some(r=>['P','p','r','a','C'].includes(r.c))&&!(e2.r.some(r=>r.c==='D')&&!e2.r.some(r=>r.c==='A'))&&!(e2.r.some(r=>r.c==='N')&&!e2.r.some(r=>r.c==='A')&&!e2.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&k===i+1)&&!/^\p{Lu}/u.test(w2.w)){
+     const nx=T[k+1],enx=nx&&gapOk(w2,nx)&&entry(nx.w);
+     let j=i-1,fin=false;while(j>=0){if(j<i-1&&/[.!?;:,«»—–()]/.test(d.slice(T[j].e,T[j+1].s)))break;const ej=entry(T[j].w);if(ej&&finiteTenses(ej).length&&ej.r.some(r=>r.c==='V'||r.c==='X')&&(!ej.r.some(r=>['N','A','D','P','p','r','a'].includes(r.c))||ej.r.some(r=>r.l==='être'||r.l==='avoir')))fin=true;j--}
+     const subjStart=(()=>{let q=i-1;if(SUBJ_P[pv]!=null||/^\p{Lu}/u.test(T[i-1].w))q=i-1;else{q=i-2;while(q>=0&&(entry(T[q].w)||{r:[]}).r.some(r=>r.c==='A')&&!DET_S.has(T[q].w.toLowerCase()))q--;if(q<0||!DET_S.has(T[q].w.toLowerCase())&&!['ma','ta','sa','mon','ton','son','cette','ce','cet','la','le','un','une',"l'"].includes(T[q].w.toLowerCase()))return -1}if(q>0&&!/[.!?;:,«»—–()]/.test(d.slice(T[q-1].e,T[q].s))){const b=T[q-1].w.toLowerCase();if(!(CLAUSEW.has(b)||TIMEN.has(b)||['mais','et','puis','alors','soudain','ensuite',"aujourd'hui",'hier','demain','donc','car'].includes(b)||(q>1&&TIMEN.has(T[q-1].w.toLowerCase()))))return -1}return q})();
+     if(!fin&&subjStart>=0&&!(enx&&finiteTenses(enx).length&&enx.r.some(r=>r.c==='V'||r.c==='X')&&!enx.r.some(r=>['N','A','D','P'].includes(r.c)))&&!(enx&&enx.r.some(r=>r.c==='N')&&!enx.r.some(r=>['P','D','a','r','p','C','V','X'].includes(r.c))))
+      out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'est',why:`Ici, c'est le verbe être : « ${T[i-1].w} est ${w2.w} » (on peut dire « était »). « et » sert à ajouter quelque chose : le chat et le chien.`})}}
+   /* « peu » devant un verbe : c'est « peut » (il peut venir) */
+   if(lw==='peu'&&T[i+1]&&gapOk(t,T[i+1])&&!['un','très','si','trop','assez','à','de','pour','aussi','bien'].includes(pv)){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('inf'))&&/(er|ir|re|oir)$/.test(T[i+1].w)&&!ne.r.some(r=>['N','A','D','P'].includes(r.c)&&!(r.c==='N'&&false))){const fx=['je','tu'].includes(pv)?'peux':'peut';out.push({node,s:t.s,e:t.e,wrong:t.w,fix:fx,why:`Devant « ${T[i+1].w} », c'est le verbe pouvoir : « ${fx} » (on peut dire « pouvait »). « peu » veut dire « pas beaucoup ».`})}}
+   /* « S'est très beau » : sans personne avant, c'est « c'est » ; « il c'est caché » : c'est « s'est » */
+   if(/^s['’]$/i.test(t.w)&&T[i+1]&&T[i+1].w.toLowerCase()==='est'&&T[i+1].s===t.e&&(i===0||/[.!?;:«»—–(]/.test(d.slice(T[i-1].e,t.s))||['que',"qu'",'mais','car','parce'].includes(pv))){const f=/^S/.test(t.w)?"C'est":"c'est";out.push({node,s:t.s,e:T[i+1].e,wrong:d.slice(t.s,T[i+1].e),fix:f,why:`Ici, « ${f} » veut dire « cela est » (c'est beau, c'est drôle). « s'est » s'utilise après quelqu'un : il s'est caché.`})}
+   if(/^c['’]$/i.test(t.w)&&i>0&&T[i+1]&&T[i+1].w.toLowerCase()==='est'&&T[i+1].s===t.e&&T[i+2]&&gapOk(T[i-1],t)&&gapOk(T[i+1],T[i+2])){const ne=entry(T[i+2].w),pe=entry(pv);const subj=['il','elle','on'].includes(pv)||(/^\p{Lu}/u.test(T[i-1].w)&&!CTX_FW.has(pv)&&!(pe&&pe.r.some(r=>r.c!=='N')))||(!!pe&&!CTX_FW.has(pv)&&pe.r.some(r=>r.c==='N')&&!pe.r.some(r=>['V','X','P','D'].includes(r.c))&&(!pe.r.some(r=>r.c==='A')||i>1&&(DET_S.has(T[i-2].w.toLowerCase())||DET_P.has(T[i-2].w.toLowerCase()))));
+    if(subj&&ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&/(é|ée|és|ées|i|ie|u|ue|t|te|s)$/.test(T[i+2].w)){const f=/^C/.test(t.w)?"S'est":"s'est";out.push({node,s:t.s,e:T[i+1].e,wrong:d.slice(t.s,T[i+1].e),fix:f,why:`« ${T[i-1].w} » a fait l'action sur lui-même : « ${f} ${T[i+2].w} » (il s'est caché, elle s'est lavée). « c'est » veut dire « cela est ».`})}}
+   /* « il ne sait pas ou est son livre » : le lieu, c'est « où » */
+   if(lw==='ou'&&i>0&&T[i+1]&&gapOk(T[i-1],t)&&['sais','sait','savons','savez','savent','savoir','savait','savais','demande','demandes','demandent','ignore','pas','voir','regarde','cherche','dis','dit','montre','oublié','trouver','partout','là'].includes(pv)){const nl=T[i+1].w.toLowerCase(),ne=entry(T[i+1].w);if(SUBJ_P[nl]!=null||['est','sont','était','va','vont','se',"s'",'on','tu','il','elle'].includes(nl)||(ne&&finiteTenses(ne).length&&!ne.r.some(r=>['N','A','D','P'].includes(r.c)))){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'où',why:`Ici, on parle d'un lieu : « où » avec un accent (où est-il ?). « ou » sans accent veut dire « ou bien ».`})}}
+   /* « où et sa clé », « le trésor et là » : c'est le verbe être */
+   if(lw==='et'&&i>0&&T[i+1]&&gapOk(T[i-1],t)&&gapOk(t,T[i+1])&&(pv==='où'&&(DET_S.has(T[i+1].w.toLowerCase())||DET_P.has(T[i+1].w.toLowerCase())||/^\p{Lu}/u.test(T[i+1].w))||['là','ici','dehors','partout','loin'].includes(T[i+1].w.toLowerCase())&&(!T[i+2]||!gapOk(T[i+1],T[i+2]))&&(entry(pv)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(pv)||{r:[]}).r.some(r=>['V','X'].includes(r.c)))&&!out.some(x=>x.node===node&&x.s===t.s)){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'est',why:`Ici, c'est le verbe être : « est » (on peut dire « était »). « et » sert à ajouter quelque chose : le chat et le chien.`})}
+   /* « sang son chien » : c'est « sans » */
+   if(lw==='sang'&&T[i+1]&&gapOk(t,T[i+1])&&i>0){const nl=T[i+1].w.toLowerCase(),ne=entry(T[i+1].w);if(DET_S.has(nl)||DET_P.has(nl)||['rien','personne','cesse','doute','bruit','peur','moi','toi','lui','eux','elle'].includes(nl)||(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('inf'))&&/(er|ir|re|oir)$/.test(nl))){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'sans',why:`Ici, « sans » veut dire « avec rien » : sans son chien. Le « sang » coule dans notre corps.`})}}
+   /* « mes » devant un sujet : c'est « mais » (je suis fatigué, mais il joue) */
+   if(lw==='mes'&&T[i+1]&&gapOk(t,T[i+1])&&i>0&&/,/.test(d.slice(T[i-1].e,t.s))){const nw=T[i+1].w,nl=nw.toLowerCase();if(SUBJ_P[nl]!=null||DET_S.has(nl)||(DET_P.has(nl)&&nl!=='mes')||/^\p{Lu}/u.test(nw)){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'mais',why:`Après la virgule, « ${nw} » commence une nouvelle idée : c'est « mais », le mot qui oppose deux idées. « mes » veut dire « les miens » : mes amis.`})}}
    /* son / sont, on / ont, ses / ces / c'est */
    if(lw==='son'&&T[i+1]&&(plSubjBefore(i-1)||['ils','elles'].includes(pv))){const ne=entry(T[i+1].w);if(ne&&(!ne.r.some(r=>r.c==='N')||ne.r.some(r=>(r.c==='A'||r.c==='N')&&r.n==='p')||ne.r.some(r=>r.c==='D'))&&ne.r.some(r=>r.c==='A'||r.c==='D'||r.c==='P'||(r.c==='V'&&tags(r).includes('par:pas'))))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'Sont':'sont',why:'Ici, c\'est le verbe être : « sont » (ils sont, les enfants sont). Astuce : on peut dire « étaient ». « son » veut dire « le sien » : son chat.'})}
-   if(lw==='sont'&&T[i+1]&&!plSubjBefore(i-1)&&!(i>0&&['ce','ils','elles'].includes(pv))){const ne=entry(T[i+1].w),pe=i>0&&entry(T[i-1].w),afterV=!!pe&&pe.r.some(r=>r.c==='V'&&(tags(r).includes('par:pas')||finiteTenses(pe).length))&&!pe.r.some(r=>r.c==='p'||r.c==='D'),afterP=PREPS.has(pv);if(ne&&ne.r.some(r=>r.c==='N'&&r.n!=='p')&&(afterV||afterP||!ne.r.some(r=>r.c!=='N'))&&!/s$/.test(T[i+1].w))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'Son':'son',why:'Devant un nom, on écrit « son » (son sac, son ami). « sont » est le verbe être : ils sont.'})}
-   if(lw==='on'&&T[i+1]&&plSubjBefore(i-1)){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas')))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'ont',why:'Ici, c\'est le verbe avoir : « ont » (ils ont mangé). Astuce : on peut dire « avaient ».'})}
+   if(lw==='sont'&&T[i+1]&&!plSubjBefore(i-1)&&!(i>0&&['ce','ils','elles'].includes(pv))){const ne=entry(T[i+1].w),pe=i>0&&entry(T[i-1].w),afterV=!!pe&&pe.r.some(r=>r.c==='V'&&(tags(r).includes('par:pas')||tags(r).includes('inf')||finiteTenses(pe).length))&&!pe.r.some(r=>r.c==='p'||r.c==='D'),afterP=PREPS.has(pv);if(ne&&ne.r.some(r=>r.c==='N'&&r.n!=='p')&&(afterV||afterP||!ne.r.some(r=>r.c!=='N'))&&!/s$/.test(T[i+1].w)){const fem=ne.r.filter(r=>r.c==='N').every(r=>r.g==='f')&&!/^[aeiouyhéèêàâîôûœ]/i.test(T[i+1].w),fx=fem?'sa':'son';out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?cap(fx):fx,why:`Devant un nom, on écrit « ${fx} » (son sac, sa maison). « sont » est le verbe être : ils sont.`})}}
+   if(lw==='on'&&T[i+1]&&i>0&&gapOk(T[i-1],t)&&plSubjBefore(i-1)){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('par:pas')))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'ont',why:'Ici, c\'est le verbe avoir : « ont » (ils ont mangé). Astuce : on peut dire « avaient ».'})}
    if(lw==='ont'&&T[i+1]&&!plSubjBefore(i-1)&&!(i>0&&['ils','elles','qui'].includes(pv))){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&tags(r).some(x=>/^ind:pre:3$/.test(x)))&&!ne.r.some(r=>tags(r).includes('par:pas')||r.c==='N'||r.c==='A'))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'On':'on',why:'Ici, on écrit « on » (on mange, on joue). « ont » est le verbe avoir : ils ont.'})}
    if((lw==='ses'||lw==='ces')&&T[i+1]&&!PREPS.has(pv)&&!['de',"d'",'du','des'].includes(pv)){const nx=T[i+1].w.toLowerCase(),ne=entry(nx);if(['un','une','le','la','les','très','pas','moi','toi','lui','elle','nous','vous','eux','vrai','bien','super','trop','génial','fini','beau','normal','ça','pour','comme','à','au','quand','que','qui','là','ici'].includes(nx)||(ne&&!ne.r.some(r=>r.c==='N'||(r.c==='A'&&r.n!=='s'))))out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'C\'est':'c\'est',why:'Ici, on écrit « c\'est » (c\'est beau, c\'est un chat). « ses » et « ces » vont devant un nom au pluriel : ses jouets, ces fleurs.'})}
    if(['il','elle','ils','elles'].includes(lw)&&!PREPS.has(pv)&&!pairBad&&!(i>0&&/-$/.test(d.slice(T[i-1].e,t.s)))){
@@ -4345,6 +4420,8 @@ $('#acDelForm').onsubmit=async e=>{e.preventDefault();
 const COPULES=new Set(['être','devenir','rester','sembler','paraître','demeurer']);
 const SKIPV=new Set(['ne',"n'",'pas','plus','jamais','rien','guère','point','y','en','se',"s'",'me',"m'",'te',"t'",'le','la','les','lui','leur',"l'",'très','bien','déjà','encore','toujours','aussi','vraiment','tellement','si','trop','souvent','parfois','soudain','alors','enfin','vite']);
 const OBJP=new Set(['le','la','les','lui','leur',"l'",'me',"m'",'te',"t'",'se',"s'",'nous','vous','y','en']);
+const PRENOM=new Set(['petit','petite','petits','petites','grand','grande','grands','grandes','gros','grosse','grosses','vieux','vieil','vieille','vieilles','jeune','jeunes','beau','bel','belle','beaux','belles','bon','bonne','bons','bonnes','mauvais','mauvaise','joli','jolie','jolis','jolies','nouveau','nouvel','nouvelle','long','longue','haut','haute','premier','première','dernier','dernière','autre','autres','même','pauvre','cher','chère','vrai','vraie','seul','seule','méchant','méchante','gentil','gentille','immense','énorme','minuscule','drôle']);
+const TIMEN=new Set(['matin','soir','jour','midi','week-end','après-midi','été','hiver','printemps','automne','moment','mois','an','nuit','année','semaine','fois','journée','soirée','matinée','saison','lendemain','veille','lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche']);
 function subjectPass(node,d,T,out,names){
  const low=i=>T[i]?T[i].w.toLowerCase().replace(/’/g,"'"):'';
  const gap=(a,b)=>d.slice(T[a].e,T[b].s),cut=(a,b)=>/[.!?;:…«»—–()]/.test(gap(a,b));
@@ -4353,10 +4430,10 @@ function subjectPass(node,d,T,out,names){
  const isPoss=e=>!!e&&e.r.some(r=>(r.c==='N'||r.c==='A')&&r.n!=='p')&&!e.r.some(r=>['D','P','a','p','r','C'].includes(r.c)||(r.c==='V'&&tags(r).includes('par:pas')));
  let S=null,expect=false,lastV=null,coord=false,lastNP=null,mainPending=false,sawV=false;
  const verbOnly=e=>finite(e)&&!e.r.some(r=>['N','A','D','P','C','p','r','a'].includes(r.c));
- let iCur=0,enumP=false;const setS=(o,end)=>{S=Object.assign(o,{end,afterComma:iCur>0&&/,/.test(gap(iCur-1,iCur)),amb:enumP});enumP=false;expect=true;lastV=null;coord=false};
+ let iCur=0,enumP=false,timeEnd=-9,subOpen=false;const setS=(o,end)=>{S=Object.assign(o,{end,i0:iCur,afterComma:iCur>0&&/,/.test(gap(iCur-1,iCur)),amb:enumP});enumP=false;expect=true;lastV=null;coord=false};
  const checkAttr=(vi)=>{/* l'adjectif après être, devenir… s'accorde avec le sujet */
   if(S.amb||['en','à','au','aux','dans','sur','sous','chez','avec','sans','par','pour','de',"d'"].includes(low(vi+1)))return;let k=vi+1;while(k<T.length&&(SKIPV.has(low(k))||ADVW.has(low(k)))&&!cut(k-1,k)){if(['le','la','les',"l'"].includes(low(k))&&k>vi+1&&!['ne',"n'"].includes(low(k-1)))return;k++}if(['le','la','les',"l'",'un','une','des','du','de',"d'"].includes(low(vi+1)))return;const w=T[k];if(!w||cut(k-1,k)||/^\p{Lu}/u.test(w.w))return;
-  const e=entry(w.w);if(!e||!e.r.some(r=>r.c==='A'||(r.c==='V'&&tags(r).includes('par:pas'))))return;if(e.r.some(r=>['P','D','C','a','r','p'].includes(r.c)))return;
+  const e=entry(w.w);if(!e||!e.r.some(r=>r.c==='A'||(r.c==='V'&&tags(r).includes('par:pas'))))return;if(e.r.some(r=>['P','C','a','r','p'].includes(r.c))||e.r.some(r=>r.c==='D')&&!e.r.some(r=>r.c==='A'))return;
   if(e.r.some(r=>r.c==='N')&&!e.r.some(r=>r.c==='A')&&!e.r.some(r=>r.c==='V'&&tags(r).includes('par:pas')))return;
   const n=S.pi>=3?'p':'s';let fx=null;
   if(/^vous$/i.test(S.txt))return;
@@ -4365,38 +4442,43 @@ function subjectPass(node,d,T,out,names){
  };
  for(let i=0;i<T.length;i++){
   if(i>0&&verbOnly(entry(T[i-1].w)))sawV=true;
-  if(i>0&&cut(i-1,i)){if(/[.!?;:…]/.test(gap(i-1,i))){S=null;lastNP=null;sawV=false;mainPending=false;enumP=false}expect=!!S&&expect;coord=false}
+  if(i>0&&cut(i-1,i)){if(/[.!?;:…]/.test(gap(i-1,i))){S=null;lastNP=null;sawV=false;mainPending=false;enumP=false;subOpen=false}expect=!!S&&expect;coord=false}
   /* une virgule entre le sujet et son verbe : apposition ou énumération, on ne juge pas */
   if(i>0&&/,/.test(gap(i-1,i))&&S&&lastV==null&&!mainPending){S=null;expect=false;enumP=true}
+  if(i>0&&/,/.test(gap(i-1,i))&&(mainPending||subOpen)){sawV=false;if(subOpen&&!mainPending){S=null;expect=false;enumP=false;lastNP=null}subOpen=false}
   iCur=i;
   const w=low(i),t=T[i],e=entry(t.w);
-  if(CLAUSEW.has(w)||w==='qui')sawV=false;
+  if(['quand','lorsque','lorsqu\'','si','comme','dès','pendant','tandis','puisque','parce'].includes(w)&&(i===0||/[.!?;:…«»—–()]/.test(gap(i-1,i))))subOpen=true;
+  if(CLAUSEW.has(w)||w==='qui'||['mais','car','donc','puis'].includes(w)||(w==='et'&&i>0&&/,/.test(gap(i-1,i))))sawV=false;
   /* 1. un sujet commence-t-il ici ? */
-  if(SUBJ_P[w]!=null&&!(i>0&&/-$/.test(gap(i-1,i)))&&!(i>0&&PREPS.has(low(i-1)))&&!((w==='nous'||w==='vous')&&i>0&&!/[.;:!?«»—–()]/.test(gap(i-1,i))&&!CLAUSEW.has(low(i-1)))&&!(i>0&&['de',"d'"].includes(low(i-1)))&&!((w==='nous'||w==='vous')&&S&&expect&&i===S.end+1)&&!(S&&OBJP.has(w)&&w!=='il'&&(expect&&i<=S.end+2||lastV!=null))){
+  if(w==='on'&&T[i+1]&&!cut(i,i+1)&&(e1=>e1&&e1.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))&&!e1.r.some(r=>['p','P','D','a','r','C','O'].includes(r.c))&&!fits(e1,SUBJ_P.on))(entry(T[i+1].w))){if(!out.some(x=>x.node===node&&x.s===t.s))add({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'Ont':'ont',why:`Devant « ${T[i+1].w} », c'est le verbe avoir : « ont » (on peut dire « avaient »). « on » veut dire « quelqu'un » ou « nous ».`});continue}else
+  if(SUBJ_P[w]!=null&&!(i>0&&/-$/.test(gap(i-1,i)))&&!(i>0&&PREPS.has(low(i-1)))&&!((w==='nous'||w==='vous')&&i>0&&!/[.;:!?«»—–()]/.test(gap(i-1,i))&&!CLAUSEW.has(low(i-1))&&!(TIMEN.has(low(i-1))||["aujourd'hui",'hier','demain','soudain','ensuite','alors','puis','mais','et'].includes(low(i-1))&&!(low(i-1)==='et'&&lastV!=null)))&&!(i>0&&['de',"d'"].includes(low(i-1)))&&!((w==='nous'||w==='vous')&&S&&expect&&i===S.end+1)&&!(S&&OBJP.has(w)&&w!=='il'&&(expect&&i<=S.end+2||lastV!=null))){
    if(!(T[i+1]&&low(i+1)==='et')){setS({pi:SUBJ_P[w],g:w==='elle'||w==='elles'?'f':w==='il'||w==='ils'?'m':'',txt:t.w},i);if(i>0&&SUBW.has(low(i-1)))S.sub=true;continue}}
   if((DET_S.has(w)||DET_P.has(w))&&!((w==='des'||w==='du')&&i>0&&!cut(i-1,i)&&(entry(T[i-1].w)||{r:[]}).r.some(r=>r.c==='N'||r.c==='A')&&!['un','une'].includes(low(i-1)))&&!(S&&OBJP.has(w)&&(i===S.end+1||lastV===i-1))&&!(i>0&&(PREPS.has(low(i-1))||['de',"d'",'du','des','à','au','aux','que',"qu'"].includes(low(i-1))))){
-   let k=i+1,ni=-1;while(k<T.length&&k<=i+3&&!cut(k-1,k)){const ek=entry(T[k].w);if(!ek||ek.r.some(r=>['a','p','r','P','C'].includes(r.c)))break;if(ek.r.some(r=>r.c==='N')){const nx=T[k+1]&&entry(T[k+1].w);if(ek.r.some(r=>r.c==='A')&&nx&&nx.r.some(r=>r.c==='N')&&!nx.r.some(r=>['a','p','r','P','C','D'].includes(r.c))&&!cut(k,k+1)){k++;continue}ni=k;break}if(ek.r.some(r=>r.c==='A')){k++;continue}break}
+   let k=i+1,ni=-1;while(k<T.length&&k<=i+3&&!cut(k-1,k)){const ek=entry(T[k].w);if(!ek||ek.r.some(r=>['a','p','r','P','C'].includes(r.c)))break;if(ek.r.some(r=>r.c==='N')){const nx=T[k+1]&&entry(T[k+1].w);if(ek.r.some(r=>r.c==='A')&&nx&&nx.r.some(r=>r.c==='N')&&!nx.r.some(r=>['a','p','r','P','C','D'].includes(r.c))&&(!nx.r.some(r=>r.c==='V'||r.c==='X')||/(ions|iez|ons|ez)$/.test(T[k+1].w)||PRENOM.has(T[k].w.toLowerCase()))&&!cut(k,k+1)){k++;continue}ni=k;break}if(ek.r.some(r=>r.c==='A')){k++;continue}break}
    if(ni>0){let end=ni;const ea=T[ni+1]&&entry(T[ni+1].w);if(ea&&ea.r.some(r=>r.c==='A')&&!ea.r.some(r=>r.c==='V'||r.c==='X'||r.c==='N')&&!cut(ni,ni+1))end=ni+1;
-    const pw=i>0&&!cut(i-1,i)?low(i-1):'',pe=pw&&entry(T[i-1].w),afterVerb=!!pe&&finite(pe)&&!['et','ou','mais','puis','alors','quand','lorsque','si','car','donc','soudain'].includes(pw);
+    const pw=i>0&&!cut(i-1,i)?low(i-1):'',pe=pw&&entry(T[i-1].w),afterVerb=i-1!==timeEnd&&(!!pe&&finite(pe)&&!/,/.test(gap(i-1,i))&&!['et','ou','mais','puis','alors','quand','lorsque','si','car','donc','soudain'].includes(pw)||!!S&&lastV!=null&&!!pw&&!/,/.test(gap(i-1,i))&&!['et','ou','mais','puis','alors','quand','lorsque','si','car','donc','soudain','que',"qu'",'qui'].includes(pw)&&!CLAUSEW.has(pw));
     const nr0=entry(T[ni].w).r.find(r=>r.c==='N');lastNP={pi:DET_P.has(w)?5:2,g:nr0.g||'',txt:d.slice(t.s,T[ni].e),end};
     const timeP=['plus','tard','après','avant','auparavant','durant','environ','là','plutôt'].includes(low(end+1));
+    const timeN=TIMEN.has(low(ni))&&T[end+1]&&!cut(end,end+1)&&(DET_S.has(low(end+1))||DET_P.has(low(end+1))||SUBJ_P[low(end+1)]!=null||/^\p{Lu}/u.test(T[end+1].w));
+    if(timeN&&!afterVerb){lastNP=null;timeEnd=end;i=end;continue}
     if(!afterVerb&&!sawV&&!timeP){const nr=nr0,pl=DET_P.has(w)&&!(w==='des'&&['un','une'].includes(pw));
      if(pw==='et'&&i>1&&/^\p{Lu}/u.test(T[i-2].w)&&!cut(i-2,i-1)&&!/,/.test(gap(i-2,i-1))&&!(i>2&&!cut(i-3,i-2)&&/^(m|mme|mlle|de|du|d'|chez|à|avec)$/i.test(low(i-3)))&&!(S&&lastV==null))setS({pi:5,g:'',txt:T[i-2].w+' et '+d.slice(t.s,T[ni].e)},end);
      else if((pw==='et'||pw==='ni')&&S&&lastV==null)setS({pi:5,g:S.g==='f'&&nr.g==='f'?'f':'m',txt:S.txt+' et '+d.slice(t.s,T[ni].e)},end);
-     else setS({pi:pl?5:2,g:nr.g||'',txt:d.slice(t.s,T[ni].e)},end);
+     else setS({pi:pl?5:2,g:nr.g||(DETG[w]&&!['mon','ton','son'].includes(w)?DETG[w]:''),txt:d.slice(t.s,T[ni].e)},end);
      i=end;continue}}
   }
   if(w==='qui'){if(lastNP&&(lastNP.end===i-1||lastNP.end===i-2&&(entry(T[i-1].w)||{r:[]}).r.some(r=>r.c==='A'))&&!/ (de|des|du|et) |\bd['’]/i.test(lastNP.txt)&&!(lastNP.end>=2&&['de','des','du',"d'"].includes(low(lastNP.end-1)))&&!(i>0&&/,/.test(gap(i-1,i)))){const same=S&&S.txt===lastNP.txt&&lastV==null;setS({pi:lastNP.pi,g:lastNP.g,txt:lastNP.txt},i);S.fromQui=true;if(same)S.rel=true}else{S=null;expect=false}continue}
   if((w==='et'||w==='ou'||w==='ni')&&S&&expect&&lastV==null)continue;
-  if(/^\p{Lu}/u.test(t.w)&&!(i>0&&!cut(i-1,i)&&(DET_S.has(low(i-1))||DET_P.has(low(i-1))||PREPS.has(low(i-1))||['de',"d'",'du','des'].includes(low(i-1))||/^\p{Lu}/u.test(T[i-1].w)||(entry(T[i-1].w)||{r:[]}).r.some(r=>r.c==='N')))&&(names.has(norm(t.w))||!e||e.r.every(r=>r.c==='N'))){
+  if(/^\p{Lu}/u.test(t.w)&&!(i>0&&!cut(i-1,i)&&(DET_S.has(low(i-1))||DET_P.has(low(i-1))||PREPS.has(low(i-1))||['de',"d'",'du','des'].includes(low(i-1))||/^\p{Lu}/u.test(T[i-1].w)||(entry(T[i-1].w)||{r:[]}).r.some(r=>r.c==='N')))&&!CTX_FW.has(w)&&(names.has(norm(t.w))||!e||e.r.every(r=>r.c==='N'))){
    let k=i+1;while(k<T.length&&SKIPV.has(low(k))&&!cut(k-1,k))k++;if(T[k]&&!cut(i,k)&&finite(entry(T[k].w))&&!(T[i+1]&&low(i+1)==='et')){const cmp=i>1&&low(i-1)==='et'&&(T[i-2]&&(/^\p{Lu}/u.test(T[i-2].w)||['moi','toi','lui','elle'].includes(low(i-2))));setS({pi:cmp?(low(i-2)==='moi'?3:low(i-2)==='toi'?4:5):2,g:'',txt:cmp?T[i-2].w+' et '+t.w:t.w},i);continue}}
   if(!S)continue;
   /* 2. les verbes reliés par « et » ou une virgule gardent le même sujet */
   if(lastV&&!expect&&!S.amb&&!S.sub&&!S.fromQui&&(['et','puis','ou','mais'].includes(w)||(i>0&&/,/.test(gap(i-1,i))&&lastV===i-1&&!S.afterComma))){
-   let k=['et','puis','ou','mais'].includes(w)?i+1:i,obj=false;while(k<T.length&&SKIPV.has(low(k))&&!cut(k-1,k)){if(OBJP.has(low(k)))obj=true;k++}
+   let k=['et','puis','ou','mais'].includes(w)?i+1:i,obj=false,detLike=false;while(k<T.length&&SKIPV.has(low(k))&&!cut(k-1,k)){if(OBJP.has(low(k)))obj=true;if(['le','la','les',"l'"].includes(low(k)))detLike=true;k++}
    const v=T[k],ev=v&&entry(v.w);
-   if(v&&!cut(i,k)&&finite(ev)&&!(ev.r.some(r=>tags(r).includes('inf'))&&/(er|ir|re)$/.test(v.w))&&!(T[k+1]&&/^\p{Lu}/u.test(T[k+1].w))&&SUBJ_P[low(k)]==null&&!DET_S.has(low(k))&&!DET_P.has(low(k))){const nxt=T[k+1],en=nxt&&!cut(k,k+1)&&entry(nxt.w);const nounish=ev.r.some(r=>r.c==='N'||r.c==='A');
-    if(!nounish||obj&&!(en&&finite(en))){if(!fits(ev,S.pi))agreeIssue(out,node,v,ev,S.pi,S.txt,false);lastV=k;if(ev.r.some(r=>COPULES.has(r.l)))checkAttr(k);i=k;continue}}
+   if(v&&!cut(i,k)&&finite(ev)&&!(ev.r.some(r=>tags(r).includes('inf'))&&/(er|ir|re)$/.test(v.w))&&!(T[k+1]&&/^\p{Lu}/u.test(T[k+1].w))&&SUBJ_P[low(k)]==null&&!DET_S.has(low(k))&&!DET_P.has(low(k))){const nxt=T[k+1],en=nxt&&!cut(k,k+1)&&entry(nxt.w);const nounish=ev.r.some(r=>r.c==='N'||r.c==='A')&&!(k===i+1&&['et','puis','mais','ou'].includes(w)&&!ev.r.some(r=>r.c==='A')&&(!nxt||cut(k,k+1)||(entry(nxt.w)||{r:[]}).r.some(r=>['D','P','a','r'].includes(r.c))||ADVW.has(low(k+1))));
+    if(!nounish||obj&&!detLike&&!(en&&finite(en))&&!(en&&['se',"s'",'ne',"n'",'me','te','y','en'].includes(low(k+1)))){if(!fits(ev,S.pi))agreeIssue(out,node,v,ev,S.pi,S.txt,false);lastV=k;if(ev.r.some(r=>COPULES.has(r.l)))checkAttr(k);i=k;continue}}
   }
   const afterAux=(()=>{let k=i-1;while(k>=0&&!cut(k,k+1)&&(SKIPV.has(low(k))||ADVW.has(low(k))))k--;const pe=k>=0&&entry(T[k].w);return!!pe&&pe.r.some(r=>(r.c==='V'||r.c==='X')&&(r.l==='avoir'||r.l==='être'))&&!!e&&e.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))})();
   if(afterAux)continue;
@@ -4404,6 +4486,8 @@ function subjectPass(node,d,T,out,names){
   if(!expect)continue;
   if(SKIPV.has(w)||(e&&e.r.every(r=>r.c==='D')))continue;
   /* 3. le premier verbe après le sujet */
+  const atStart=j=>{let k=j-1;while(k>=0){if(/[.!?;:…«»—–()]/.test(gap(k,k+1)))return true;const x=low(k);if(!(TIMEN.has(x)||['ce','cet','cette','hier','demain',"aujourd'hui",'soudain','alors','puis','et','ensuite','enfin','un','une','le','la','tout','à','coup','beau'].includes(x)))return false;k--}return true};
+  if(w==='à'&&lastV==null&&!S.amb&&!S.afterComma&&atStart(S.i0)&&T[i+1]&&!cut(i,i+1)){const ne=entry(T[i+1].w);if(ne&&ne.r.some(r=>r.c==='V'&&(tags(r).includes('par:pas')||tags(r).includes('inf')))&&!ne.r.some(r=>['D','P','p','r','a','C'].includes(r.c))&&(!ne.r.some(r=>r.c==='N')||/é$/.test(T[i+1].w))){add({node,s:t.s,e:t.e,wrong:t.w,fix:'a',why:`Après « ${S.txt} », il faut un verbe : « a » sans accent (on peut dire « avait »). « à » avec un accent sert à dire où on va : à la plage.`});expect=false;lastV=i;continue}}
   if(w==='son'&&S.pi>=3){const nx=T[i+1]&&!cut(i,i+1)&&entry(T[i+1].w);if(!isPoss(nx)){add({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'Sont':'sont',why:`Ici, c'est le verbe être, car le sujet est « ${S.txt} » : « sont ». Astuce : on peut dire « étaient ». « son » veut dire « le sien » : son chat.`});expect=false;lastV=i;checkAttr(i);continue}}
   if(w==='on'&&S.pi>=3){const nx=T[i+1]&&entry(T[i+1].w);if(nx&&nx.r.some(r=>r.c==='V'&&tags(r).includes('par:pas'))){add({node,s:t.s,e:t.e,wrong:t.w,fix:'ont',why:`Le sujet est « ${S.txt} » : ici, c'est le verbe avoir, « ont ».`});expect=false;lastV=i;continue}}
   if(finite(e)&&!/^\p{Lu}/u.test(t.w)){
@@ -4591,9 +4675,10 @@ const CTX_WHY={'à':'Ici, c\'est « à » avec un accent : on ne peut pas le rem
  'vers':'Pour une direction, on écrit « vers » : il marche vers la forêt.','vert':'La couleur s\'écrit « vert ».','verre':'Pour boire, c\'est un « verre ».',
  'sans':'« sans » veut dire « pas avec » : sans toi.','sang':'Le liquide rouge, c\'est le « sang ».','cent':'Le nombre 100 s\'écrit « cent ».',
  'tant':'« tant » veut dire « tellement » : il a tant couru.','temps':'Pour la durée ou la météo, on écrit « temps » : il fait beau temps.'};
-function ctxPass(node,d,out){const M=ctxModel();if(!M||!LEX.ready)return;const re=/[\p{L}]+(?:-[\p{L}]+)*['’]?|[.!?;:,«»—–()"…]/gu;const T=[],P=[];let m;
+function ctxPass(node,d,out,ref){const M=ctxModel();if(!M||!LEX.ready)return;const re=/[\p{L}]+(?:-[\p{L}]+)*['’]?|[.!?;:,«»—–()"…]/gu;const T=[],P=[];let m;
  while(m=re.exec(d)){T.push(m[0].replace(/’/g,"'"));P.push([m.index,m.index+m[0].length])}
  for(let i=0;i<T.length;i++){const t=T[i],l=t.toLowerCase(),md=M.idx[l];if(!md)continue;if((l==='a'||l==='à')&&/^\p{Lu}/u.test(t))continue;
+  if([i-1,i+1].some(j=>P[j]&&(ref||out).some(x=>x.node===node&&!x.soft&&x.s<P[j][1]&&P[j][0]<x.e)))continue;
   const sc=ctxScore(md,M.K,T,i);let best=l;for(const c of md.w)if(sc[c]>sc[best])best=c;
   const mg=best!==l?sc[best]-sc[l]:0;if(best!==l&&mg>md.th*0.6){const fx=/^\p{Lu}/u.test(t)?cap(best):best;out.push({node,s:P[i][0],e:P[i][1],wrong:d.slice(P[i][0],P[i][1]),fix:fx,why:CTX_WHY[best]||'Ici, on écrit plutôt « '+best+' ».',ctx:true,soft:mg<=md.th||undefined})}}}
 /* les mots qui se ressemblent dont Plume n'est pas sûr : des conseils, pas des fautes */
