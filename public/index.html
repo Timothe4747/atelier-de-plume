@@ -162,6 +162,19 @@ repeating-linear-gradient(transparent 0 calc(var(--lh) - 2px),var(--line) calc(v
 .lgquick{margin-top:18px;border-top:2px dashed var(--line);padding-top:14px}.lgquick>p{margin:0 0 10px;color:var(--soft);font-size:14px;text-align:center}.lgquick .lgprofiles{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}.lgquick .lgav{width:46px;height:46px;font-size:22px}.lgquick .lgp b{font-size:15px}
 @media(max-width:600px){.lgfeat{grid-template-columns:1fr 1fr}}@media(max-width:480px){.lgchoice{grid-template-columns:1fr}}
 #bUser.offline{box-shadow:0 0 0 2px #e0a800 inset}#bUser.offline::after{content:'hors ligne';font-size:11px;margin-left:4px;color:#b07d00}button.wait{opacity:.6;cursor:progress}
+.tour{position:fixed;inset:0;z-index:9000}.tourShade{position:absolute;inset:0;background:transparent}.tourShade.dim{background:rgba(12,16,52,.72)}
+.tourHole{position:fixed;border-radius:16px;box-shadow:0 0 0 4px var(--sun,#ffd23f),0 0 0 200vmax rgba(12,16,52,.72);pointer-events:none;transition:left .3s,top .3s,width .3s,height .3s;animation:tourPulse 1.8s ease-in-out infinite}
+.tourHole.two{box-shadow:0 0 0 4px var(--sun,#ffd23f);animation:none}
+@keyframes tourPulse{0%,100%{box-shadow:0 0 0 4px var(--sun,#ffd23f),0 0 0 200vmax rgba(12,16,52,.72)}50%{box-shadow:0 0 0 9px rgba(255,210,63,.55),0 0 0 200vmax rgba(12,16,52,.72)}}
+.tourBox{position:fixed;background:var(--paper,#fff);color:var(--ink);border-radius:22px;padding:16px 18px 14px;box-shadow:0 24px 60px rgba(0,0,30,.45);outline:none;transition:left .3s,top .3s}
+.tourBox.pop{animation:tourPop .35s cubic-bezier(.2,1.4,.4,1)}@keyframes tourPop{from{transform:scale(.92);opacity:.4}to{transform:none;opacity:1}}
+.tourHead{display:flex;align-items:center;gap:10px}.tourHead>div{flex:1;min-width:0}.tourHead b{display:block;font-family:Fredoka;font-size:20px;line-height:1.2}.tourN{color:var(--soft);font-size:12px}
+.tourAv{width:46px;height:46px;flex:none;animation:pfloat 3s ease-in-out infinite}
+.tourSkip{font-size:13px;color:var(--soft);text-decoration:underline;padding:6px;align-self:flex-start;min-height:32px}.tourSkip:hover{color:var(--accentInk)}
+.tourX{margin:10px 0 12px;line-height:1.5;font-size:16px}
+.tourDots{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}.tourDots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tourDots i.past{background:var(--accent);opacity:.45}.tourDots i.on{background:var(--accent);width:20px;border-radius:5px}
+.tourBtns{display:flex;justify-content:space-between;gap:10px}.tourBtns .btn{min-width:110px}
+@media(prefers-reduced-motion:reduce){.tourHole,.tourAv,.tourBox.pop{animation:none}.tourHole,.tourBox{transition:none}}
 .lgintro{color:var(--soft);margin:0 0 6px}.lgnote{color:var(--soft);font-size:13px;margin:6px 0 0}.lgchk{display:flex;gap:8px;align-items:center;font-family:Andika!important;font-weight:400!important}
 .inbox{border:2px dashed var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
 .btn.danger{background:#e4462b}.btn.danger.sure{background:#9b1c0c}
@@ -449,6 +462,7 @@ body.focus .focusExit{display:block}
  <div class="fld"><label class="watch" style="padding:0;font-size:15px;color:var(--ink)"><input type="checkbox" id="funChk" checked> Plume raconte des blagues et donne des conseils de temps en temps</label></div>
  <div class="fld"><label class="watch" style="padding:0;font-size:15px;color:var(--ink)"><input type="checkbox" id="watch" checked> Plume me donne un petit coup de pouce quand je fais une pause</label></div>
  <p style="font-size:13px;margin:0 0 12px">Le grand dictionnaire de Plume vient de Lexique 4 (lexique.org) : 170 782 mots, leur prononciation et leurs formes.</p>
+ <div class="fld"><span class="lbl">Visite guidée</span><button class="btn alt" id="sTour" type="button">Revoir la visite avec Plume</button></div>
  <button class="btn" id="sOk" style="width:100%">Terminé</button>
 </div></div>
 
@@ -3924,7 +3938,7 @@ $('#login').addEventListener('submit',async e=>{
   if(f.id==='crForm'){const name=$('#crName').value.trim(),pw=$('#crPw').value,pw2=$('#crPw2').value,err=$('#crErr');
    if(!name){err.textContent='Écris ton prénom.';return}if(pw.length<4){err.textContent='Le mot de passe doit avoir au moins 4 caractères.';return}if(pw!==pw2){err.textContent='Les deux mots de passe ne sont pas pareils.';return}
    const color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'9-11';
-   formBusy(f,true);try{enterOnline(await api('POST','/register',{name,password:pw,color,data:{prefs:{name,age,font:'Andika',size:19,goal:100,watch:true}}}))}catch(x){formBusy(f,false);err.textContent=x.code==='exists'?'Ce prénom a déjà un compte. Ajoute une initiale, par exemple « '+name+' B. ».':errText(x)}
+   formBusy(f,true);try{enterOnline(await api('POST','/register',{name,password:pw,color,data:{prefs:{name,age,font:'Andika',size:19,goal:100,watch:true,tour:1}}}))}catch(x){formBusy(f,false);err.textContent=x.code==='exists'?'Ce prénom a déjà un compte. Ajoute une initiale, par exemple « '+name+' B. ».':errText(x)}
    return}
   if(f.id==='rsForm'){const pw=$('#rsPw').value,pw2=$('#rsPw2').value,er=$('#rsErr');if(pw.length<4){er.textContent='Au moins 4 caractères.';return}if(pw!==pw2){er.textContent='Les deux mots de passe ne sont pas pareils.';return}
    formBusy(f,true);try{await api('POST','/reset',{name:loginSel.name,code:$('#rsCode').value,password:pw});const p=profiles.find(x=>x.name.toLowerCase()===loginSel.name.toLowerCase())||loginSel;showPassword(p);$('#lgErr').textContent='Mot de passe changé ! Tu peux entrer.';$('#lgErr').classList.add('okmsg')}catch(x){formBusy(f,false);er.textContent=errText(x)}
@@ -3952,10 +3966,10 @@ $('#login').addEventListener('submit',async e=>{
   if(pw!==pw2){err.textContent='Les deux mots de passe ne sont pas pareils.';return}
   const id='p'+uid(),salt=uid()+uid(),color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'9-11';
   const first=!profiles.length;profiles.push({id,name,salt,hash:hashPw(pw,salt),color,created:Date.now()});GLS.set('profiles',profiles);
-  let pr={name,age,font:'Andika',size:19,goal:100,watch:true};
+  let pr={name,age,font:'Andika',size:19,goal:100,watch:true,tour:1};
   if(first){/* le premier compte récupère les histoires déjà écrites sur cet ordinateur */
    for(const k of ['stories','stats','cur']){try{const v=localStorage.getItem('atelier_'+k);if(v)localStorage.setItem('atelier_'+id+'_'+k,v)}catch(e){}}
-   const old=GLS.get('prefs',null);if(old)pr=Object.assign({},old,{name,age})}
+   const old=GLS.get('prefs',null);if(old)pr=Object.assign({},old,{name,age,tour:1})}
   try{localStorage.setItem('atelier_'+id+'_prefs',JSON.stringify(pr))}catch(e){}
   enter(id);
  }
@@ -4045,6 +4059,79 @@ function subjectPass(node,d,T,out,names){
  }
 }
 
+/* ---- la visite guidée de Plume (première connexion, ou depuis les réglages) ---- */
+const TOUR=[
+ {t:'Bonjour {n} !',x:"Je suis Plume, ton compagnon d'écriture. Je vais te faire visiter l'atelier en quelques minutes. Tu peux passer la visite quand tu veux.",big:1},
+ {s:'#ed',t:'Ta page',x:"C'est ici que tu écris ton histoire. Écris comme ça te vient : je lis ton texte, mais je ne le change <b>jamais</b>. C'est ton histoire !"},
+ {s:'#ttl',t:'Le titre',x:"Donne un titre à ton histoire. Tu pourras le changer quand tu veux."},
+ {s:'.tools [data-c=h2]',t:'Un nouveau chapitre',x:"Pour commencer un chapitre : va à la ligne, clique sur <b>Chapitre</b>, puis écris son nom. Il devient un grand titre, et ton livre commencera une nouvelle page à cet endroit."},
+ {s:'.tools [data-c=bold]',t:'Embellir ton texte',x:"Sélectionne des mots avec la souris, puis mets-les en <b>gras</b>, en <i>italique</i>, soulignés ou en couleur. Les flèches tout à gauche annulent ce que tu viens de faire."},
+ {s:'#bChar',t:'Tes personnages',x:"Invente tes personnages : leur nom, leur caractère, leurs pouvoirs, leurs secrets… Ils sont rangés dans l'onglet <b>Personnages</b>.",tab:'pPerso',also:'.tabs [data-t=pPerso]'},
+ {s:'#bPlace',t:'Tes lieux',x:"Pareil pour les lieux : une forêt magique, un château, une ville du futur… Note ce qu'on y voit, ce qu'on y entend, ce qu'on y sent. Ils sont dans l'onglet <b>Lieux</b>.",tab:'pLieu',also:'.tabs [data-t=pLieu]'},
+ {s:'#bRead',t:'Écouter ton histoire',x:"L'ordinateur te lit ton histoire à voix haute. C'est très pratique pour entendre si une phrase sonne bien."},
+ {s:'#bFocus',t:'Le mode concentration',x:"Il cache tout, sauf ta page : rien ne te dérange. Clique encore dessus pour revenir."},
+ {s:'.acts',t:'Mes boutons pour t\'aider',x:"<b>Je suis bloqué·e</b> : je te propose des mots et des idées. <b>Lis et cherche les fautes</b> : je te montre les fautes, et c'est toi qui choisis de corriger. <b>Regarde mon texte</b> : je te dis ce qui est réussi et ce que tu peux améliorer.",tab:'pChat'},
+ {s:'.tabs [data-t=pIdea]',t:'Les idées',x:"Pas d'idée ? Lance les dés : je t'invente un héros, un lieu et un problème. Tu peux aussi noter tes idées pour plus tard.",tab:'pIdea'},
+ {s:'.tabs [data-t=pTre]',t:'Les trésors',x:"Il y a 100 trésors à gagner en écrivant, en créant des personnages, en finissant des livres… Tu en trouveras même des secrets !",tab:'pTre'},
+ {s:'#goal',t:'Ton objectif du jour',x:"Ce cercle se remplit quand tu écris. Essaie d'atteindre ton objectif de mots chaque jour !",tab:'pChat'},
+ {s:'#saved',t:'Tout est enregistré',x:"Ton histoire s'enregistre toute seule pendant que tu écris{online}. Pas besoin de cliquer !"},
+ {s:'#bLib',t:'Mes livres',x:"Ici, tu retrouves toutes tes histoires. Clique sur l'une d'elles pour la continuer."},
+ {s:'#bNew',t:'Une nouvelle histoire',x:"Pour commencer une toute nouvelle histoire. Les anciennes restent rangées dans <b>Mes livres</b>."},
+ {s:'#bSave',t:'Enregistrer un fichier',x:"Ce bouton crée un fichier de ton livre sur l'ordinateur. Tu peux le garder en copie, ou le donner à quelqu'un."},
+ {s:'#bOpen',t:'Ouvrir un fichier',x:"Et celui-ci ouvre un fichier de livre que tu as enregistré. Ton histoire revient dans l'atelier."},
+ {s:'#bDone',t:'J\'ai fini mon livre !',x:"Quand ton histoire est finie, clique ici : je la transforme en vrai livre, page par page. Tu peux même ajouter une image de couverture !"},
+ {s:'#bTheme',t:'Ton atelier, à ton goût',x:"Change les couleurs, les formes et la taille des boutons. Dans <b>Réglages</b>, juste à côté, tu peux choisir ton âge, ta police d'écriture… et revoir cette visite."},
+ {s:'#bUser',t:'Ton compte',x:"Ton prénom est ici. Clique dessus pour changer ton mot de passe ou te déconnecter. N'oublie pas de te déconnecter si l'ordinateur est partagé !"},
+ {t:'À toi de jouer !',x:"Tu sais tout. Écris ta première phrase : elle n'a pas besoin d'être parfaite. Je suis juste à côté si tu as besoin de moi.",big:1,end:1}
+];
+let tourI=-1,tourEl=null;
+function tourVisible(el){if(!el)return false;const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden'}
+function startTour(){if(tourEl)return;if(document.body.classList.contains('focus')&&typeof $==='function')$('#bFocus').click();
+ tourEl=document.createElement('div');tourEl.className='tour';tourEl.setAttribute('role','dialog');tourEl.setAttribute('aria-modal','true');tourEl.setAttribute('aria-label','Visite guidée');
+ tourEl.innerHTML=`<div class="tourShade"></div><div class="tourHole"></div><div class="tourHole two"></div><div class="tourBox" tabindex="-1"><div class="tourHead"><svg class="tourAv" viewBox="0 0 64 64"><use href="#plume"/></svg><div><b class="tourT"></b><small class="tourN"></small></div><button type="button" class="tourSkip">Passer la visite</button></div><p class="tourX"></p><div class="tourDots"></div><div class="tourBtns"><button type="button" class="btn alt tourPrev">Retour</button><button type="button" class="btn tourNext">Suivant</button></div></div>`;
+ document.body.appendChild(tourEl);document.body.classList.add('touring');
+ tourEl.querySelector('.tourSkip').onclick=()=>endTour(true);tourEl.querySelector('.tourPrev').onclick=()=>tourGo(tourI-1);
+ tourEl.querySelector('.tourNext').onclick=()=>tourI>=TOUR.length-1?endTour(false):tourGo(tourI+1);
+ tourEl.querySelector('.tourDots').innerHTML=TOUR.map((_,i)=>`<i data-i="${i}"></i>`).join('');
+ addEventListener('resize',tourPlace);addEventListener('scroll',tourPlace,true);document.addEventListener('keydown',tourKey,true);
+ tourGo(0)}
+function tourKey(e){if(!tourEl)return;if(e.key==='Escape'){e.preventDefault();endTour(true)}else if(e.key==='ArrowRight'){e.preventDefault();tourEl.querySelector('.tourNext').click()}else if(e.key==='ArrowLeft'&&tourI>0){e.preventDefault();tourGo(tourI-1)}}
+function tourGo(i){
+ if(i<0||i>=TOUR.length)return;tourI=i;const st=TOUR[i];
+ if(st.tab&&typeof showTab==='function')showTab(st.tab);
+ const nm=(prefs&&prefs.name)||(profile&&profile.name)||'';
+ tourEl.querySelector('.tourT').textContent=st.t.replace(' {n}',nm?' '+nm:'');
+ tourEl.querySelector('.tourX').innerHTML=st.x.replace('{online}',typeof ONLINE!=='undefined'&&ONLINE?', et elle est rangée en ligne : tu la retrouves sur n\'importe quel ordinateur':'');
+ tourEl.querySelector('.tourN').textContent=(i+1)+' / '+TOUR.length;
+ tourEl.querySelectorAll('.tourDots i').forEach((d,k)=>{d.classList.toggle('on',k===i);d.classList.toggle('past',k<i)});
+ tourEl.querySelector('.tourPrev').style.visibility=i?'visible':'hidden';
+ tourEl.querySelector('.tourNext').textContent=st.end?'C\'est parti !':i===0?'Commencer la visite':'Suivant';
+ const box=tourEl.querySelector('.tourBox');box.classList.remove('pop');void box.offsetWidth;box.classList.add('pop');
+ const el=st.s&&document.querySelector(st.s);
+ if(tourVisible(el)){const r=el.getBoundingClientRect();if(r.top<70||r.bottom>innerHeight-40)el.scrollIntoView({block:'center',behavior:'auto'})}
+ tourPlace();setTimeout(tourPlace,60);box.focus({preventScroll:true})}
+function holeAt(h,el,pad){if(!tourVisible(el)){h.style.display='none';return null}const r=el.getBoundingClientRect();
+ const x=Math.max(4,r.left-pad),y=Math.max(4,r.top-pad),w=Math.min(innerWidth-8,r.right+pad)-x,hh=Math.min(innerHeight-8,r.bottom+pad)-y;
+ if(hh<=0||w<=0){h.style.display='none';return null}
+ Object.assign(h.style,{display:'block',left:x+'px',top:y+'px',width:w+'px',height:hh+'px'});return{left:x,top:y,right:x+w,bottom:y+hh}}
+function tourPlace(){
+ if(!tourEl)return;const st=TOUR[tourI],box=tourEl.querySelector('.tourBox'),[h1,h2]=tourEl.querySelectorAll('.tourHole');
+ const el=st.s&&document.querySelector(st.s);let r=holeAt(h1,el,st.s==='#ed'?6:8);holeAt(h2,st.also&&document.querySelector(st.also),6);
+ tourEl.querySelector('.tourShade').classList.toggle('dim',!r);
+ if(st.s==='#ed'&&r){const vis={top:Math.max(r.top,0),bottom:Math.min(r.bottom,innerHeight)};if(vis.bottom-vis.top>innerHeight*.5)r={left:r.left,right:r.right,top:vis.top,bottom:vis.top+120}}
+ const bw=Math.min(380,innerWidth-24);box.style.width=bw+'px';const bh=box.offsetHeight,m=18;let x,y;
+ if(!r||st.big){x=(innerWidth-bw)/2;y=Math.max(12,(innerHeight-bh)/2)}
+ else{if(innerHeight-r.bottom>=bh+m)y=r.bottom+m;else if(r.top>=bh+m)y=r.top-bh-m;else y=Math.max(12,innerHeight-bh-12);
+  x=Math.min(Math.max(12,(r.left+r.right)/2-bw/2),innerWidth-bw-12);
+  if(y<r.bottom&&y+bh>r.top){if(r.left>=bw+2*m)x=r.left-bw-m;else if(innerWidth-r.right>=bw+2*m)x=r.right+m}}
+ box.style.left=x+'px';box.style.top=Math.max(12,Math.min(y,innerHeight-bh-12))+'px'}
+function endTour(skipped){
+ if(!tourEl)return;removeEventListener('resize',tourPlace);removeEventListener('scroll',tourPlace,true);document.removeEventListener('keydown',tourKey,true);
+ tourEl.remove();tourEl=null;document.body.classList.remove('touring');if(typeof showTab==='function')showTab('pChat');
+ if(prefs){prefs.tour=0;LS.set('prefs',prefs)}
+ if(typeof toast==='function')toast(skipped?'Tu pourras revoir la visite dans les Réglages.':'Bonne écriture ! Tu peux revoir la visite dans les Réglages.');
+ setTimeout(()=>{try{ed.focus()}catch(e){}},50)}
+
 /* ---- onglets, fenêtres, réglages ---- */
 $$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));$$('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.t));if(b.dataset.t==='pTre')renderTre();if(b.dataset.t==='pPerso')renderChars();if(b.dataset.t==='pLieu')renderPlaces()});
 $('#toPlume').onclick=()=>$('#side').scrollIntoView({behavior:'smooth'});
@@ -4061,6 +4148,7 @@ seg('#wAge','9-11');
 $('#wGo').onclick=()=>{prefs={name:$('#wName').value.trim(),age:$('#wAge [aria-pressed=true]').dataset.v,font:'Andika',size:19,goal:100,watch:true};fresh=false;LS.set('prefs',prefs);pushStats();applyPrefs();close('#ovWelcome');greet()};
 $('#bSet').onclick=()=>{$('#sName').value=prefs.name||'';
  seg('#sAge',prefs.age,v=>prefs.age=v);seg('#sSize',prefs.size,v=>{prefs.size=+v;applyPrefs()});seg('#sGoal',prefs.goal,v=>{prefs.goal=+v;applyPrefs()});open('#ovSet')};
+$('#sTour').onclick=()=>{close('#ovSet');setTimeout(startTour,250)};
 $('#sOk').onclick=()=>{prefs.name=$('#sName').value.trim();LS.set('prefs',prefs);pushStats();applyPrefs();close('#ovSet');if(ONLINE&&profile&&prefs.name&&prefs.name!==profile.name){const nm=prefs.name;api('POST','/rename',{name:nm}).then(r=>{profile.name=r.me.name;GLS.set('me',profile);GLS.set('known',GLS.get('known',[]).map(x=>x.id===profile.id?{...x,name:r.me.name}:x));renderUserChip()}).catch(x=>toast(x.code==='exists'?'Ce prénom est déjà pris par un autre compte.':errText(x)))}
 else if(profile&&prefs.name){const p=profiles.find(x=>x.id===profile.id);if(p&&!profiles.some(x=>x!==p&&x.name.toLowerCase()===prefs.name.toLowerCase())){p.name=prefs.name;GLS.set('profiles',profiles);profile=p;renderUserChip()}}};
 function renderLib(){
@@ -4086,7 +4174,7 @@ function renderAll(){renderCounts();renderTre();renderNotes()}
 /* ---- démarrage ---- */
 loadStory(cur);doRoll();renderAll();
 if(!prefs){if(profile){fresh=true;open('#ovWelcome')}prefs={age:'9-11',goal:100,size:19,font:'Andika',watch:true}}
-applyPrefs();greet();initAI();if(profile){renderUserChip();bootSync()}else showLogin();
+applyPrefs();greet();initAI();if(profile){renderUserChip();bootSync();if(prefs&&prefs.tour===1)setTimeout(startTour,900)}else showLogin();
 }
 </script>
 </body>
