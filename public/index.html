@@ -358,6 +358,19 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
 .act.reading .rdd i:nth-child(2){animation-delay:.18s}.act.reading .rdd i:nth-child(3){animation-delay:.36s}
 @keyframes rdShine{to{transform:translateX(100%)}}@keyframes rdWrite{from{transform:rotate(-14deg) translateX(-2px)}to{transform:rotate(10deg) translateX(3px)}}@keyframes rdDot{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
 @media (prefers-reduced-motion:reduce){.act.reading::after,.act.reading .rdq,.act.reading .rdd i{animation:none}}
+.msg.bear{background:linear-gradient(160deg,#fff4e3,#fde6c8);border-color:#d9a77e;color:#4a2f1e;animation:bearIn .6s cubic-bezier(.3,1.4,.5,1)}
+.msg.bear .k{color:#8a5a3b;font-size:15px;margin:0}
+.bearHd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.bearAv{width:46px;height:46px;flex:none;animation:bearNod 2.4s ease-in-out infinite;transform-origin:50% 90%}
+.bearZ{margin-left:auto;font-family:Fredoka,system-ui;color:#8a5a3b;font-weight:600;letter-spacing:1px}
+.bearZ,.bearZ i,.bearZ b{display:inline-block;font-style:normal;animation:bearZ 2s ease-in-out infinite}.bearZ i{font-size:1.2em;animation-delay:.3s}.bearZ b{font-size:1.45em;animation-delay:.6s}
+.bearDefi{margin-top:10px;background:rgba(255,255,255,.7);border:2px dashed #d9a77e;border-radius:12px;padding:10px 12px}
+.msg.bear .chips{margin-top:8px}.msg.bear .chip{background:#fff;border-color:#d9a77e;color:#6b4329}
+.msg.bear .row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+@keyframes bearIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes bearNod{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg) translateY(1px)}}
+@keyframes bearZ{0%,100%{opacity:.25;transform:translateY(2px)}50%{opacity:1;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.msg.bear,.bearAv,.bearZ,.bearZ i,.bearZ b{animation:none}}
 </style>
 </head>
 <body>
@@ -2941,6 +2954,7 @@ const RULES=[
  R(`(?<![${L}'’])(?<!(?:sur|avec|pour|chez|à|de|contre|sans|vers|derrière|devant|entre|comme|qu['’]|que|et|ou|ni|moi|lui|en|dans|par|sous|envers|après|avant|malgré|selon)\\s+)(?:il|elle|on|c['’])\\s*(et)(?![${L}])`,'Ici, c\'est le verbe être : « est ». Astuce : on peut dire « était ».',()=>'est',1,(w,m)=>{const nx=(m.input.slice(m.index+m[0].length).match(/^\s*([\p{L}'’]+)/u)||[])[1];if(!nx)return true;const l=nx.toLowerCase();if(/^(l['’]|le|la|les|lui|leur|me|m['’]|te|t['’]|se|s['’]|nous|vous|y|en)$/.test(l))return false;const e=entry(l);return!(e&&finiteTenses(e).length&&!e.r.some(r=>r.c==='A'||r.c==='N'||(r.c==='V'&&tags(r).includes('par:pas'))))}),
  R(`(?<![${L}'’]|(?:il|elle|on|qui|y|ça|cela|n['’]|elle)\\s)(a)(?=\\s+(?:la|le|les|l['’]|cause|côté|cote|travers|peine|nouveau|bientôt|demain|droite|gauche|pied|cheval|minuit|midi|moi|toi|lui|eux|nouveau|jamais)(?![${L}]))`,'Ici, c\'est peut-être « à » avec un accent. Astuce : si on ne peut pas dire « avait », on écrit « à ».',()=>'à',1,(w,m)=>{const pw=(m.input.slice(0,m.index).match(/([\p{L}'’]+)\s*$/u)||[])[1];if(!pw||/^\p{Lu}/u.test(pw))return false;const e=entry(pw.toLowerCase());return!!e&&e.r.some(r=>r.c==='V'||r.c==='X')&&!e.r.some(r=>r.c==='N'||r.c==='A'||r.c==='p'||r.c==='D')}),
  R(`(?<![${L}'’])(sa)(?=\\s*(?:[,.!?]|(?:va|fait|marche|suffit|dépend|ressemble|sent|me|m['’]|te|t['’]|ne|n['’]|y|alors)(?![${L}])))`,'Ici, on écrit « ça » (qui veut dire « cela »). « sa » s\'utilise devant un nom : sa maison.',t=>t[0]==='S'?'Ça':'ça'),
+ R(`(?<=[${L}0-9»)])([?!]+)(?![${L}0-9])`,'En français, on met une petite espace avant « ? » et « ! » : « Tu viens ? »',t=>' '+t,1,(w,m)=>!/https?:|www\./i.test(m.input.slice(Math.max(0,m.index-40),m.index))),
  R(`(?<![${L}])(quant)(?!\\s+(?:à|au|aux|a)(?![${L}]))(?=\\s+(?:il|elle|on|je|j['’]|tu|nous|vous|ils|elles|le|la|les|l['’]|un|une|soudain|mon|ma|mes|ton|ta|tes|son|sa|ses|notre|nos|votre|vos|leur|leurs|ce|cet|cette|ces|tout|toute|tous|\\p{Lu}[${L}]+)(?![${L}]))`,'Pour parler du moment, on écrit « quand » : quand il arrive.',t=>t[0]==='Q'?'Quand':'quand'),
  R(`(?<![${L}'’])(?:a|ai|as|avons|avez|ont|avait|avais|avaient|aura|est|sont|sommes|êtes|était|étais|étaient|suis|es|été)\\s+(${L}{2,}er)(?![${L}])`,'Après « a » ou « est », on écrit souvent « é ». Astuce : remplace par « vendu ». Si ça marche, c\'est « é ».',t=>t.slice(0,-2)+'é',1,(w,m)=>!(/^(est|sont|était|étais|étaient|suis|es|été)\s/i.test(m[0])&&(entry(w)||{r:[]}).r.some(r=>r.c==='N'))&&!ER_EXC.has(norm(w))&&(!LEX.ready||lexInf(w))),
  R(`(?<![${L}'’])(?:(?:pour|de|sans|va|vais|vas|vont|allons|allez|aller|allait|allaient|veut|veux|voulons|voulez|veulent|voulait|voulais|voulaient|peut|peux|pouvons|pouvez|peuvent|pouvait|pouvais|pouvaient|doit|dois|devons|devez|doivent|devait|devaient|faut|fallait|aime|aimes|aimons|aimez|aiment|aimait|adore|adorait|sait|savait|savent)\\s+|d['’])(${L}{2,}é)(?![${L}])`,'Après « pour » ou « va », le verbe reste à l\'infinitif, en « er ». Astuce : remplace par « vendre ».',t=>(LEX.ready&&lexPart(t))||t.slice(0,-1)+'er',1,(w,m)=>deOk(m)&&!E_EXC.has(norm(w))&&(!LEX.ready||!!lexPart(w))),
@@ -3020,7 +3034,7 @@ function checkFautes(){
  el._iss=show;feed.appendChild(el);el.scrollIntoView({block:'end',behavior:'smooth'});checkBadges();
 }
 feed.addEventListener('click',e=>{
- const b=e.target.closest('.fxb');if(!b)return;const row=b.closest('.fx'),box=b.closest('.msg'),it=box._iss[+row.dataset.i];
+ const b=e.target.closest('.fxb');if(!b||!b.closest('.fx'))return;const row=b.closest('.fx'),box=b.closest('.msg'),it=box._iss[+row.dataset.i];
  if(b.dataset.a==='hint'){row._hl=Math.min((row._hl||0)+1,2);const fx=it.fix,k=Math.ceil(fx.length*row._hl/3);row.querySelector('.hint').textContent='Indice : '+fx.split('').map((c,i)=>i<k||/[\s'’-]/.test(c)?c:'_').join(' ');if(row._hl>=2)b.disabled=true;plumeAnim('talk');return}
  if(b.dataset.a==='check'){const still=deepScan().some(x=>x.node===it.node&&x.wrong===it.wrong&&x.why===it.why);
   if(still){const f=locate(it);if(f)selectIssue(f);toast(row.querySelector('.hint')?'Pas encore… Essaie avec un indice !':'Pas encore… Regarde bien le mot sélectionné.');return}
@@ -3648,6 +3662,22 @@ function grammarLex(names){
    if(lw==='et'&&i>0&&T[i+1]&&gapOk(T[i-1],t)&&gapOk(t,T[i+1])&&(pv==='où'&&(DET_S.has(T[i+1].w.toLowerCase())||DET_P.has(T[i+1].w.toLowerCase())||/^\p{Lu}/u.test(T[i+1].w))||['là','ici','dehors','partout','loin'].includes(T[i+1].w.toLowerCase())&&(!T[i+2]||!gapOk(T[i+1],T[i+2]))&&(entry(pv)||{r:[]}).r.some(r=>r.c==='N')&&!(entry(pv)||{r:[]}).r.some(r=>['V','X'].includes(r.c)))&&!out.some(x=>x.node===node&&x.s===t.s)){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'est',why:`Ici, c'est le verbe être : « est » (on peut dire « était »). « et » sert à ajouter quelque chose : le chat et le chien.`})}
    /* « sang son chien » : c'est « sans » */
    if(lw==='sang'&&T[i+1]&&gapOk(t,T[i+1])&&i>0){const nl=T[i+1].w.toLowerCase(),ne=entry(T[i+1].w);if(DET_S.has(nl)||DET_P.has(nl)||['rien','personne','cesse','doute','bruit','peur','moi','toi','lui','eux','elle'].includes(nl)||(ne&&ne.r.some(r=>r.c==='V'&&tags(r).includes('inf'))&&/(er|ir|re|oir)$/.test(nl))){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'sans',why:`Ici, « sans » veut dire « avec rien » : sans son chien. Le « sang » coule dans notre corps.`})}}
+   /* questions : « est ce que » → « est-ce que », « comment va tu » → « comment vas-tu » */
+   const isQ=(()=>{const m=/[.!?…]/.exec(d.slice(t.e));return!!m&&m[0]==='?'})();
+   if(lw==='est'&&T[i+1]&&T[i+1].w.toLowerCase()==='ce'&&/^\s+$/.test(d.slice(t.e,T[i+1].s))&&(T[i+2]&&/^(que|qu'|qui)$/i.test(T[i+2].w)||isQ)){const f=t.w+'-'+T[i+1].w;out.push({node,s:t.s,e:T[i+1].e,wrong:d.slice(t.s,T[i+1].e),fix:f,why:`Dans une question, on attache « ${t.w} » et « ce » avec un petit trait : « ${f} que… ? »`});continue}
+   const QW=['comment','où','quand','pourquoi','combien','que',"qu'",'quoi','quel','quelle','quels','quelles'];
+   if(isQ&&T[i+1]&&/^\s+$/.test(d.slice(t.e,T[i+1].s))&&['tu','il','elle','on','ils','elles','je','nous','vous'].includes(T[i+1].w.toLowerCase())&&(QW.includes(pv)&&gapOk(T[i-1],t)||i===0||/[.!?;:,«»—–(]\s*$/.test(d.slice(0,t.s)))&&!SUBJ_P.hasOwnProperty(lw)&&!DET_S.has(lw)&&!DET_P.has(lw)){
+    const pr=T[i+1].w.toLowerCase(),ve=entry(t.w);const nxt=T[i+2];const okObj=true;
+    if(ve&&okObj&&ve.r.some(r=>(r.c==='V'||r.c==='X')&&tags(r).some(x=>/^ind:/.test(x)))&&!ve.r.some(r=>['P','D','C','p','r','a'].includes(r.c))&&!(nxt&&gapOk(T[i+1],nxt)&&!/(er|ir|re|oir)$/.test(nxt.w.toLowerCase())&&(entry(nxt.w)||{r:[]}).r.some(r=>(r.c==='V'||r.c==='X')&&finiteTenses(entry(nxt.w)).length)&&!(entry(nxt.w)||{r:[]}).r.some(r=>['N','A','D','P'].includes(r.c)))){
+     const tmp=[];if(!fits(ve,SUBJ_P[pr]))agreeIssue(tmp,node,t,ve,SUBJ_P[pr],pr,true);let vf=(tmp[0]&&tmp[0].fix)||t.w.toLowerCase();if(/^\p{Lu}/u.test(t.w))vf=cap(vf);
+     const tt=['il','elle','on'].includes(pr)&&/[aec]$/.test(vf)?'-t-':'-';const f=vf+tt+T[i+1].w;
+     out.push({node,s:t.s,e:T[i+1].e,wrong:d.slice(t.s,T[i+1].e),fix:f,why:`Dans une question, quand « ${T[i+1].w} » vient après le verbe, on les attache avec un trait${tt==='-t-'?' (et un « t » pour que ce soit joli à dire)':''}, et le verbe s'accorde : « ${f} ? »`});i++;continue}}
+   /* « tous va bien » → « tout va bien » ; « tout vas » → « tout va » */
+   if((lw==='tous'||lw==='tout')&&T[i+1]&&gapOk(t,T[i+1])&&(i===0||/[.!?;:,«»—–(]\s*$/.test(d.slice(0,t.s))||['que',"qu'",'et','mais','car','si'].includes(pv))){const ve=entry(T[i+1].w);
+    if(ve&&ve.r.some(r=>(r.c==='V'||r.c==='X')&&finiteTenses(ve).length)&&(ve.r.some(r=>r.c==='X'||r.l==='être'||r.l==='avoir')||!ve.r.some(r=>['N','A','D','P','p','r','a'].includes(r.c)))){
+     const sg=fits(ve,2)||fits(ve,1)||fits(ve,0),pl=fits(ve,5);
+     if(lw==='tous'&&sg&&!pl){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:/^\p{Lu}/u.test(t.w)?'Tout':'tout',why:`Ici, « tout » veut dire « toutes les choses » et le verbe est au singulier : « tout va bien ». « tous » s'écrit avec « ils sont tous ».`});continue}
+     if(lw==='tout'&&!fits(ve,2)){agreeIssue(out,node,T[i+1],ve,2,t.w,false);continue}}}
    /* « mes » devant un sujet : c'est « mais » (je suis fatigué, mais il joue) */
    if(lw==='mes'&&T[i+1]&&gapOk(t,T[i+1])&&i>0&&/,/.test(d.slice(T[i-1].e,t.s))){const nw=T[i+1].w,nl=nw.toLowerCase();if(SUBJ_P[nl]!=null||DET_S.has(nl)||(DET_P.has(nl)&&nl!=='mes')||/^\p{Lu}/u.test(nw)){out.push({node,s:t.s,e:t.e,wrong:t.w,fix:'mais',why:`Après la virgule, « ${nw} » commence une nouvelle idée : c'est « mais », le mot qui oppose deux idées. « mes » veut dire « les miens » : mes amis.`})}}
    /* son / sont, on / ont, ses / ces / c'est */
@@ -3783,7 +3813,35 @@ function funMsg(kind){
  else say({k:'Le savais-tu ?',m:freshPick(FACTS,'f'),cls:'fun'});
 }
 feed.addEventListener('click',e=>{const b=e.target.closest('.rvb');if(!b)return;const m=b.closest('.msg');b.outerHTML=`<span class="ans">${esc(m._ans||'')}</span>`;plumeAnim('jump')});
-if(av){av.addEventListener('click',()=>{plumeAnim('spin');showTab('pChat');setTimeout(()=>funMsg(),250)});av.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();av.click()}})}
+/* ---- œuf de Pâques : 5 clics rapides sur Plume réveillent l'Ours rêveur ---- */
+const BEAR_SVG='<svg class="bearAv" viewBox="0 0 64 64" aria-hidden="true"><circle cx="15" cy="16" r="9" fill="#8a5a3b"/><circle cx="49" cy="16" r="9" fill="#8a5a3b"/><circle cx="15" cy="16" r="4.5" fill="#d9a77e"/><circle cx="49" cy="16" r="4.5" fill="#d9a77e"/><circle cx="32" cy="35" r="22" fill="#9c6643"/><ellipse cx="32" cy="43" rx="11" ry="8.5" fill="#e3b88f"/><ellipse cx="32" cy="38.5" rx="4" ry="3" fill="#3b2418"/><path d="M32 41.5v3.5M28 46.5q4 3 8 0" stroke="#3b2418" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M19 30q4 3.5 8 0M37 30q4 3.5 8 0" stroke="#3b2418" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="38" r="3" fill="#e98b7a" opacity=".55"/><circle cx="44" cy="38" r="3" fill="#e98b7a" opacity=".55"/><path d="M14 9q4-7 11-4" stroke="#5a3a26" stroke-width="2" fill="none" stroke-linecap="round" opacity=".0"/></svg>';
+const BEAR={
+ reves:["un escargot gagnait une course contre une fusée","la lune tombait dans mon pot de miel et ne voulait plus repartir","mon lit devenait un bateau et naviguait jusqu'à une île de nuages","un dragon avait peur des souris et cherchait un ami courageux","les arbres de la forêt se mettaient à chanter dès qu'il pleuvait","une petite fille trouvait une clé qui ouvrait toutes les portes du monde","un robot apprenait à faire des crêpes pour son grand-père","les étoiles jouaient à cache-cache et l'une d'elles se perdait dans mon jardin","un chat devenait le roi d'une ville de chats sous la neige","un nuage voulait devenir une vraie montagne","mon ombre partait se promener toute seule pendant la nuit","une bibliothèque où les livres racontaient eux-mêmes leurs histoires","un pirate cherchait un trésor… et trouvait une boîte pleine de rires","un renard et un lapin construisaient une cabane ensemble","une sorcière ratait tous ses sorts, mais ses erreurs rendaient les gens heureux","un ballon rouge emmenait un enfant faire le tour de la Terre","un hérisson voulait des câlins mais avait peur de piquer","une baleine chantait si fort qu'elle réveillait tout l'océan","un train magique s'arrêtait dans des gares qui n'existent sur aucune carte","un fantôme timide organisait une fête d'anniversaire","je me réveillais tout petit, de la taille d'une fourmi","une plume (pas Plume, une autre !) écrivait toute seule des lettres mystérieuses","un village où il neigeait du chocolat chaud une fois par an","un chevalier qui avait peur du noir partait sauver un dragon"],
+ mots:["miel","parapluie","étoile","clé","horloge","nuage","chaussette","dragon","bibliothèque","tempête","lanterne","escargot","château","boussole","coquillage","gâteau","fusée","secret","forêt","renard","grenier","pyjama","volcan","carte","trésor","miroir","plume","sorcière","glace","bicyclette","tortue","lune","cabane","télescope","pantoufle","arc-en-ciel","potion","girafe","sous-marin","violon"],
+ themes:["l'amitié","le courage","un voyage dans le temps","la mer et ses mystères","une fête qui tourne mal (mais finit bien)","un animal qui parle","la nuit","un monde à l'envers","la neige","un secret bien gardé","le premier jour d'école d'un monstre","une invention bizarre","l'espace","une forêt enchantée","un objet perdu"],
+ contraintes:["Ton histoire doit commencer par : « Ce matin-là, rien ne se passait comme d'habitude. »","Ton histoire doit finir par : « … et depuis ce jour, il ne dort plus jamais sans sa lampe. »","Raconte ton histoire en seulement cinq phrases.","Raconte-la comme si c'était un objet qui parlait (une chaussure, une tasse…).","Mets un dialogue entre deux personnages, avec des tirets.","Ton méchant doit devenir gentil à la fin.","Utilise au moins trois des cinq sens : ce qu'on voit, entend, sent, touche, goûte.","Ton héros doit avoir un défaut qui l'aide à la fin.","Ajoute un rebondissement que personne n'attend.","Écris-la sans jamais utiliser le mot « très »."]
+};
+function bearPick(a,n){const c=a.slice(),r=[];while(r.length<n&&c.length)r.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return r}
+function bearVisit(){
+ showTab('pChat');stats.bear=(stats.bear||0)+1;
+ const reve=bearPick(BEAR.reves,1)[0],kind=Math.floor(Math.random()*3);let defi,mots=null;
+ if(kind===0){mots=bearPick(BEAR.mots,3);defi='Raconte une histoire où tu glisses ces trois mots :'}
+ else if(kind===1)defi=`Écris une histoire sur le thème : « ${bearPick(BEAR.themes,1)[0]} ».`;
+ else defi=bearPick(BEAR.contraintes,1)[0];
+ const hello=stats.bear===1?"Bâââille… Oh ! Bonjour, je suis l'Ours rêveur, le copain de Plume. Je dors beaucoup, alors je fais plein de rêves !":bearPick(["Bâââille… Re-bonjour ! J'ai encore fait un drôle de rêve.","Mmmh… tu m'as réveillé ! Ça tombe bien, j'ai un rêve à te raconter.","Zzz… hein ? Ah, c'est toi ! Écoute ce que j'ai rêvé…"],1)[0];
+ const el=document.createElement('div');el.className='msg bear';
+ el.innerHTML=`<div class="bearHd">${BEAR_SVG}<span class="k">L'Ours rêveur</span><span class="bearZ" aria-hidden="true">z<i>z</i><b>z</b></span></div>${esc(hello)} Cette nuit, j'ai rêvé ${/^[aeiouéèêhîôâ]/i.test(reve)?"qu'":'que '}${esc(reve)}. Tu pourrais en faire une histoire, non ?<div class="bearDefi"><b>Mon défi :</b> ${esc(defi)}${mots?'<div class="chips">'+mots.map(w=>`<button class="chip" data-w="${esc(w)}">${esc(w)}</button>`).join('')+'</div>':''}</div><div class="row"><button class="fxb ok" data-bear="ok">Je relève le défi !</button><button class="fxb" data-bear="again">Un autre rêve</button></div>`;
+ el._defi={reve,defi,mots};feed.appendChild(el);el.scrollIntoView({block:'end',behavior:'smooth'});plumeAnim('jump');scheduleSave&&scheduleSave();
+}
+feed.addEventListener('click',e=>{const b=e.target.closest('[data-bear]');if(!b)return;const box=b.closest('.msg');
+ if(b.dataset.bear==='again'){box.querySelector('.row').innerHTML='<span class="ok">L\'ours se rendort…</span>';setTimeout(bearVisit,350);return}
+ stats.bearDefi=(stats.bearDefi||0)+1;box.querySelector('.row').innerHTML='<span class="ok">Super ! L\'Ours rêveur a hâte de lire ton histoire.</span>';
+ const d=box._defi;toast(d.mots?'Les mots à glisser : '+d.mots.join(', '):'Défi accepté !');plumeAnim('jump');try{ed.focus()}catch(_){}});
+let avClicks=[],avFunT;
+let avCool=0;
+if(av){av.addEventListener('click',()=>{const now=Date.now();if(now<avCool){plumeAnim('spin');return}avClicks=avClicks.filter(t=>now-t<1800);avClicks.push(now);plumeAnim('spin');showTab('pChat');clearTimeout(avFunT);
+  if(avClicks.length>=5){avClicks=[];avCool=now+1500;bearVisit();return}
+  avFunT=setTimeout(()=>funMsg(),450)});av.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();av.click()}})}
 setInterval(()=>{
  if(prefs?.fun===false||document.hidden)return;const now=Date.now();
  if(lastTypeAt&&now-lastTypeAt<90000&&now-lastPlumeAt>150000&&Math.random()<.6)funMsg();
@@ -4678,6 +4736,8 @@ const CTX_WHY={'à':'Ici, c\'est « à » avec un accent : on ne peut pas le rem
 function ctxPass(node,d,out,ref){const M=ctxModel();if(!M||!LEX.ready)return;const re=/[\p{L}]+(?:-[\p{L}]+)*['’]?|[.!?;:,«»—–()"…]/gu;const T=[],P=[];let m;
  while(m=re.exec(d)){T.push(m[0].replace(/’/g,"'"));P.push([m.index,m.index+m[0].length])}
  for(let i=0;i<T.length;i++){const t=T[i],l=t.toLowerCase(),md=M.idx[l];if(!md)continue;if((l==='a'||l==='à')&&/^\p{Lu}/u.test(t))continue;
+  if(l==='est'&&/^ce$/i.test(T[i+1]||''))continue;
+  if((l==='ce'||l==='cet'||l==='cette')&&T[i+1]&&TIMEN.has(T[i+1].toLowerCase()))continue;
   if([i-1,i+1].some(j=>P[j]&&(ref||out).some(x=>x.node===node&&!x.soft&&x.s<P[j][1]&&P[j][0]<x.e)))continue;
   const sc=ctxScore(md,M.K,T,i);let best=l;for(const c of md.w)if(sc[c]>sc[best])best=c;
   const mg=best!==l?sc[best]-sc[l]:0;if(best!==l&&mg>md.th*0.6){const fx=/^\p{Lu}/u.test(t)?cap(best):best;out.push({node,s:P[i][0],e:P[i][1],wrong:d.slice(P[i][0],P[i][1]),fix:fx,why:CTX_WHY[best]||'Ici, on écrit plutôt « '+best+' ».',ctx:true,soft:mg<=md.th||undefined})}}}
