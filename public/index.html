@@ -184,7 +184,7 @@ repeating-linear-gradient(transparent 0 calc(var(--lh) - 2px),var(--line) calc(v
 .page{position:relative}
 body.deco-stars .page::after{content:'';position:absolute;left:4px;top:0;bottom:0;width:26px;pointer-events:none;opacity:.8;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='120' viewBox='0 0 26 120'%3E%3Cpath d='M9 8l1.6 3.6 3.9.4-2.9 2.6.8 3.9L9 16.5l-3.4 2 .8-3.9-2.9-2.6 3.9-.4z' fill='%23ffd23f'/%3E%3Cpath d='M18 48l1.1 2.4 2.6.3-1.9 1.8.5 2.6-2.3-1.3-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z' fill='%23ff9f1a'/%3E%3Cpath d='M8 86l1.3 2.9 3.1.3-2.3 2.1.7 3.1L8 92.8l-2.8 1.6.7-3.1-2.3-2.1 3.1-.3z' fill='%23ffd23f'/%3E%3Ccircle cx='19' cy='104' r='1.6' fill='%23ffd23f'/%3E%3Ccircle cx='16' cy='28' r='1.3' fill='%23ffb000'/%3E%3C/svg%3E") repeat-y}
 body.deco-ribbon .page::before{content:'';position:absolute;top:-4px;right:34px;width:22px;height:74px;background:linear-gradient(90deg,#c2381b,#e4462b 40%,#c2381b);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);box-shadow:0 2px 4px rgba(0,0,0,.2);pointer-events:none;z-index:2}
-.spark{position:fixed;width:8px;height:8px;pointer-events:none;z-index:8000;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:sparkUp .8s ease-out forwards}
+.typeSpark{position:fixed;width:8px;height:8px;pointer-events:none;z-index:8000;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:sparkUp .8s ease-out forwards}
 @keyframes sparkUp{from{transform:translate(0,0) scale(1.3);opacity:1}to{transform:translate(var(--dx),-34px) scale(.3) rotate(120deg);opacity:0}}
 .dot.rainbow{background:conic-gradient(#e4462b,#ff8a00,#e0a800,#1b9a5a,#0f8fa8,#3150f0,#8a3ee8,#d94d8f,#e4462b)}
 .inkPop{position:fixed;z-index:9500;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 16px 40px rgba(0,0,30,.28);width:min(300px,calc(100vw - 16px))}
@@ -724,7 +724,7 @@ const INKS=[['#e4462b','Rouge'],['#b3261e','Rouge foncé'],['#ff6b81','Rose'],['
  ['#a0522d','Terre'],['#8b5a2b','Marron'],['#795548','Noisette'],['#5c3b1e','Chocolat'],['#9e9e9e','Gris clair'],['#6b7280','Gris'],['#374151','Gris foncé'],['#000000','Noir']];
 let inkRange=null;
 function inkSave(){const s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))inkRange=s.getRangeAt(0).cloneRange()}
-function inkApply(c){ed.focus();if(inkRange){const s=getSelection();s.removeAllRanges();s.addRange(inkRange)}document.execCommand('foreColor',false,c);scheduleSave();
+function inkApply(c){addTo('colorSet',String(c).toLowerCase());bump('_x',0);ed.focus();if(inkRange){const s=getSelection();s.removeAllRanges();s.addRange(inkRange)}document.execCommand('foreColor',false,c);scheduleSave();
  const l=$('#inkLast');l.dataset.col=c;l.querySelector('.dot').style.background=c;l.title='Dernière couleur : '+((INKS.find(x=>x[0]===c)||[0,'ta couleur'])[1]);try{localStorage.setItem('atelier_ink',c)}catch(e){}inkClose()}
 function inkClose(){const p=document.getElementById('inkPop');if(p)p.remove();$('#bInk').setAttribute('aria-expanded','false')}
 $('#bInk').addEventListener('mousedown',e=>{e.preventDefault();inkSave()});
@@ -798,6 +798,16 @@ const real=()=>stories.filter(s=>!s.example&&(s.words||0)>0);
 /* ---- les 100 trésors ---- */
 const st=k=>stats[k]||0;
 const TX=()=>ed.innerText||'';
+/* les cinq sens : on cherche sans tenir compte des accents (les enfants écrivent souvent « gout » ou « delicieux ») */
+const plainTx=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/œ/g,'oe');
+const SENSES={
+ entendre:/(?:^|[^a-z])(bruit|entend|ecout|son |sons |sonn|musique|chant|chanson|voix|cri|hurl|murmur|chuchot|siffl|grond|craqu|claqu|resonn|grinc|tonnerre|silence|echo|aboi|miaul|rugi|bourdonn|gazouill|tintement|cloche|tambour|boum|crac|bang|toc|ding|dring|vroum|pouet|explosion|applaudi|ronfl|clapot)/,
+ sentir:/(?:^|[^a-z])(odeur|parfum|sent(ai|ir|i |is |it |ait|aient|ant|eur)|sens |sentent|puai|pue|puant|arome|renifl|flair|empest|embaum|effluve|fumet|nez)/,
+ voir:/(?:^|[^a-z])(rouge|bleu|vert|jaune|noir|blanc|violet|rose|orange|gris|dore|argent|marron|turquoise|brun|beige|pourpre|ecarlate|emeraude|azur|multicolore|arc-en-ciel|couleur|colore|brill|scintill|etincel|lumineu|sombre|clair|fonce)/,
+ gouter:/(?:^|[^a-z])(gout|savour|saveur|delicieu|miam|sucre|sale|amer|acide|epice|piment|fade|croustill|croquant|juteu|fondant|miel|chocolat|vanille|fraise|caramel|bonbon|gateau|tarte|soupe|degout|beurk|lecher|langue|machouill)/,
+ toucher:/(?:^|[^a-z])(touch|doux|douce|dur |dure |mou |molle|rugueu|rapeu|reche|piqu|lisse|soyeu|velout|chaud|froid|glace|gele|tiede|brul|humide|mouill|tremp|collant|gluant|poilu|duvet|caress|frol|effleur|chatouill|frisson|gratt|pinc|serr)/};
+const SENSE_NAMES={entendre:'un bruit',sentir:'une odeur',voir:'une couleur',gouter:'un goût',toucher:'un toucher'};
+const sensesIn=t=>{const p=plainTx(t)+' ';return Object.keys(SENSES).filter(k=>SENSES[k].test(p))};
 const storyMax=()=>Math.max(0,...stories.filter(s=>!s.example).map(s=>s===cur?count():(s.words||0)));
 const nReal=()=>stories.filter(s=>!s.example&&((s===cur?count():s.words)||0)>0).length;
 const nDone=()=>stories.filter(s=>s.done&&!s.example).length;
@@ -807,7 +817,35 @@ const daysWritten=()=>Object.values(stats.days).filter(v=>v>0).length;
 const ONOW=/(^|[^\p{L}])(boum|crac|paf|vlan|miaou|ouaf|cocorico|plouf|splash|clac|toc|bzz|chut|aïe|ouille|pschitt|tic-tac|dring|hihi|haha|grr|meuh|wouf|badaboum|patatras|atchoum|miam|beurk|youpi)(?![\p{L}])/giu;
 const COLW2=/(^|[^\p{L}])(rouge|bleu|vert|jaune|noir|blanc|violet|rose|orange|gris|doré|argenté|marron|turquoise|brun)/giu;
 const TOUCHW=/(doux|douce|rugueu|piquant|lisse|molle|chaud|froid|glacé|tiède|soyeu|caress|touch)/i,TASTEW=/(goût|sucré|salé|amer|acide|délicieu|savoureu|miel|chocolat)/i;
-const EMOS=['peur','joie','colère','triste','heureu','content','fier','fière','inquiet','honte','surpris','furieu','soulag','émerveill','jaloux','amoureu','ému'];
+/* les émotions, rangées par famille : « peur », « effrayé » et « terrifié » comptent pour une seule émotion */
+const EMO_FAM={
+ peur:/(peur|effray|terrifi|epouvant|apeur|paniqu|frayeur|horreur|horrifi|trembl|craint|crainte|angoiss|redout|frissonn)/,
+ joie:/(joie|joyeu|heureu|bonheur|content|ravi |ravie|gai |gaie|rejoui|enchant|rire|riait|rit |rient|souri|eclat de rire|hilare|youpi|allegre|euphori)/,
+ colere:/(colere|furieu|fureur|rage|enrag|enerv|fache|agac|irrit|exaspere|furax|rouge de colere|hurla de|vexe|vexee|indign)/,
+ tristesse:/(triste|tristesse|chagrin|pleur|larme|sanglot|malheureu|deprim|melancoli|cafard|desespo|navre|avait de la peine|a de la peine)/,
+ surprise:/(surpri|etonn|stupef|ebahi|bouche bee|choque|sidere|incroyable|abasourdi|interloqu)/,
+ degout:/(degout|beurk|ecoeur|repugn|berk|nausee)/,
+ amour:/(amour|amoureu|aime |aimait|adore|tendresse|affection|chouchou|bisou|calin)/,
+ honte:/(honte|gene |genee|embarrass|rougi|timide|confus |confuse)/,
+ fierte:/(fier |fiere|fierte|orgueil)/,
+ inquietude:/(inquiet|inquiete|inquietude|soucieu|stress|nerveu|anxi|tracass)/,
+ jalousie:/(jalou|envieu|envie de ce)/,
+ soulagement:/(soulag|rassur|apais|ouf)/,
+ ennui:/(ennui|ennuy|lasse|blase|morose)/,
+ excitation:/(excit|impatien|enthousias|trepign|hate de|hate que)/,
+ calme:/(calme|serein|tranquill|paisible|detendu|zen )/,
+ curiosite:/(curieu|curiosite|intrigu|fascin)/,
+ espoir:/(espoir|esper|optimis)/,
+ solitude:/(se sentait seul|se sent seul|tout seul|toute seule|seul au monde|seule au monde|solitude|abandonn|isole)/,
+ courage:/(courag|brave|audac|determin)/,
+ deception:/(decu|deception|desappoint|desillusion)/,
+ culpabilite:/(coupable|culpabil|regret|remords|desole)/,
+ admiration:/(emerveill|admir|epoustoufl|ebloui|bluff)/,
+ haine:/(deteste|haine|hai |haissait|horreur de)/,
+ tendresse:/(emu |emue|emotion|touche par|attendri)/,
+ confiance:/(confian|sur de lui|sure d.elle)/,
+ pitie:/(pitie|compassion|plaign)/};
+const emotionsIn=t=>{const p=' '+plainTx(t).replace(/[^a-z' ]+/g,' ')+' ';return Object.keys(EMO_FAM).filter(k=>new RegExp('(?:^|[^a-z])'+EMO_FAM[k].source).test(p))};
 const distinct=(re,t)=>new Set([...t.matchAll(re)].map(m=>m[2].toLowerCase())).size;
 const C=(id,n,d,i,c,g,val,target)=>({id,n,d,i,c,g,t:()=>val()>=target,p:()=>[Math.min(val(),target),target]});
 const F=(id,n,d,i,c,g,t)=>({id,n,d,i,c,g,t});
@@ -828,15 +866,15 @@ const BADGES=[
  C('n7','Roman fleuve','2 500 mots dans une histoire','crown','#0f8fa8','Écriture',storyMax,2500),
  C('b18','Roman','3 chapitres dans une histoire','book','#c2381b','Écriture',()=>(ed.innerHTML.match(/<h2/gi)||[]).length,3),
  C('n9','Grand roman','10 chapitres dans une histoire','book','#8a3ee8','Écriture',()=>(ed.innerHTML.match(/<h2/gi)||[]).length,10),
- C('b19','Dialoguiste','5 répliques avec « — » dans une histoire','heart','#3150f0','Écriture',()=>(TX().match(/[—–]/g)||[]).length,5),
- C('n10','Grand bavard','20 répliques dans une histoire','heart','#f08ab8','Écriture',()=>(TX().match(/[—–]/g)||[]).length,20),
+ C('b19','Dialoguiste','5 répliques qui commencent par un tiret « - » dans une histoire','heart','#3150f0','Écriture',()=>(TX().match(/^[ \t\u00a0]*[-–—]/gm)||[]).length,5),
+ C('n10','Grand bavard','20 répliques dans une histoire','heart','#f08ab8','Écriture',()=>(TX().match(/^[ \t\u00a0]*[-–—]/gm)||[]).length,20),
  C('b20','Poète','3 comparaisons avec « comme »','star','#f08ab8','Écriture',()=>(TX().match(/\bcomme\b/gi)||[]).length,3),
  C('n11','Questionneur','5 questions dans une histoire','star','#0f8fa8','Écriture',()=>(TX().match(/\?/g)||[]).length,5),
  C('n12','Point d\'exclamation','5 phrases qui finissent par « ! »','star','#ff6b4a','Écriture',()=>(TX().match(/!/g)||[]).length,5),
  C('n13','Boum ! Crac !','3 onomatopées différentes (boum, miaou, plouf…)','heart','#ffb000','Écriture',()=>distinct(ONOW,TX()),3),
  C('n14','Arc-en-ciel','5 couleurs différentes dans une histoire','gem','#1b9a5a','Écriture',()=>distinct(COLW2,TX()),5),
- F('n15','Les cinq sens','Un bruit, une odeur, une couleur, un goût et un toucher dans la même histoire','gem','#8a3ee8','Écriture',()=>{const t=TX();return SOUNDW.test(t)&&SMELLW.test(t)&&COLORW.test(t)&&TOUCHW.test(t)&&TASTEW.test(t)}),
- C('n16','Cœur sensible','3 émotions différentes dans une histoire','heart','#f08ab8','Écriture',()=>{const t=TX().toLowerCase();return EMOS.filter(e=>t.includes(e)).length},3),
+ C('n15','Les cinq sens','Un bruit, une odeur, une couleur, un goût et un toucher dans la même histoire','gem','#8a3ee8','Écriture',()=>sensesIn(TX()).length,5),
+ C('n16','Cœur sensible','3 émotions différentes dans une histoire (peur, joie, colère, tristesse, surprise…)','heart','#f08ab8','Écriture',()=>emotionsIn(TX()).length,3),
  F('n17','Il était une fois','Commencer une histoire par « Il était une fois »','book','#e0a800','Écriture',()=>/^\s*(chapitre[^\n]*\n\s*)?il était une fois/i.test(TX())),
  F('n18','Point final','Finir une histoire par le mot « Fin »','book','#c2381b','Écriture',()=>/(^|\s)fin\s*[.!…]*\s*$/i.test(TX().trim())&&count()>=30),
  C('n19','Abécédaire','Des mots qui commencent par 20 lettres différentes','gem','#3150f0','Écriture',()=>new Set(wordsOf(TX()).map(w=>stripAcc(w)[0])).size,20),
@@ -916,7 +954,7 @@ const BADGES=[
  C('n75','Concentré','Utiliser le mode concentration','star','#3150f0','Atelier',()=>st('focus'),1),
  C('n76','Styliste','Changer la police d\'écriture','book','#f08ab8','Atelier',()=>(stats.fontSet||[]).length,1),
  C('n77','Collection de polices','Essayer 5 polices différentes','gem','#f08ab8','Atelier',()=>(stats.fontSet||[]).length,5),
- C('n78','Peintre','Utiliser les 5 couleurs d\'encre','gem','#e4462b','Atelier',()=>(stats.colorSet||[]).length,5),
+ C('n78','Peintre','Utiliser 5 couleurs d\'encre différentes','gem','#e4462b','Atelier',()=>(stats.colorSet||[]).length,5),
  F('n79','Mise en page','Utiliser le gras, l\'italique et le souligné','book','#3150f0','Atelier',()=>!!(stats.bold&&stats.italic&&stats.underline)),
  C('n80','Copieur','Copier ton histoire','star','#0f8fa8','Atelier',()=>st('copied'),1),
  C('n81','Grand écran','Agrandir la zone de Plume','star','#ff6b4a','Atelier',()=>st('bigPlume'),1),
@@ -976,7 +1014,7 @@ const SPARK=['Et si ton animal pouvait parler pendant une seule journée ?','Éc
 let roll={};
 function doRoll(){roll={};for(const k in D)roll[k]=D[k][Math.floor(Math.random()*D[k].length)];$('#diceOut').innerHTML=Object.entries(roll).map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}
 $('#bRoll').onclick=()=>{doRoll();stats.rolls=(stats.rolls||0)+1;checkBadges()};
-$('#bKeep').onclick=()=>{addNote(Object.values(roll).join(' · '))};
+$('#bKeep').onclick=()=>{addNote(Object.values(roll).join(' · '));bump('sparks')};
 $('#spark').innerHTML=SPARK.map(s=>`<li><button>${esc(s)}</button></li>`).join('');
 $('#spark').addEventListener('click',e=>{const b=e.target.closest('button');if(b)addNote(b.textContent)});
 function addNote(t){if(!t)return;stats.notesAdded=(stats.notesAdded||0)+1;(cur.notes||(cur.notes=[])).push(t);renderNotes();scheduleSave();toast('Idée rangée dans ton carnet')}
@@ -1301,7 +1339,7 @@ const SENSE=['un parfum de','une odeur de','un bruit de','un craquement','un mur
 const SOUNDW=/\b(bruit|entend|entendit|entendu|craqu|grond|murmur|cri[ae]?|siffl|résonn|chuchot|claqu|boum|crac|toc|grinç|grinc|écho|tonnerre|silence)/i;
 const COLORW=/\b(rouge|bleu|vert|jaune|noir|blanc|violet|rose|orange|gris|doré|argenté|marron|turquoise|brun)/i;
 const SMELLW=/\b(odeur|parfum|sentait|sent|puait|pue|arôme|goût|sucré|salé)/i;
-const EMOW=/\b(peur|joie|colère|triste|heureux|heureuse|content|fier|fière|inquiet|inquiète|honte|surpris|ému|émue|furieux|furieuse|soulagé|soulagée|émerveillé)/i;
+const EMOW={test:t=>emotionsIn(t).length>0};
 const STOP=new Set("le la les un une des de du d l à au aux et ou mais donc or ni car que qui quoi dont où ce cet cette ces son sa ses mon ma mes ton ta tes leur leurs notre nos votre vos il elle ils elles on je j tu nous vous me m te t se s lui y en ne n pas plus ni très tout tous toute toutes dans sur sous avec pour par sans vers chez est était a avait ont sont être avoir fait c ça cela qu comme si alors puis aussi bien là ici quand même encore déjà".split(' '));
 const DET={le:'m',un:'m',son:'m',mon:'m',ton:'m',ce:'m',cet:'m',du:'m',au:'m',la:'f',une:'f',sa:'f',ma:'f',ta:'f',cette:'f',les:'p',des:'p',ses:'p',mes:'p',tes:'p',ces:'p',leurs:'p',aux:'p',"l'":'?'};
 const SUBJ3=new Set(['il','elle','on']),SUBJP=new Set(['ils','elles']);
@@ -1348,7 +1386,7 @@ function analyze(t){
  const lowSeen=new Set((t.match(/(?<![\p{L}])\p{Ll}[\p{L}'’-]*/gu)||[]).map(norm));
  const rich=uniq(w.filter(x=>LEX.ready?(x.length>4&&lowSeen.has(x)&&!STOP.has(x)&&(e=>{if(!e)return false;const r0=e.r.find(r=>'NAV'.includes(r.c));if(!r0||e.r.some(r=>'DPCpra'.includes(r.c)))return false;const le=LEX.w.get(r0.l)||e;return e.f>=14&&e.f<=54&&le.f>=14&&le.f<=54&&!names0().has(x)})(LEX.w.get(x))):(ALLWORDS.has(x)&&x.length>4)));
  return{n,uniq:new Set(w).size,sent,avg:sent.length?sent.reduce((a,b)=>a+b,0)/sent.length:0,longest:Math.max(0,...sent),
-  dialogue:(t.match(/[«"—–]/g)||[]).length,ex:(t.match(/[!?]/g)||[]).length,sound:SOUNDW.test(t),color:COLORW.test(t),smell:SMELLW.test(t),emo:EMOW.test(t),comme:(t.match(/\bcomme\b/gi)||[]).length,reps,rich,hero:hero(t)}
+  dialogue:(t.match(/^[ \t\u00a0]*[-–—]/gm)||[]).length+(t.match(/[«“]/g)||[]).length,ex:(t.match(/[!?]/g)||[]).length,sound:sensesIn(t).includes('entendre'),color:sensesIn(t).includes('voir'),smell:sensesIn(t).includes('sentir'),emo:EMOW.test(t),comme:(t.match(/\bcomme\b/gi)||[]).length,reps,rich,hero:hero(t)}
 }
 function compliment(a){
  const c=[];
@@ -1370,7 +1408,7 @@ function tip(a){
  if(a.n<20)return{m:'Astuce d\'écrivain : écris sans t\'arrêter pendant deux minutes, tu corrigeras après !'};
  if(a.longest>35)return{m:`Une de tes phrases fait ${a.longest} mots. Essaie de la couper en deux avec un point : le lecteur respirera mieux.`};
  if(a.avg&&a.avg<5&&a.sent.length>=4)return{m:'Tes phrases sont très courtes. Essaie d\'en relier deux avec un mot comme :',w:['mais','parce que','alors que','quand','pendant que']};
- if(!a.dialogue&&age()!=='6-10')return{m:'Astuce : fais parler un personnage ! Commence la ligne par un tiret « — » et écris ce qu\'il dit.'};
+ if(!a.dialogue&&age()!=='6-10')return{m:'Astuce : fais parler un personnage ! Commence la ligne par un tiret « - » et écris ce qu\'il dit.'};
  if(!a.sound&&!a.smell)return{m:'Astuce : ajoute un bruit ou une odeur, le lecteur aura l\'impression d\'être dans ton histoire.',w:byLevel(SENSE,4)};
  if(!a.color)return{m:'Astuce : ajoute une couleur pour qu\'on voie mieux la scène.',w:pick(['rouge vif','bleu nuit','doré','vert émeraude','gris argenté','rose pâle'],4)};
  if(!a.emo)return{m:'Astuce : dis ce que ressent ton personnage (peur, joie, colère…). On s\'attache à lui !'};
@@ -1384,7 +1422,7 @@ function styleNote(a){
  return 'Tu écris avec '+p.join(', ')+'.';
 }
 const DEFIS=[
- {id:'dial',t:'Fais parler un personnage : ajoute une réplique avec un tiret « — ».',c:a=>a.dialogue},
+ {id:'dial',t:'Fais parler un personnage : ajoute une réplique qui commence par un tiret « - ».',c:a=>a.dialogue},
  {id:'son',t:'Ajoute un bruit dans ta scène (un craquement, un murmure, un grondement…).',c:a=>a.sound?1:0},
  {id:'col',t:'Glisse une couleur dans ta prochaine phrase.',c:a=>a.color?1:0},
  {id:'odeur',t:'Décris une odeur ou un goût.',c:a=>a.smell?1:0},
@@ -1433,10 +1471,9 @@ function wordHelp(w,prev,rep){
  const ls=LEX.ready?lexSyn(w):null,alt=ls||lookup(w,prev),info=LEX.ready?describe(w):'',hom=LEX.ready?homophones(w):[];
  if(!info&&!alt&&!hom.length)return false;
  say({k:info?'Ce que je sais de ce mot':'',m:(info?info+' ':'')+(alt?(rep?'Clique sur un mot pour remplacer « '+w+' », ou garde le tien :':'Pour le remplacer, tu peux dire :'):'Je n\'ai pas encore de synonymes pour ce mot.'),mots:alt?(alt.length<=8?alt:byLevel(alt,8)):null,replace:rep?w:null});
+ if(hom.length){stats.homSeen=1;bump('_x',0);say({k:'Ses homonymes',m:'Attention : ces mots se prononcent comme « '+w+' », mais ils ne s\'écrivent pas pareil et n\'ont pas le même sens.'+(rep?' Si tu t\'es trompé, clique pour remplacer :':''),mots:hom,replace:rep?w:null})}
  const ve=LEX.ready&&entry(w),vl=ve&&(ve.r.find(r=>r.c==='V'&&isVerbLemma(r.l))||{}).l;
  if(vl){const el=say({k:'Conjugaison',m:'Tu veux voir toutes les formes du verbe « '+vl+' », à tous les temps ?'});el.insertAdjacentHTML('beforeend',`<div class="chips"><button class="chip cjb" data-conj="${esc(vl)}" data-rep="${rep?esc(w):''}" data-refl="${/^(se|s'|s’|me|m'|m’|te|t'|t’)$/i.test(prev||'')?1:0}">Voir toutes ses conjugaisons</button></div>`)}
- if(hom.length){stats.homSeen=1;}
- if(hom.length)say({k:'Attention aux homonymes !',m:'Ces mots se prononcent comme « '+w+' », mais ils ne s\'écrivent pas pareil et n\'ont pas le même sens.'+(rep?' Si tu t\'es trompé, clique pour remplacer :':''),mots:hom,replace:rep?w:null});
  return true;
 }
 function lookup(word,prev){const w=norm(word);let alt=synFor(w,prev);if(!alt&&w.endsWith('s'))alt=synFor(w.slice(0,-1),prev);if(!alt&&w.endsWith('e'))alt=synFor(w.slice(0,-1),prev);return alt}
@@ -2773,9 +2810,15 @@ function describe(w){const e=entry(w);if(!e)return'';const r=[...e.r].sort((a,b)
  const gn=[r.g==='m'?'masculin':r.g==='f'?'féminin':'',r.n==='s'?'singulier':r.n==='p'?'pluriel':''].filter(Boolean).join(' ');
  return`« ${e.o} » est un ${CGN[r.c]||'mot'}${gn?' '+gn:''}${r.l!==e.o?', de la famille de « '+r.l+' »':''}.`}
 /* homonymes : même prononciation, autre orthographe et autre sens */
-function homophones(w){const e=entry(w);if(!e||!e.ph)return[];const lem=new Set(e.r.map(r=>r.l));
- return(LEX.byPh.get(e.ph)||[]).filter(x=>x!==e&&x.f>=26&&(x.r.some(r=>r.c!=='V')||x.f>=42)&&!x.r.some(r=>lem.has(r.l))&&!/ /.test(x.o)).sort((a,b)=>b.f-a.f).slice(0,8)
-  .map(x=>{const r=[...x.r].sort((a,b)=>'NVADPpCraOX'.indexOf(a.c)-'NVADPpCraOX'.indexOf(b.c))[0];return[x.o,CGN[r.c]==='verbe'?'verbe '+r.l:(CGN[r.c]||'mot')]})}
+function homophones(w){const e=entry(w);if(!e||!e.ph)return[];const lem=new Set(e.r.map(r=>r.l)),strip=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ const cands=(LEX.byPh.get(e.ph)||[]).filter(x=>x!==e&&x.f>=24&&(x.r.some(r=>r.c!=='V')||x.f>=40)&&!x.r.some(r=>lem.has(r.l))&&!/ /.test(x.o)&&x.r.some(r=>r.c!=='O'||x.f>=50)).sort((a,b)=>b.f-a.f);
+ const out=[],seen=new Set([strip(e.o)]),lemSeen=new Set();
+ for(const x of cands){const k=strip(x.o);if(seen.has(k))continue;/* « mere » n'est que « mère » sans accent */
+  if(k===x.o&&cands.some(y=>y!==x&&strip(y.o)===k&&y.o!==k))continue;
+  const L=x.r.map(r=>r.l).sort().join('|');if(lemSeen.has(L)&&out.length>=3)continue;seen.add(k);lemSeen.add(L);out.push(x);if(out.length>=6)break}
+ const AUX=new Set(['être','avoir','aller','faire','pouvoir','vouloir','voir','savoir']);
+ return out.map(x=>{const fn=x.r.find(r=>'PrapC'.includes(r.c)),aux=x.r.find(r=>r.c==='V'&&AUX.has(r.l)),r=fn||aux||[...x.r].sort((a,b)=>'NAVDOX'.indexOf(a.c)-'NAVDOX'.indexOf(b.c))[0];
+  return[x.o,CGN[r.c]==='verbe'?'verbe '+r.l:(CGN[r.c]||'mot')]})}
 /* synonymes accordés et conjugués comme le mot de l'enfant */
 function inflect(s,r,isBase,wo){
  let refl=false,m=/^s(?:e |['’])(.+)$/.exec(s);if(m){refl=true;s=m[1]}
@@ -2883,7 +2926,7 @@ function checkFautes(){
  if(!a.n){say({m:'Ta page est encore vide ! Écris quelques phrases et je les lirai.'});return}
  const names=charNames().filter(n=>t.includes(n)),ns=a.sent.length||1;
  say({k:'Lecture de Plume',m:`J'ai lu toute ton histoire : ${a.n} mots et ${ns} phrase${ns>1?'s':''}.`+(names.length?` J'y ai croisé ${names.join(', ')}.`:'')+' '+compliment(a)});
- const iss=scanAll().filter(x=>!x.soft);
+ const iss=scanAll().filter(x=>!x.soft);if(LEX.ready&&iss.some(x=>{const a=entry(x.wrong),b=entry(String(x.fix||'').split(' ')[0]);return a&&b&&a.ph&&a.ph===b.ph&&a!==b})){stats.homSeen=1;bump('_x',0)}
  if(!iss.length&&a.n>=50)stats.zeroFaute=1;
  if(!iss.length){say({k:'Super !',m:'Je n\'ai trouvé aucune des fautes que je connais. Bravo ! Si ton ordinateur souligne un mot en rouge, vérifie-le quand même.',cls:'defi'});checkBadges();return}
  const self=!!prefs?.selfFix,show=iss.slice(0,8),el=document.createElement('div');el.className='msg';
@@ -3629,7 +3672,7 @@ function tenseReport(){
 /* ---- la petite phrase de Plume change toute seule ---- */
 const subEl=$('#plumeSub');
 const SUB_MOOD=['Je suis toute ouïe… enfin, toute plume !','Chut… je lis ton histoire.','J\'ai hâte de lire la suite !','Mes mots préférés ? Ceux que tu vas écrire.','Une plume, ça chatouille les idées !','Je ne change jamais ton texte : c\'est ton histoire.','Si tu bloques, je suis là. Appuie sur « Je suis bloqué·e ».','Clique sur moi pour une surprise !','Je rêve d\'un dragon qui fait de la poésie…','Aujourd\'hui, j\'ai envie d\'une histoire de pirates !','Les mots, c\'est comme des bonbons : on en veut toujours plus.','Psst… sélectionne un mot, je t\'en trouverai d\'autres.'];
-const SUB_TIPS=['Astuce : lis ta phrase à voix haute.','Astuce : commence au milieu de l\'action !','Astuce : fais parler tes personnages avec un tiret « — ».','Astuce : un bruit ou une odeur, et on s\'y croirait.','Astuce : ton héros a besoin d\'un problème à résoudre.','Astuce : varie les débuts de phrases.','Astuce : avec « ils », le verbe finit souvent par -nt.','Astuce : après « nous », on écrit -ons.','Astuce : « vendu » marche ? Alors c\'est « é ».','Astuce : une phrase trop longue ? Coupe-la avec un point.','Astuce : termine ton chapitre sur une question.','Astuce : montre au lieu de dire : « ses mains tremblaient ».'];
+const SUB_TIPS=['Astuce : lis ta phrase à voix haute.','Astuce : commence au milieu de l\'action !','Astuce : fais parler tes personnages avec un tiret « - ».','Astuce : un bruit ou une odeur, et on s\'y croirait.','Astuce : ton héros a besoin d\'un problème à résoudre.','Astuce : varie les débuts de phrases.','Astuce : avec « ils », le verbe finit souvent par -nt.','Astuce : après « nous », on écrit -ons.','Astuce : « vendu » marche ? Alors c\'est « é ».','Astuce : une phrase trop longue ? Coupe-la avec un point.','Astuce : termine ton chapitre sur une question.','Astuce : montre au lieu de dire : « ses mains tremblaient ».'];
 const SUB_JOKES=[['Pourquoi un livre n\'a jamais froid ?','Il a une couverture !'],['Le comble pour un crayon ?','Avoir mauvaise mine !'],['Que dit le zéro au huit ?','« Jolie ceinture ! »'],['Quel animal est le plus heureux ?','Le hibou : sa femme est chouette !'],['Qu\'est-ce qui a des dents sans mordre ?','Un peigne !'],['Pourquoi les canards sont à l\'heure ?','Ils sont dans l\'étang !'],['Le comble pour un écrivain ?','Perdre le fil de son histoire !'],['Que fait une fraise sur un cheval ?','Tagada, tagada !'],['Le comble pour une plume ?','Écrire comme un pied !'],['Que se dit un mur à un autre mur ?','« On se retrouve au coin ! »']];
 const WOTD=['scintiller','murmurer','mystérieux','gigantesque','s\'émerveiller','frissonner','étincelant','chuchoter','minuscule','galoper','grimoire','tourbillon','époustouflant','crépuscule','se faufiler','éblouissant','farfelu','vagabonder','pétiller','ensorcelé','dégringoler','malicieux','émerveillement','clapotis'];
 function subDynamic(){
@@ -3757,7 +3800,7 @@ function improvements(a,S,t){const m=[];
  if(S.long.length)m.push({m:T3('Une phrase est trop longue : mets un point au milieu.',`${S.long.length} phrase${S.long.length>1?'s sont trop longues':' est trop longue'} (plus de ${S.max} mots). Coupe-la avec un point.`,`${S.long.length} phrase${S.long.length>1?'s dépassent':' dépasse'} ${S.max} mots : scinde-les pour gagner en clarté.`)});
  if(S.runs.length)m.push({m:T3('Colle deux petites phrases avec « et ».','Plusieurs phrases très courtes à la suite : relie-en deux avec « et », « mais » ou « parce que ».','Enchaînement de phrases brèves : relie-les par des connecteurs ou des subordonnées, sauf effet voulu.')});
  if(S.same.length)m.push({m:T3(`Plusieurs phrases commencent par « ${S.same[0].f} ». Change le début !`,`Plusieurs phrases commencent par « ${S.same[0].f} ». Varie les débuts de phrases.`,`Attaques de phrases répétitives (« ${S.same[0].f} ») : varie avec des compléments circonstanciels ou des participes.`)});
- if(!a.dialogue&&a.n>=40&&tier()>0)m.push({m:T3('','Fais parler un personnage : commence la ligne par « — » et écris ce qu\'il dit.','Aucun dialogue : une réplique au discours direct donnerait vie à la scène.')});
+ if(!a.dialogue&&a.n>=40&&tier()>0)m.push({m:T3('','Fais parler un personnage : commence la ligne par un tiret « - » et écris ce qu\'il dit.','Aucun dialogue : une réplique au discours direct donnerait vie à la scène.')});
  if(!a.sound&&!a.smell&&a.n>=40)m.push({m:T3('Ajoute un bruit : « boum », « crac »…','Ajoute un bruit ou une odeur : le lecteur aura l\'impression d\'être dans ton histoire.','Peu de notations sensorielles : sollicite l\'ouïe, l\'odorat, le toucher.')});
  if(!a.color&&a.n>=40)m.push({m:T3('Ajoute une couleur !','Ajoute une couleur pour qu\'on voie mieux la scène.','Enrichis la description visuelle (couleurs, lumières, matières).')});
  if(!a.emo&&a.n>=40)m.push({m:T3('Dis si ton héros est content ou s\'il a peur.','Dis ce que ressent ton personnage : peur, joie, colère, surprise…','Exprime davantage l\'intériorité des personnages (émotions, pensées).')});
@@ -4336,7 +4379,7 @@ function rewardCheck(){
  setTimeout(()=>{celebrate();plumeAnim('spin');say({k:'Nouveau cadeau !',m:`Avec tes ${n} trésors, tu as gagné : ${list} ! ${names.length>1?'Je les ai mis':'Je l\'ai mis'} tout de suite, tu peux changer ça dans l'onglet Trésors.${rk?` Ton nouveau titre : ${rk[1]} !`:''}`,cls:'defi'})},700)}
 /* les étincelles quand on écrit */
 let sparkT=0;ed.addEventListener('input',()=>{if(!document.body.classList.contains('deco-sparkle')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const now=Date.now();if(now-sparkT<110)return;sparkT=now;
- const rc=caretRect();if(!rc||!rc.height)return;const s=document.createElement('i');s.className='spark';s.style.left=(rc.right+Math.random()*6-3)+'px';s.style.top=(rc.top+rc.height/2)+'px';s.style.setProperty('--dx',(Math.random()*30-15)+'px');s.style.background=['#ffd23f','#ff6b4a','#3150f0','#8a3ee8','#1b9a5a'][Math.floor(Math.random()*5)];document.body.appendChild(s);setTimeout(()=>s.remove(),800)});
+ const rc=caretRect();if(!rc||!rc.height)return;const s=document.createElement('i');s.className='typeSpark';s.style.left=(rc.right+Math.random()*6-3)+'px';s.style.top=(rc.top+rc.height/2)+'px';s.style.setProperty('--dx',(Math.random()*30-15)+'px');s.style.background=['#ffd23f','#ff6b4a','#3150f0','#8a3ee8','#1b9a5a'][Math.floor(Math.random()*5)];document.body.appendChild(s);setTimeout(()=>s.remove(),800)});
 
 /* ---- onglets, fenêtres, réglages ---- */
 $$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));$$('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.t));if(b.dataset.t==='pTre')renderTre();if(b.dataset.t==='pPerso')renderChars();if(b.dataset.t==='pLieu')renderPlaces()});
