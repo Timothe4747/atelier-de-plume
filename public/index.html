@@ -186,6 +186,11 @@ body.deco-stars .page::after{content:'';position:absolute;left:4px;top:0;bottom:
 body.deco-ribbon .page::before{content:'';position:absolute;top:-4px;right:34px;width:22px;height:74px;background:linear-gradient(90deg,#c2381b,#e4462b 40%,#c2381b);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);box-shadow:0 2px 4px rgba(0,0,0,.2);pointer-events:none;z-index:2}
 .spark{position:fixed;width:8px;height:8px;pointer-events:none;z-index:8000;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:sparkUp .8s ease-out forwards}
 @keyframes sparkUp{from{transform:translate(0,0) scale(1.3);opacity:1}to{transform:translate(var(--dx),-34px) scale(.3) rotate(120deg);opacity:0}}
+.dot.rainbow{background:conic-gradient(#e4462b,#ff8a00,#e0a800,#1b9a5a,#0f8fa8,#3150f0,#8a3ee8,#d94d8f,#e4462b)}
+.inkPop{position:fixed;z-index:9500;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 16px 40px rgba(0,0,30,.28);width:min(300px,calc(100vw - 16px))}
+.inkGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}.inkGrid button{aspect-ratio:1;border-radius:50%;border:2px solid rgba(0,0,0,.12);min-height:0;padding:0}.inkGrid button:hover,.inkGrid button:focus-visible{transform:scale(1.18);box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.inkMore{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;cursor:pointer}.inkMore input{width:34px;height:28px;border:none;padding:0;background:none;cursor:pointer}
+html[data-bw="1"]{filter:grayscale(1) contrast(1.08)}
 .lgintro{color:var(--soft);margin:0 0 6px}.lgnote{color:var(--soft);font-size:13px;margin:6px 0 0}.lgchk{display:flex;gap:8px;align-items:center;font-family:Andika!important;font-weight:400!important}
 .inbox{border:2px dashed var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
 .btn.danger{background:#e4462b}.btn.danger.sure{background:#9b1c0c}
@@ -324,11 +329,18 @@ body.bigPlume .msg{font-size:19px}body.bigPlume .chip{font-size:17px}
 .sw[aria-pressed=true]{border-color:var(--ink)!important;box-shadow:0 0 0 2px var(--paper) inset}
 .trs button{min-height:38px;font-size:15px}
 .box .fld input[type=text]{width:100%}
-body.focus .top>:not(.logo):not(.goal){display:none}
-body.focus .work{max-width:900px}body.focus .paperWrap{min-height:calc(100vh - 90px)}
-body.focus .toPlume{display:none!important}
-.focusExit{display:none;position:fixed;right:16px;bottom:16px;z-index:12;background:var(--sun);color:var(--sunInk);font-family:Fredoka;font-weight:600;padding:0 18px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
-body.focus .focusExit{display:block}
+/* mode concentration : seulement la page et le texte */
+body.focus{background:light-dark(#ece9e1,#15182c)!important;background-image:none!important}
+body.focus .top,body.focus .tools,body.focus #exNote,body.focus .foot,body.focus .toPlume,body.focus .side{display:none!important}
+body.focus .work{display:block!important;max-width:780px;margin:0 auto;padding:56px 16px 0}
+body.focus .paperWrap{min-height:calc(100vh - 56px);border-radius:18px 18px 0 0;box-shadow:0 12px 50px rgba(20,20,40,.10);border:none}
+body.focus .page{background-image:none!important;padding-left:0}body.focus .page::before,body.focus .page::after{display:none}
+body.focus .ed{font-size:calc(var(--edSize) + 3px);line-height:calc(var(--lh) * 1.12);padding:10px clamp(18px,6vw,64px) 40vh;max-width:none}
+.focusTitle{display:none}body.focus .focusTitle{display:block;font-family:var(--edFont);font-size:calc(var(--edSize) + 12px);font-weight:700;color:var(--ink);opacity:.85;padding:44px clamp(18px,6vw,64px) 6px;margin:0;line-height:1.2}
+.focusBar{display:none;position:fixed;top:14px;right:16px;z-index:12;align-items:center;gap:10px;opacity:.35;transition:opacity .25s;font-size:14px;color:var(--soft)}
+.focusBar:hover,.focusBar:focus-within,body.focus.idle .focusBar:hover{opacity:1}body.focus .focusBar{display:flex}
+.focusBar button{background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:999px;padding:0 14px;min-height:36px;font-family:Fredoka;font-weight:600}
+body.focus.typing .focusBar{opacity:0}
 .tools button[aria-pressed=true]{background:var(--line)}
 @media(max-width:940px){.work,body.bigPlume .work{grid-template-columns:minmax(0,1fr)}.bigBtn{display:none}.side{position:relative;top:0;height:80vh}.paperWrap{min-height:70vh}
 .toPlume{display:inline-flex;position:fixed;right:14px;bottom:14px;z-index:10;background:var(--accent);color:#fff;font-family:Fredoka;padding:0 18px;box-shadow:0 8px 20px rgba(0,0,0,.3);align-items:center;gap:6px}}
@@ -372,7 +384,7 @@ body.focus .focusExit{display:block}
  <button class="tb" id="bLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h6v14H4zM14 5h6v14h-6z"/></svg><span>Mes livres</span></button>
  <button class="tb" id="bOpen" title="Ouvrir un livre enregistré (Ctrl+O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1H7l-4 9z"/><path d="M3 19l3-9h17l-3 9z"/></svg><span>Ouvrir</span></button>
  <button class="tb" id="bSave" title="Enregistrer mon livre (Ctrl+S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Enregistrer</span></button>
- <input type="file" id="fileIn" accept=".atelier,.json,.txt,.html,.htm" hidden>
+ <input type="file" id="fileIn" accept=".atelier,.json,.pdf,.txt,.html,.htm" hidden>
  <button class="tb hot" id="bNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span>Nouvelle</span></button>
  <button class="tb" id="bTheme" aria-label="Personnaliser l'atelier" title="Personnaliser l'atelier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 100 18c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.7 1.7-1.7H17a4 4 0 004-4c0-4.4-4-8.2-9-8.2z"/><circle cx="7.5" cy="11" r="1.3" fill="currentColor"/><circle cx="10.5" cy="7.3" r="1.3" fill="currentColor"/><circle cx="15" cy="7.8" r="1.3" fill="currentColor"/></svg></button>
  <button class="tb" id="bSet" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg><span>Réglages</span></button>
@@ -390,10 +402,8 @@ body.focus .focusExit{display:block}
    <button data-c="h2" title="Titre de chapitre"><span class="lab">Chapitre</span><b class="f" style="font-size:18px">T</b></button>
    <span class="sep"></span>
    <button data-col="inherit" title="Encre normale"><span class="dot" style="background:var(--ink)"></span></button>
-   <button data-col="#e4462b" title="Rouge"><span class="dot" style="background:#e4462b"></span></button>
-   <button data-col="#1f7ae0" title="Bleu"><span class="dot" style="background:#1f7ae0"></span></button>
-   <button data-col="#8a3ee8" title="Violet"><span class="dot" style="background:#8a3ee8"></span></button>
-   <button data-col="#1b9a5a" title="Vert"><span class="dot" style="background:#1b9a5a"></span></button>
+   <button data-col="#e4462b" id="inkLast" title="Dernière couleur"><span class="dot" style="background:#e4462b"></span></button>
+   <button id="bInk" title="Plus de couleurs" aria-haspopup="true" aria-expanded="false"><span class="dot rainbow"></span><span class="lab">Couleurs</span></button>
    <button id="bFont" title="Changer la police d'écriture"><span class="aa">Aa</span><span class="lab">Police</span></button>
    <span class="sep"></span>
    <button id="bChar" title="Créer un personnage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0114 0M19 8v6M16 11h6"/></svg><span class="lab">Personnage</span></button>
@@ -403,7 +413,7 @@ body.focus .focusExit{display:block}
    <button id="bCopy" title="Copier mon histoire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/></svg><span class="lab">Copier</span></button>
   </div>
   <p class="example" id="exNote" hidden>Histoire d'exemple pour essayer : continue-la, efface-la, ou crée une nouvelle histoire.</p>
-  <div class="page"><div class="ed" id="ed" contenteditable="true" spellcheck="true" lang="fr" aria-label="Ton histoire" data-ph="Écris ta première phrase ici… Elle n'a pas besoin d'être parfaite !"></div></div>
+  <div class="page"><h1 class="focusTitle" id="focusTitle" aria-hidden="true"></h1><div class="ed" id="ed" contenteditable="true" spellcheck="true" lang="fr" aria-label="Ton histoire" data-ph="Écris ta première phrase ici… Elle n'a pas besoin d'être parfaite !"></div></div>
   <div class="foot"><span><b id="wc">0</b> mots</span><span><b id="sc">0</b> phrases</span><span id="saved">Enregistré</span><button class="doneBtn" id="bDone" type="button">J'ai fini mon livre !</button></div>
  </section>
 
@@ -449,7 +459,7 @@ body.focus .focusExit{display:block}
   </div>
  </aside>
 </main>
-<button class="focusExit" id="focusExit">Quitter la concentration</button>
+<div class="focusBar" id="focusBar"><span id="fbWords">0 mot</span><button type="button" id="focusExit" title="Quitter (Échap)">Quitter la concentration</button></div>
 <button class="toPlume" id="toPlume"><svg width="22" height="22"><use href="#plume"/></svg>Plume</button>
 
 <div class="ov" id="ovWelcome"><div class="box">
@@ -457,14 +467,14 @@ body.focus .focusExit{display:block}
  <h2>Bienvenue dans l'atelier !</h2>
  <p>Ici, tu écris tes histoires, tes poèmes, tes idées. Plume t'aide si tu bloques, mais c'est toi l'écrivain.</p>
  <div class="fld"><label for="wName">Comment tu t'appelles ?</label><input type="text" id="wName" maxlength="30" placeholder="Ton prénom"></div>
- <div class="fld"><span class="lbl">Quel âge as-tu ?</span><div class="seg" id="wAge"><button aria-pressed="false" data-v="6-8">6 à 8 ans</button><button aria-pressed="true" data-v="9-11">9 à 11 ans</button><button aria-pressed="false" data-v="12-14">12 à 14 ans</button><button aria-pressed="false" data-v="14-16">14 à 16 ans</button><button aria-pressed="false" data-v="16-18">16 à 18 ans</button></div></div>
+ <div class="fld"><span class="lbl">Quel âge as-tu ?</span><div class="seg" id="wAge"><button data-v="6-10" aria-pressed="false">6 à 10 ans</button><button data-v="10-14" aria-pressed="true">10 à 14 ans</button><button data-v="14-18">14 à 18 ans</button><button data-v="18+">18 ans et plus</button></div></div>
  <button class="btn" id="wGo" style="width:100%;font-size:18px">C'est parti !</button>
 </div></div>
 
 <div class="ov" id="ovSet"><div class="box">
  <h2>Réglages</h2><p>Pour que l'atelier te ressemble.</p>
  <div class="fld"><label for="sName">Prénom</label><input type="text" id="sName" maxlength="30"></div>
- <div class="fld"><span class="lbl">Âge</span><div class="seg" id="sAge"><button data-v="6-8">6 à 8 ans</button><button data-v="9-11">9 à 11 ans</button><button data-v="12-14">12 à 14 ans</button><button data-v="14-16">14 à 16 ans</button><button data-v="16-18">16 à 18 ans</button></div></div>
+ <div class="fld"><span class="lbl">Âge</span><div class="seg" id="sAge"><button data-v="6-10">6 à 10 ans</button><button data-v="10-14">10 à 14 ans</button><button data-v="14-18">14 à 18 ans</button><button data-v="18+">18 ans et plus</button></div></div>
  <div class="fld"><span class="lbl">Couleurs et menus</span><button class="btn alt" id="sThemeBtn" type="button">Personnaliser l'atelier</button></div>
  <div class="fld"><span class="lbl">Écriture du carnet</span><button class="btn alt" id="sFontBtn" type="button">Changer la police d'écriture</button></div>
  <div class="fld"><span class="lbl">Taille des lettres</span><div class="seg" id="sSize"><button data-v="17">Petite</button><button data-v="19">Moyenne</button><button data-v="23">Grande</button></div></div>
@@ -473,6 +483,7 @@ body.focus .focusExit{display:block}
  <div class="fld"><label class="watch" style="padding:0;font-size:15px;color:var(--ink)"><input type="checkbox" id="funChk" checked> Plume raconte des blagues et donne des conseils de temps en temps</label></div>
  <div class="fld"><label class="watch" style="padding:0;font-size:15px;color:var(--ink)"><input type="checkbox" id="watch" checked> Plume me donne un petit coup de pouce quand je fais une pause</label></div>
  <p style="font-size:13px;margin:0 0 12px">Le grand dictionnaire de Plume vient de Lexique 4 (lexique.org) : 170 782 mots, leur prononciation et leurs formes.</p>
+ <div class="fld"><label class="watch" style="padding:0;font-size:15px;color:var(--ink)"><input type="checkbox" id="bwChk"> Mode noir et blanc (l'écran sans couleurs)</label></div>
  <div class="fld"><span class="lbl">Visite guidée</span><button class="btn alt" id="sTour" type="button">Revoir la visite avec Plume</button></div>
  <button class="btn" id="sOk" style="width:100%">Terminé</button>
 </div></div>
@@ -514,7 +525,7 @@ body.focus .focusExit{display:block}
  <div class="svopts">
   <button class="svo" id="svBook"><b>Fichier de l'atelier</b><span>Pour rouvrir ton livre plus tard, ici ou sur un autre ordinateur, et continuer à l'écrire. Les personnages, les lieux et les idées sont gardés.</span></button>
   <button class="svo" id="svRead"><b>Vrai livre à feuilleter</b><span>Ton histoire mise en pages comme un vrai livre : une couverture (avec ton image si tu veux), des pages numérotées à tourner, tes personnages et tes lieux. Tu peux aussi l'imprimer.</span></button>
-  <button class="svo" id="svTxt"><b>Texte simple</b><span>Seulement les mots de ton histoire, à ouvrir dans n'importe quel logiciel.</span></button>
+  <button class="svo" id="svTxt"><b>Document PDF</b><span>Ton histoire mise en pages, à ouvrir dans Word, à imprimer ou à envoyer. Tu pourras aussi le rouvrir ici avec « Ouvrir ».</span></button>
  </div>
  <button class="btn alt" id="svClose" style="width:100%">Fermer</button>
 </div></div>
@@ -538,6 +549,7 @@ body.focus .focusExit{display:block}
   <div class="fld"><span class="lbl">Couleur des boutons</span><div class="seg" id="uiAccent"></div></div>
  </div>
  <div class="fld"><span class="lbl">Jour ou nuit</span><div class="seg" id="uiMode"><button data-v="auto">Automatique</button><button data-v="clair">Clair</button><button data-v="sombre">Sombre</button></div></div>
+ <div class="fld"><span class="lbl">Couleurs de l'écran</span><div class="seg" id="uiBw"><button data-v="0">En couleurs</button><button data-v="1">Noir et blanc</button></div></div>
  <div class="fld"><span class="lbl">Le papier du carnet</span><div class="seg" id="uiPaper"></div></div>
  <div class="fld"><span class="lbl">Couleur du papier</span><div class="seg" id="uiPaperc"></div></div>
  <div class="g2">
@@ -705,7 +717,34 @@ $$('.tools [data-c]').forEach(b=>b.addEventListener('click',()=>{
  ed.dispatchEvent(new Event('input'));
 }));
 $$('.tools [data-col]').forEach(b=>b.addEventListener('click',()=>{ed.focus();const c=b.dataset.col==='inherit'?getComputedStyle(ed).color:b.dataset.col;document.execCommand('foreColor',false,c);scheduleSave()}));
-function setFocus(on){document.body.classList.toggle('focus',on);$('#focusLab').textContent=on?'Quitter':'Concentration';$('#bFocus').setAttribute('aria-pressed',on);if(on){ed.focus();toast('Mode concentration : rien que toi et ton histoire')}}
+/* la palette de couleurs d'encre */
+const INKS=[['#e4462b','Rouge'],['#b3261e','Rouge foncé'],['#ff6b81','Rose'],['#d94d8f','Framboise'],['#c2185b','Fuchsia'],['#ff8a00','Orange'],['#ef6c00','Citrouille'],['#c25e00','Orange brûlé'],
+ ['#e0a800','Or'],['#8a6d00','Moutarde'],['#827717','Olive'],['#6aa312','Vert pomme'],['#1b9a5a','Vert'],['#0f6b3a','Vert sapin'],['#00897b','Menthe'],['#2a9d8f','Turquoise'],
+ ['#0f8fa8','Bleu lagon'],['#1f7ae0','Bleu'],['#3150f0','Bleu roi'],['#0b3d91','Bleu nuit'],['#5e35b1','Indigo'],['#8a3ee8','Violet'],['#b06ad9','Lilas'],['#6d2e7a','Prune'],
+ ['#a0522d','Terre'],['#8b5a2b','Marron'],['#795548','Noisette'],['#5c3b1e','Chocolat'],['#9e9e9e','Gris clair'],['#6b7280','Gris'],['#374151','Gris foncé'],['#000000','Noir']];
+let inkRange=null;
+function inkSave(){const s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))inkRange=s.getRangeAt(0).cloneRange()}
+function inkApply(c){ed.focus();if(inkRange){const s=getSelection();s.removeAllRanges();s.addRange(inkRange)}document.execCommand('foreColor',false,c);scheduleSave();
+ const l=$('#inkLast');l.dataset.col=c;l.querySelector('.dot').style.background=c;l.title='Dernière couleur : '+((INKS.find(x=>x[0]===c)||[0,'ta couleur'])[1]);try{localStorage.setItem('atelier_ink',c)}catch(e){}inkClose()}
+function inkClose(){const p=document.getElementById('inkPop');if(p)p.remove();$('#bInk').setAttribute('aria-expanded','false')}
+$('#bInk').addEventListener('mousedown',e=>{e.preventDefault();inkSave()});
+$('#bInk').addEventListener('click',e=>{if(document.getElementById('inkPop')){inkClose();return}inkSave();
+ const p=document.createElement('div');p.id='inkPop';p.className='inkPop';p.setAttribute('role','dialog');p.setAttribute('aria-label','Couleurs d\'encre');
+ p.innerHTML=`<div class="inkGrid">${INKS.map(([c,n])=>`<button type="button" data-ink="${c}" title="${n}" aria-label="${n}" style="background:${c}"></button>`).join('')}</div><label class="inkMore"><input type="color" value="#e4462b"> Une autre couleur…</label>`;
+ document.body.appendChild(p);const r=$('#bInk').getBoundingClientRect(),w=p.offsetWidth;p.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+'px';p.style.top=(r.bottom+6)+'px';$('#bInk').setAttribute('aria-expanded','true');
+ p.addEventListener('mousedown',ev=>{if(!ev.target.closest('input'))ev.preventDefault()});
+ p.addEventListener('click',ev=>{const b=ev.target.closest('[data-ink]');if(b)inkApply(b.dataset.ink)});
+ p.querySelector('input').addEventListener('change',ev=>inkApply(ev.target.value))});
+document.addEventListener('mousedown',e=>{if(document.getElementById('inkPop')&&!e.target.closest('#inkPop,#bInk'))inkClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('inkPop'))inkClose()});
+addEventListener('scroll',()=>{if(document.getElementById('inkPop'))inkClose()},true);
+try{const c=localStorage.getItem('atelier_ink');if(c&&/^#[0-9a-f]{6}$/i.test(c)){const l=$('#inkLast');l.dataset.col=c;l.querySelector('.dot').style.background=c}}catch(e){}
+function setFocus(on){document.body.classList.toggle('focus',on);$('#focusLab').textContent=on?'Quitter':'Concentration';$('#bFocus').setAttribute('aria-pressed',on);
+ if(on){$('#focusTitle').textContent=(cur&&cur.title)||'';focusCount();ed.focus();toast('Rien que toi et ton histoire. Échap pour revenir.')}else document.body.classList.remove('typing')}
+function focusCount(){const n=words(ed.innerText);$('#fbWords').textContent=n+(n>1?' mots':' mot')}
+let typT=0;ed.addEventListener('input',()=>{if(!document.body.classList.contains('focus'))return;focusCount();document.body.classList.add('typing');clearTimeout(typT);typT=setTimeout(()=>document.body.classList.remove('typing'),1600)});
+addEventListener('mousemove',()=>{if(document.body.classList.contains('typing'))document.body.classList.remove('typing')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('focus')&&!document.querySelector('.ov.on')&&!document.querySelector('.tour')){e.preventDefault();setFocus(false)}});
 $('#bFocus').onclick=()=>setFocus(!document.body.classList.contains('focus'));
 $('#focusExit').onclick=()=>setFocus(false);
 $('#bCopy').onclick=async()=>{try{await navigator.clipboard.writeText(($('#ttl').value||'')+'\n\n'+ed.innerText);toast('Histoire copiée !')}catch(e){toast('Sélectionne le texte et fais Ctrl+C')}};
@@ -1275,7 +1314,7 @@ const wordsOf=t=>(t.match(/[\p{L}]+(?:-[\p{L}]+)*/gu)||[]).map(norm);
 function detectTheme(t){const w=wordsOf(t);let best='general',bs=0;const pk=(cur?.places||[]).map(p=>(PTYPES[p.type]||[])[2]).filter(Boolean);for(const [k,th] of Object.entries(THEMES)){if(k==='general')continue;let s=0;for(const x of w)if(th.k.has(x))s++;s+=pk.filter(x=>x===k).length*3;if(s>bs){bs=s;best=k}}return THEMES[best]}
 function isPast(t){const p=(t.match(/\p{L}{2,}(ait|aient|èrent)\b/gu)||[]).length+(t.match(/\b(fut|eut|vit|fit|alla|prit|dit|courut|partit|arriva)\b/g)||[]).length;const n=(t.match(/\b(est|sont|va|vont|peut|veut|a|ont)\b/g)||[]).length;return p>0?p>=n*0.6:n===0}
 function hero(t){const cn=(cur.chars||[]).map(c=>c.name).filter(n=>n&&t.includes(n));if(cn.length)return cn[0];const c={};const re=/(?<![.!?…»]\s)(?<![.!?…»]\s\s)(?<=[\s,;:«—(])([A-ZÉÈÀÂÎ][\p{Ll}]{2,})/gu;let m;while(m=re.exec(t)){const w=m[1];if(!STOP.has(norm(w)))c[w]=(c[w]||0)+1}const b=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return b?b[0]:null}
-const level=()=>{const base={'6-8':0,'9-11':1,'12-14':2,'14-16':2,'16-18':2}[age()]??1;return Math.min(2,base+((stats.rich||0)>=12?1:0))};
+const level=()=>{const base={'6-10':0,'10-14':1,'14-18':2,'18+':2}[age()]??1;return Math.min(2,base+((stats.rich||0)>=12?1:0))};
 function byLevel(list,n){const L=level(),len=list.length,from=L===0?0:L===1?Math.floor(len*.2):Math.floor(len*.4),to=L===0?Math.ceil(len*.6):len;return pick(list.slice(from,to),n)}
 const agree=(adj,g)=>{const [m,f]=adj.split('/');const base=g==='f'?(f||m):m;return g==='p'?(/[sx]$/.test(base)?base:base+(base.endsWith('al')?'':'s')):base};
 const withArt=([g,n])=>(/^[aeiouéèêhîôâ]/i.test(n)?"l'":g==='f'?'la ':'le ')+n;
@@ -1331,7 +1370,7 @@ function tip(a){
  if(a.n<20)return{m:'Astuce d\'écrivain : écris sans t\'arrêter pendant deux minutes, tu corrigeras après !'};
  if(a.longest>35)return{m:`Une de tes phrases fait ${a.longest} mots. Essaie de la couper en deux avec un point : le lecteur respirera mieux.`};
  if(a.avg&&a.avg<5&&a.sent.length>=4)return{m:'Tes phrases sont très courtes. Essaie d\'en relier deux avec un mot comme :',w:['mais','parce que','alors que','quand','pendant que']};
- if(!a.dialogue&&age()!=='6-8')return{m:'Astuce : fais parler un personnage ! Commence la ligne par un tiret « — » et écris ce qu\'il dit.'};
+ if(!a.dialogue&&age()!=='6-10')return{m:'Astuce : fais parler un personnage ! Commence la ligne par un tiret « — » et écris ce qu\'il dit.'};
  if(!a.sound&&!a.smell)return{m:'Astuce : ajoute un bruit ou une odeur, le lecteur aura l\'impression d\'être dans ton histoire.',w:byLevel(SENSE,4)};
  if(!a.color)return{m:'Astuce : ajoute une couleur pour qu\'on voie mieux la scène.',w:pick(['rouge vif','bleu nuit','doré','vert émeraude','gris argenté','rose pâle'],4)};
  if(!a.emo)return{m:'Astuce : dis ce que ressent ton personnage (peur, joie, colère…). On s\'attache à lui !'};
@@ -1372,7 +1411,8 @@ function selectLast(word){
  savedRange=r;const s=getSelection();s.removeAllRanges();s.addRange(r);found.node.parentElement?.scrollIntoView({block:'center',behavior:'smooth'});return true;
 }
 feed.addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c||c.classList.contains('cjb')||c.dataset.w==null)return;const host=c.closest('[data-rep]')||c.closest('.msg'),rep=host.dataset.rep;if(rep&&host.dataset.mode==='last'&&!selectLast(rep)){toast('Je ne trouve plus ce mot');return}insertWord(c.dataset.w,rep);c.classList.add('used')});
-const age=()=>prefs?.age||'9-11';
+const AGEMAP={'6-8':'6-10','9-11':'6-10','12-14':'10-14','14-16':'14-18','16-18':'14-18'};
+const age=()=>{const a=prefs?.age||'10-14';return AGEMAP[a]||a};
 function help(kind,auto){
  const t=ed.innerText.replace(/ /g,' ');const a=analyze(t);stats.ai++;
  const labels={bloque:'Je suis bloqué·e',suite:'Une idée pour la suite',regard:'Regarde mon texte',defi:'Un petit défi',mots:'Des mots magiques'};
@@ -3073,7 +3113,7 @@ try{if(localStorage.getItem('atelier_big')){document.body.classList.add('bigPlum
 let dl=null;
 if(window.claude&&claude.use)claude.use('downloads').then(d=>{dl=d}).catch(()=>{});
 const fname=(t,ext)=>((t||'Mon livre').replace(/[\\/:*?"<>|]+/g,'').trim().slice(0,60)||'Mon livre')+'.'+ext;
-async function saveFile(name,text,type){
+async function saveFile(name,text,type){if(typeof text!=='string'&&!dl)text=new Blob([text],{type});
  if(dl){try{await dl.save({filename:name,data:text});toast('Enregistré : '+name);return true}catch(e){toast(e&&/declin|cancel|abort/i.test(String(e.code||e.message))?'Enregistrement annulé':'Je n\'ai pas pu enregistrer le fichier');return false}}
  try{const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Enregistré dans tes téléchargements : '+name);return true}
  catch(e){toast('Je n\'ai pas pu enregistrer le fichier ici');return false}
@@ -3084,6 +3124,86 @@ async function saveLibrary(){saveAll();const list=stories.filter(s=>!s.example);
  const ok=await saveFile('Ma bibliothèque'+(prefs?.name?' de '+prefs.name:'')+'.atelier',JSON.stringify({app:'atelier-des-mots',version:1,kind:'bibliotheque',author:prefs?.name||'',stories:list.map(pack)},null,1),'application/json');if(ok){stats.saved=(stats.saved||0)+1;checkBadges()}}
 async function saveText(s){if(s===cur)saveAll();const tmp=document.createElement('div');tmp.innerHTML=sanitize(s.html||'');[...tmp.querySelectorAll('p,div,h2,br')].forEach(el=>el.after('\n'));
  await saveFile(fname(s.title,'txt'),(s.title||'')+'\n\n'+tmp.textContent.replace(/\n{3,}/g,'\n\n').trim()+'\n','text/plain')}
+/* ---- enregistrer en PDF (s'ouvre dans Word, Adobe Reader, ou s'imprime) ---- */
+const PDFW={"H":[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,556,0,222,556,333,1000,556,556,333,1000,667,333,1000,0,611,0,0,222,222,333,333,350,556,1000,333,1000,500,333,944,0,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],"HB":[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,761,556,0,278,556,500,1000,556,556,333,1000,667,333,1000,0,611,0,0,278,278,500,500,350,556,1000,333,1000,556,333,944,0,500,667,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556]};
+const CP1252={8364:128,8218:130,402:131,8222:132,8230:133,8224:134,8225:135,710:136,8240:137,352:138,8249:139,338:140,381:142,8216:145,8217:146,8220:147,8221:148,8226:149,8211:150,8212:151,732:152,8482:153,353:154,8250:155,339:156,382:158,376:159};
+function winAnsi(ch){const c=ch.codePointAt(0);if(c>=32&&c<127)return c;if(c>=160&&c<=255)return c;if(CP1252[c])return CP1252[c];
+ const fold={8239:32,8201:32,8202:32,8203:-1,8288:-1,65279:-1,8209:45,8208:45,8722:45,8242:39,8243:34,10:32,9:32};if(fold[c]!==undefined)return fold[c];
+ const base=ch.normalize('NFD').replace(/[̀-ͯ]/g,'');const b=base.codePointAt(0);if(base.length===1&&b>=32&&b<127)return b;return 63}
+function pdfText(s){const out=[];for(const ch of s){const c=winAnsi(ch);if(c>=0)out.push(c)}return out}
+const pdfWidth=(codes,bold,size)=>codes.reduce((a,c)=>a+(PDFW[bold?'HB':'H'][c-32]||500),0)*size/1000;
+function storyBlocks(html){
+ const root=document.createElement('div');root.innerHTML=sanitize(html||'');const blocks=[];let cur=null;
+ const push=(type)=>{cur={type,runs:[]};blocks.push(cur);return cur};
+ const walk=(n,st,inBlock)=>{for(const c of n.childNodes){
+  if(c.nodeType===3){if(!c.textContent)continue;if(!cur||cur.closed)push('p');cur.runs.push({t:c.textContent,...st});continue}
+  if(c.nodeType!==1)continue;const tg=c.tagName;
+  if(tg==='BR'){push(cur&&cur.type==='h2'?'h2':'p');continue}
+  if(tg==='P'||tg==='DIV'||tg==='H2'){push(tg==='H2'?'h2':'p');walk(c,st,true);cur.closed=true;continue}
+  const s2={...st};if(tg==='B'||tg==='STRONG')s2.b=1;if(tg==='I'||tg==='EM')s2.i=1;if(tg==='U')s2.u=1;
+  const col=c.style&&c.style.color||(tg==='FONT'&&c.getAttribute('color'));if(col)s2.col=col;walk(c,s2,inBlock)}};
+ walk(root,{},false);
+ return blocks.map(b=>({type:b.type,runs:b.runs.filter(r=>r.t.length)})).filter((b,i,a)=>b.runs.some(r=>r.t.trim())||(b.type==='p'&&i>0&&a[i-1].runs.some(r=>r.t.trim())));
+}
+function cssRGB(c){if(!c||c==='inherit')return null;const d=document.createElement('span');d.style.color=c;document.body.appendChild(d);const v=getComputedStyle(d).color;d.remove();const m=v.match(/[\d.]+/g);if(!m)return null;const [r,g,b]=m.map(Number);if(r+g+b<60)return null;return[r/255,g/255,b/255]}
+function buildPdf(s){
+ const PW=595.28,PH=841.89,ML=70,MR=70,MT=72,MB=78,TW=PW-ML-MR;
+ const pages=[];let ops=null,y=0;
+ const hex=codes=>'<'+codes.map(c=>c.toString(16).padStart(2,'0')).join('')+'>';
+ const newPage=()=>{ops=[];pages.push(ops);y=PH-MT};
+ const font=(b,i)=>b?(i?'/F4':'/F2'):(i?'/F3':'/F1');
+ function line(words,size,lead,center,just){
+  if(y-lead<MB)newPage();y-=lead;
+  const tw=words.reduce((a,w)=>a+w.w,0),gaps=words.length-1;let x=ML+(center?(TW-tw-gaps*words[0].sp)/2:0);
+  let extra=just&&gaps>0?(TW-tw-gaps*words[0].sp)/gaps:0;if(extra>words[0].sp*2.2)extra=0;
+  words.forEach((w,k)=>{for(const r of w.parts){const rgb=r.rgb||[0.07,0.08,0.16];ops.push(`${rgb.map(v=>v.toFixed(3)).join(' ')} rg BT ${font(r.b,r.i)} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td ${hex(r.codes)} Tj ET`);
+    const ww=pdfWidth(r.codes,r.b,size);if(r.u)ops.push(`${rgb.map(v=>v.toFixed(3)).join(' ')} RG 0.7 w ${x.toFixed(2)} ${(y-2).toFixed(2)} m ${(x+ww).toFixed(2)} ${(y-2).toFixed(2)} l S`);x+=ww}
+   if(k<gaps)x+=w.sp+extra})}
+ function para(runs,size,lead,opts={}){
+  const words=[];let curW=null;
+  for(const r of runs){const rgb=cssRGB(r.col);const pieces=r.t.replace(/ ([?!:;»])/g,'\u00a0$1').replace(/« /g,'«\u00a0').split(/([ \t\n\r]+)/);
+   for(const p of pieces){if(!p)continue;if(/^[ \t\n\r]+$/.test(p)){curW=null;continue}
+    const codes=pdfText(p);if(!codes.length)continue;const b=!!(r.b||opts.b);
+    if(!curW){curW={parts:[],w:0,sp:pdfWidth([32],b,size)};words.push(curW)}
+    curW.parts.push({codes,b,i:!!r.i,u:!!r.u,rgb:opts.rgb||rgb});curW.w+=pdfWidth(codes,b,size)}}
+  if(!words.length){y-=lead*0.6;return}
+  let ln=[],lw=0;
+  for(const w of words){
+   if(w.w>TW){/* mot trop long : on le coupe */const p=w.parts[0];let acc=[];for(const c of p.codes){if(pdfWidth([...acc,c],p.b,size)>TW-4){words.splice(words.indexOf(w),0);if(ln.length){line(ln,size,lead,opts.center,false);ln=[];lw=0}line([{parts:[{...p,codes:acc}],w:pdfWidth(acc,p.b,size),sp:0}],size,lead,opts.center,false);acc=[]}acc.push(c)}w.parts=[{...p,codes:acc}];w.w=pdfWidth(acc,p.b,size)}
+   const add=(ln.length?w.sp:0)+w.w;if(lw+add>TW&&ln.length){line(ln,size,lead,opts.center,!opts.center);ln=[];lw=0}ln.push(w);lw+=(ln.length>1?w.sp:0)+w.w}
+  if(ln.length)line(ln,size,lead,opts.center,false)}
+ newPage();
+ const title=s.title||'Sans titre',author=prefs?.name||'';
+ y-=60;para([{t:title}],26,32,{b:1,center:1,rgb:[0.12,0.14,0.32]});
+ if(author){y-=6;para([{t:'par '+author}],13,20,{center:1,rgb:[0.4,0.42,0.55]})}
+ y-=10;ops.push(`0.78 0.80 0.90 RG 1 w ${(PW/2-40).toFixed(2)} ${y.toFixed(2)} m ${(PW/2+40).toFixed(2)} ${y.toFixed(2)} l S`);y-=26;
+ const blocks=storyBlocks(s.html);let firstChap=true;
+ for(const b of blocks){
+  if(b.type==='h2'){if(!firstChap&&y<PH-MT-1)newPage();if(firstChap&&y<PH-MT-200)newPage();firstChap=false;y-=8;para(b.runs,18,26,{b:1,rgb:[0.76,0.22,0.11]});y-=8}
+  else{para(b.runs,12.5,19.5);y-=7}}
+ const n=pages.length;pages.forEach((o,i)=>{const t=pdfText(String(i+1));o.push(`0.45 0.47 0.6 rg BT /F1 10 Tf ${(PW/2-pdfWidth(t,0,10)/2).toFixed(2)} 40 Td ${hex(t)} Tj ET`)});
+ /* assemblage du fichier PDF */
+ const objs=[];const add=o=>{objs.push(o);return objs.length};
+ const cat=add(''),pagesId=add('');
+ const fonts=['Helvetica','Helvetica-Bold','Helvetica-Oblique','Helvetica-BoldOblique'].map(f=>add(`<< /Type /Font /Subtype /Type1 /BaseFont /${f} /Encoding /WinAnsiEncoding >>`));
+ const kids=[];
+ for(const o of pages){const body=o.join('\n');const c=add(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`);
+  kids.push(add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 ${fonts[0]} 0 R /F2 ${fonts[1]} 0 R /F3 ${fonts[2]} 0 R /F4 ${fonts[3]} 0 R >> >> /Contents ${c} 0 R >>`))}
+ objs[cat-1]=`<< /Type /Catalog /Pages ${pagesId} 0 R /Lang (fr-FR) >>`;
+ objs[pagesId-1]=`<< /Type /Pages /Kids [${kids.map(k=>k+' 0 R').join(' ')}] /Count ${kids.length} >>`;
+ const ps=t=>hex([0xfe,0xff,...[...t].flatMap(ch=>{const c=ch.charCodeAt(0);return[c>>8,c&255]})]);
+ const info=add(`<< /Title ${ps(title)} /Author ${ps(author)} /Creator ${ps('L\'Atelier de Plume')} /Producer ${ps('L\'Atelier de Plume')} >>`);
+ /* le livre complet caché dans le PDF : le bouton « Ouvrir » sait le relire */
+ const data=btoa(unescape(encodeURIComponent(JSON.stringify({app:'atelier-de-plume',version:1,kind:'livre',author,stories:[pack(s)]})))).replace(/.{1,76}/g,'$&\n');
+ const dataId=add(`<< /Type /AtelierPlume /Length ${('ATELIERJSON:\n'+data+':ATELIERJSON').length} >>\nstream\nATELIERJSON:\n${data}:ATELIERJSON\nendstream`);
+ let out='%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';const offs=[];
+ objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+ const xref=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('');
+ out+=`trailer\n<< /Size ${objs.length+1} /Root ${cat} 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+ const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;return{bytes,pages:n,unused:dataId}}
+async function savePdf(s){if(s===cur)saveAll();let r;try{r=buildPdf(s)}catch(e){console.error(e);toast('Je n\'ai pas réussi à fabriquer le PDF');return}
+ const ok=await saveFile(fname(s.title,'pdf'),r.bytes,'application/pdf');if(ok){stats.saved=(stats.saved||0)+1;checkBadges()}}
+
 /* le livre à lire : une jolie page avec couverture, histoire, personnages et lieux */
 async function saveReadable(s){if(s===cur)saveAll();const ok=await saveFile(fname(s.title,'html'),bookHtml(s),'text/html');if(ok){stats.saved=(stats.saved||0)+1;checkBadges()}}
 /* nettoyer un texte venu d'un fichier : seulement la mise en forme de l'atelier */
@@ -3112,6 +3232,10 @@ function importStories(list){
 async function openFile(file){
  if(!file)return;if(file.size>20e6){toast('Ce fichier est trop gros');return}
  const text=await file.text(),name=file.name.replace(/\.[^.]+$/,'');
+ if(/\.pdf$/i.test(file.name)||text.startsWith('%PDF')){const m=/ATELIERJSON:\s*([A-Za-z0-9+/=\s]+?):ATELIERJSON/.exec(text);
+  if(!m){toast('Ce PDF n\'a pas été fait par L\'Atelier de Plume : je ne peux pas le rouvrir');return}
+  let o;try{o=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g,'')))))}catch(e){toast('Ce PDF est abîmé, je ne peux pas l\'ouvrir');return}
+  if(!o||!Array.isArray(o.stories)){toast('Ce PDF ne contient pas de livre');return}importStories(o.stories);return}
  if(/\.(atelier|json)$/i.test(file.name)||/^\s*\{/.test(text)){
   let o;try{o=JSON.parse(text)}catch(e){toast('Ce fichier est abîmé, je ne peux pas l\'ouvrir');return}
   if(!o||!['atelier-des-mots','atelier-de-plume'].includes(o.app)||!Array.isArray(o.stories)){toast('Ce fichier ne vient pas de L\'Atelier de Plume');return}
@@ -3125,7 +3249,7 @@ $('#libSaveAll').onclick=saveLibrary;
 $('#bSave').onclick=()=>{saveAll();$('#svTitle').textContent=cur.title||'Sans titre';open('#ovSave')};
 $('#svBook').onclick=()=>{close('#ovSave');saveBook(cur)};
 $('#svRead').onclick=()=>{close('#ovSave');openCover()};
-$('#svTxt').onclick=()=>{close('#ovSave');saveText(cur)};
+$('#svTxt').onclick=()=>{close('#ovSave');savePdf(cur)};
 $('#svClose').onclick=()=>close('#ovSave');
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveBook(cur)}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('#fileIn').click()}});
 /* glisser-déposer un fichier sur la page */
@@ -3465,7 +3589,7 @@ $('#fnClose').onclick=()=>close('#ovFont');
 $('#bFont').onclick=openFonts;$('#sFontBtn').onclick=()=>{close('#ovSet');openFonts()};
 
 /* ---- Plume analyse les phrases ---- */
-const LONGMAX={'6-8':15,'9-11':22,'12-14':30,'14-16':35,'16-18':40};
+const LONGMAX={'6-10':18,'10-14':26,'14-18':35,'18+':42};
 const WEAK={chose:'chose',truc:'truc',machin:'machin',faire:'faire',bien:'bien',très:'très',beaucoup:'beaucoup',joli:'joli',beau:'beau',gentil:'gentil',grand:'grand',petit:'petit',aller:'aller',mettre:'mettre',dire:'dire',voir:'voir',prendre:'prendre',super:'super',content:'content'};
 const lemOf=w=>{const e=entry(w);if(!e)return norm(w);const r=e.r.find(r=>r.c==='V')||e.r.find(r=>r.c==='A')||e.r.find(r=>r.c==='N')||e.r[0];return r.l};
 function hasVerb(s){for(const w of (s.match(/[\p{L}]+/gu)||[])){const e=entry(w);if(e&&e.r.some(r=>(r.c==='V'||r.c==='X')&&tags(r).some(t=>/^(ind|cnd|sub|imp):/.test(t))))return true}return false}
@@ -3547,8 +3671,8 @@ const UI_THEMES=[
  ['Nuit étoilée',{desk:'#1d1f4f',accent:'#f2b705',paperc:'blanc',mode:'sombre'}],
  ['Chocolat',{desk:'#6b3e1f',accent:'#e0a800',paperc:'creme',mode:'auto'}],
 ];
-const DESKS=['#3150f0','#0f7c9c','#2f7a4a','#d94d8f','#d9542b','#7a5cd6','#1d1f4f','#6b3e1f','#c2185b','#00897b','#455a64','#e0a800'];
-const ACCENTS=['#ff6b4a','#e4462b','#ff8a3d','#e0a800','#1b9a5a','#0f8fa8','#3150f0','#6c4bd8','#d94d8f','#455a64'];
+const DESKS=['#3150f0','#1565c0','#4a148c','#880e4f','#b71c1c','#e65100','#33691e','#004d40','#263238','#5d4037','#f06292','#4fc3f7','#81c784','#ffb74d','#9575cd','#000000','#0f7c9c','#2f7a4a','#d94d8f','#d9542b','#7a5cd6','#1d1f4f','#6b3e1f','#c2185b','#00897b','#455a64','#e0a800'];
+const ACCENTS=['#ff6b4a','#c2185b','#ad1457','#7b1fa2','#512da8','#1976d2','#0288d1','#00796b','#388e3c','#689f38','#f57c00','#5d4037','#000000','#e4462b','#ff8a3d','#e0a800','#1b9a5a','#0f8fa8','#3150f0','#6c4bd8','#d94d8f','#455a64'];
 const PAPERS=[['lignes','Lignes'],['seyes','Cahier d\'école'],['carreaux','Carreaux'],['points','Points'],['blanc','Page blanche']];
 const PAPERC={blanc:['Blanc','#ffffff'],creme:['Crème','#fff8e6'],ciel:['Ciel','#eef6ff'],rose:['Rose','#fff0f5'],menthe:['Menthe','#eefaf3']};
 const UIFONTS=['Fredoka','Andika','Comic Neue','Nunito','Patrick Hand','Lexend'];
@@ -3566,7 +3690,7 @@ function applyUI(){
  S.setProperty('--accentInk',`light-dark(${mix(u.accent,'#000',.28)},${mix(u.accent,'#fff',.35)})`);
  S.setProperty('--paper',`light-dark(${PAPERC[u.paperc]?.[1]||'#fff'},#1a2150)`);
  if(u.mode==='clair')R.dataset.theme='light';else if(u.mode==='sombre')R.dataset.theme='dark';else delete R.dataset.theme;
- R.dataset.paper=u.paper;R.dataset.shape=u.shape;R.dataset.usize=u.size;R.dataset.side=u.side;R.dataset.anim=u.anim;
+ if(u.bw)R.dataset.bw='1';else delete R.dataset.bw;R.dataset.paper=u.paper;R.dataset.shape=u.shape;R.dataset.usize=u.size;R.dataset.side=u.side;R.dataset.anim=u.anim;
  if(u.uifont!=='Fredoka'){loadFont(u.uifont);R.dataset.uifont='1';S.setProperty('--uiFont',`'${u.uifont}',Fredoka,system-ui,sans-serif`)}else delete R.dataset.uifont;
 }
 function setUI(k,v){prefs.ui=Object.assign({},prefs.ui||{},{[k]:v});LS.set('prefs',prefs);pushStats();applyUI();renderUI();bump('_x',0);addTo('uiChanged',k)}
@@ -3580,7 +3704,7 @@ function renderUI(){
  $('#uiFontUI').innerHTML=UIFONTS.map(f=>`<button data-v="${f}" style="font-family:'${f}',system-ui">${f==='Fredoka'?'Fredoka (normal)':f}</button>`).join('');
  UIFONTS.forEach(f=>loadFont(f,true));
  seg('#uiPaper',u.paper,v=>setUI('paper',v));seg('#uiPaperc',u.paperc,v=>setUI('paperc',v));seg('#uiMode',u.mode,v=>setUI('mode',v));
- seg('#uiShape',u.shape,v=>setUI('shape',v));seg('#uiSize',u.size,v=>setUI('size',v));seg('#uiFontUI',u.uifont,v=>setUI('uifont',v));
+ seg('#uiBw',u.bw?'1':'0',v=>setUI('bw',v==='1'));seg('#uiShape',u.shape,v=>setUI('shape',v));seg('#uiSize',u.size,v=>setUI('size',v));seg('#uiFontUI',u.uifont,v=>setUI('uifont',v));
  seg('#uiSide',u.side,v=>setUI('side',v));seg('#uiAnim',u.anim,v=>setUI('anim',v));
 }
 $('#ovTheme').addEventListener('click',e=>{
@@ -3594,7 +3718,7 @@ $('#bTheme').onclick=()=>{renderUI();open('#ovTheme')};
 $('#sThemeBtn').onclick=()=>{close('#ovSet');renderUI();open('#ovTheme')};
 
 /* ---- Plume parle selon l'âge : simple pour les petits, précis pour les grands ---- */
-const tier=()=>({'6-8':0,'9-11':1,'12-14':2,'14-16':3,'16-18':4}[age()]??1);
+const tier=()=>({'6-10':0,'10-14':2,'14-18':3,'18+':4}[age()]??2);
 const T3=(y,m,o)=>{const t=tier();return t===0?y:t>=3?(o??m):m};
 function sentenceReport(t){
  const S=sentStats(t);if(!S.L.length)return;const items=[];
@@ -3913,14 +4037,14 @@ function showCreate(first){
  loginSel=null;$('#lgTitle').hidden=false;$('#lgTitle').textContent=first?'Bienvenue dans l\'atelier !':'Créer un compte';
  $('#lgBody').innerHTML=`<form id="crForm" class="lgform">${first?'<p class="lgintro">Crée ton compte pour garder tes histoires rien qu\'à toi.</p>':''}
   <label for="crName">Ton prénom</label><input type="text" id="crName" maxlength="30" required autocomplete="off">
-  <span class="lbl2">Ton âge</span><div class="seg" id="crAge">${[['6-8','6 à 8 ans'],['9-11','9 à 11 ans'],['12-14','12 à 14 ans'],['14-16','14 à 16 ans'],['16-18','16 à 18 ans']].map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${v==='9-11'}">${l}</button>`).join('')}</div>
+  <span class="lbl2">Ton âge</span><div class="seg" id="crAge">${[['6-10','6 à 10 ans'],['10-14','10 à 14 ans'],['14-18','14 à 18 ans'],['18+','18 ans et plus']].map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${v==='10-14'}">${l}</button>`).join('')}</div>
   <span class="lbl2">Ta couleur</span><div class="seg" id="crCol">${AV_COLORS.map((c,i)=>`<button type="button" class="sw" data-c="${c}" aria-pressed="${i===profiles.length%AV_COLORS.length}" style="background:${c}" aria-label="Couleur"></button>`).join('')}</div>
   <label for="crPw">Choisis un mot de passe (4 caractères ou plus)</label><input type="password" id="crPw" minlength="4" required autocomplete="new-password">
   <label for="crPw2">Écris-le encore une fois</label><input type="password" id="crPw2" minlength="4" required autocomplete="new-password">
   <p class="lgerr" id="crErr" role="alert"></p>
   <button class="btn" type="submit">Créer mon compte</button>${profiles.length?'<button class="btn alt" type="button" id="lgBack">Retour</button>':'<button class="btn alt" type="button" id="lgBack">Retour</button>'}
   <p class="lgnote">Retiens bien ton mot de passe. ${ONLINE?'Tes histoires sont rangées en ligne : tu les retrouves sur n\'importe quel ordinateur.':'Tes histoires restent sur cet ordinateur, dans ce navigateur.'}</p></form>`;
- seg('#crAge','9-11');
+ seg('#crAge','10-14');
  $('#crCol').addEventListener('click',e=>{const b=e.target.closest('.sw');if(b)$$('#crCol .sw').forEach(x=>x.setAttribute('aria-pressed',x===b))});
  setTimeout(()=>$('#crName').focus(),50);
 }
@@ -3949,7 +4073,7 @@ $('#login').addEventListener('submit',async e=>{
    return}
   if(f.id==='crForm'){const name=$('#crName').value.trim(),pw=$('#crPw').value,pw2=$('#crPw2').value,err=$('#crErr');
    if(!name){err.textContent='Écris ton prénom.';return}if(pw.length<4){err.textContent='Le mot de passe doit avoir au moins 4 caractères.';return}if(pw!==pw2){err.textContent='Les deux mots de passe ne sont pas pareils.';return}
-   const color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'9-11';
+   const color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'10-14';
    formBusy(f,true);try{enterOnline(await api('POST','/register',{name,password:pw,color,data:{prefs:{name,age,font:'Andika',size:19,goal:100,watch:true,tour:1}}}))}catch(x){formBusy(f,false);err.textContent=x.code==='exists'?'Ce prénom a déjà un compte. Ajoute une initiale, par exemple « '+name+' B. ».':errText(x)}
    return}
   if(f.id==='rsForm'){const pw=$('#rsPw').value,pw2=$('#rsPw2').value,er=$('#rsErr');if(pw.length<4){er.textContent='Au moins 4 caractères.';return}if(pw!==pw2){er.textContent='Les deux mots de passe ne sont pas pareils.';return}
@@ -3976,7 +4100,7 @@ $('#login').addEventListener('submit',async e=>{
   if(profiles.some(p=>p.name.toLowerCase()===name.toLowerCase())){err.textContent='Ce prénom a déjà un compte. Ajoute une initiale, par exemple « '+name+' B. ».';return}
   if(pw.length<4){err.textContent='Le mot de passe doit avoir au moins 4 caractères.';return}
   if(pw!==pw2){err.textContent='Les deux mots de passe ne sont pas pareils.';return}
-  const id='p'+uid(),salt=uid()+uid(),color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'9-11';
+  const id='p'+uid(),salt=uid()+uid(),color=$('#crCol .sw[aria-pressed=true]')?.dataset.c||AV_COLORS[0],age=$('#crAge [aria-pressed=true]')?.dataset.v||'10-14';
   const first=!profiles.length;profiles.push({id,name,salt,hash:hashPw(pw,salt),color,created:Date.now()});GLS.set('profiles',profiles);
   let pr={name,age,font:'Andika',size:19,goal:100,watch:true,tour:1};
   if(first){/* le premier compte récupère les histoires déjà écrites sur cet ordinateur */
@@ -4089,7 +4213,7 @@ const TOUR=[
  {s:'#saved',t:'Tout est enregistré',x:"Ton histoire s'enregistre toute seule pendant que tu écris{online}. Pas besoin de cliquer !"},
  {s:'#bLib',t:'Mes livres',x:"Ici, tu retrouves toutes tes histoires. Clique sur l'une d'elles pour la continuer."},
  {s:'#bNew',t:'Une nouvelle histoire',x:"Pour commencer une toute nouvelle histoire. Les anciennes restent rangées dans <b>Mes livres</b>."},
- {s:'#bSave',t:'Enregistrer un fichier',x:"Ce bouton crée un fichier de ton livre sur l'ordinateur. Tu peux le garder en copie, ou le donner à quelqu'un."},
+ {s:'#bSave',t:'Enregistrer un fichier',x:"Ce bouton crée un fichier de ton livre : un <b>PDF</b> à ouvrir dans Word ou à imprimer, un vrai livre à feuilleter, ou un fichier de l'atelier pour continuer ailleurs."},
  {s:'#bOpen',t:'Ouvrir un fichier',x:"Et celui-ci ouvre un fichier de livre que tu as enregistré. Ton histoire revient dans l'atelier."},
  {s:'#bDone',t:'J\'ai fini mon livre !',x:"Quand ton histoire est finie, clique ici : je la transforme en vrai livre, page par page. Tu peux même ajouter une image de couverture !"},
  {s:'#bTheme',t:'Ton atelier, à ton goût',x:"Change les couleurs, les formes et la taille des boutons. Dans <b>Réglages</b>, juste à côté, tu peux choisir ton âge, ta police d'écriture… et revoir cette visite."},
@@ -4226,10 +4350,11 @@ function applyPrefs(){
  document.documentElement.style.setProperty('--edFont',`'${fi[0]}',Andika,system-ui,sans-serif`);
  document.documentElement.style.setProperty('--edSize',Math.round((prefs.size||19)*fi[2])+'px');$('#watch').checked=prefs.watch!==false;renderCounts();applyUI();try{applyLook()}catch(e){}
 }
-seg('#wAge','9-11');
+seg('#wAge','10-14');
 $('#wGo').onclick=()=>{prefs={name:$('#wName').value.trim(),age:$('#wAge [aria-pressed=true]').dataset.v,font:'Andika',size:19,goal:100,watch:true};fresh=false;LS.set('prefs',prefs);pushStats();applyPrefs();close('#ovWelcome');greet()};
 $('#bSet').onclick=()=>{$('#sName').value=prefs.name||'';
- seg('#sAge',prefs.age,v=>prefs.age=v);seg('#sSize',prefs.size,v=>{prefs.size=+v;applyPrefs()});seg('#sGoal',prefs.goal,v=>{prefs.goal=+v;applyPrefs()});open('#ovSet')};
+ seg('#sAge',age(),v=>prefs.age=v);$('#bwChk').checked=!!(prefs.ui&&prefs.ui.bw);seg('#sSize',prefs.size,v=>{prefs.size=+v;applyPrefs()});seg('#sGoal',prefs.goal,v=>{prefs.goal=+v;applyPrefs()});open('#ovSet')};
+$('#bwChk').onchange=e=>setUI('bw',e.target.checked);
 $('#sTour').onclick=()=>{close('#ovSet');setTimeout(startTour,250)};
 $('#sOk').onclick=()=>{prefs.name=$('#sName').value.trim();LS.set('prefs',prefs);pushStats();applyPrefs();close('#ovSet');if(ONLINE&&profile&&prefs.name&&prefs.name!==profile.name){const nm=prefs.name;api('POST','/rename',{name:nm}).then(r=>{profile.name=r.me.name;GLS.set('me',profile);GLS.set('known',GLS.get('known',[]).map(x=>x.id===profile.id?{...x,name:r.me.name}:x));renderUserChip()}).catch(x=>toast(x.code==='exists'?'Ce prénom est déjà pris par un autre compte.':errText(x)))}
 else if(profile&&prefs.name){const p=profiles.find(x=>x.id===profile.id);if(p&&!profiles.some(x=>x!==p&&x.name.toLowerCase()===prefs.name.toLowerCase())){p.name=prefs.name;GLS.set('profiles',profiles);profile=p;renderUserChip()}}};
@@ -4255,7 +4380,8 @@ function renderAll(){renderCounts();renderTre();renderNotes()}
 
 /* ---- démarrage ---- */
 loadStory(cur);doRoll();renderAll();
-if(!prefs){if(profile){fresh=true;open('#ovWelcome')}prefs={age:'9-11',goal:100,size:19,font:'Andika',watch:true}}
+if(!prefs){if(profile){fresh=true;open('#ovWelcome')}prefs={age:'10-14',goal:100,size:19,font:'Andika',watch:true}}
+if(prefs&&AGEMAP[prefs.age]&&profile){prefs.age=AGEMAP[prefs.age];LS.set('prefs',prefs)}
 applyPrefs();greet();initAI();if(profile){renderUserChip();bootSync();applyLook();rewardCheck();if(prefs&&prefs.tour===1)setTimeout(startTour,900)}else showLogin();
 }
 </script>
