@@ -1,0 +1,9 @@
+{
+  "name": "atelier-de-plume",
+  "private": true,
+  "type": "module",
+  "description": "L'Atelier de Plume : un atelier d'écriture pour les enfants, avec Plume qui aide sans jamais changer le texte.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
