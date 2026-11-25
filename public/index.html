@@ -302,7 +302,7 @@ html[data-paper=blanc] .page{background-image:var(--marg)}
 .msg ul{padding-left:22px}.msg li{margin-bottom:4px}.msg .k{font-size:15px}
 .chip{font-size:16px;min-height:42px}
 .fxw small{font-size:14.5px!important}
-.bigBtn{margin-left:auto;align-self:flex-start;border:2px solid var(--bd);font-family:Fredoka;font-weight:500;font-size:14px;padding:0 12px;min-height:38px;color:var(--ink)}
+.bigBtn{margin-left:auto;align-self:flex-start;border:2px solid var(--bd);font-family:Fredoka;font-weight:500;font-size:14px;padding:0 14px;min-height:38px;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1;white-space:nowrap}
 .bigBtn:hover{border-color:var(--accent)}
 body.bigPlume .work{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 body.bigPlume .msg{font-size:19px}body.bigPlume .chip{font-size:17px}
@@ -371,6 +371,8 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
 @keyframes bearNod{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg) translateY(1px)}}
 @keyframes bearZ{0%,100%{opacity:.25;transform:translateY(2px)}50%{opacity:1;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.msg.bear,.bearAv,.bearZ,.bearZ i,.bearZ b{animation:none}}
+.plumeWarn{display:block;margin-top:8px;opacity:.75;font-style:italic}
+.rp.rep li{margin-bottom:6px}.rp.rep .repShow{padding:2px 10px;min-height:0;font-size:13px;margin-left:4px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -443,7 +445,7 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
  </section>
 
  <aside class="side" id="side" aria-label="Plume, ton assistante d'écriture">
-  <div class="ph"><svg id="plumeAv" viewBox="0 0 64 64" role="button" tabindex="0" aria-label="Plume : clique pour une surprise"><g class="pl-b"><path d="M50 4C33 6 18 18 15 36c-1.5 8 0 13 2 17l-7 7 3 3 7-7c5 2.5 12 2 18-2.5C50 45 56 28 54 10c-.6-4-1.6-6-4-6z" fill="#ff6b4a"/><path d="M50 4C40 10 33 20 30 32c5-6 12-11 20-13-7 5-12 11-15 19 6-4 12-6 18-6" fill="none" stroke="#ffb09d" stroke-width="2.5" stroke-linecap="round"/><path d="M15 52 41 22" stroke="#c2381b" stroke-width="2.5" stroke-linecap="round"/><g class="pl-e"><circle cx="30" cy="38" r="4.2" fill="#fff"/><circle cx="41" cy="33" r="4.2" fill="#fff"/><circle class="pl-p" cx="31" cy="38.6" r="2.2" fill="#1d2142"/><circle class="pl-p" cx="42" cy="33.6" r="2.2" fill="#1d2142"/></g><path class="pl-m" d="M32 45q5 3 10-2" fill="none" stroke="#1d2142" stroke-width="2" stroke-linecap="round"/></g></svg><div><h2>Plume</h2><p id="plumeSub">Je regarde ton texte sans jamais le changer.</p></div><button class="bigBtn" id="bBig" aria-pressed="false" title="Agrandir la zone de Plume">Agrandir</button></div>
+  <div class="ph"><svg id="plumeAv" viewBox="0 0 64 64" role="button" tabindex="0" aria-label="Plume : clique pour une surprise"><g class="pl-b"><path d="M50 4C33 6 18 18 15 36c-1.5 8 0 13 2 17l-7 7 3 3 7-7c5 2.5 12 2 18-2.5C50 45 56 28 54 10c-.6-4-1.6-6-4-6z" fill="#ff6b4a"/><path d="M50 4C40 10 33 20 30 32c5-6 12-11 20-13-7 5-12 11-15 19 6-4 12-6 18-6" fill="none" stroke="#ffb09d" stroke-width="2.5" stroke-linecap="round"/><path d="M15 52 41 22" stroke="#c2381b" stroke-width="2.5" stroke-linecap="round"/><g class="pl-e"><circle cx="30" cy="38" r="4.2" fill="#fff"/><circle cx="41" cy="33" r="4.2" fill="#fff"/><circle class="pl-p" cx="31" cy="38.6" r="2.2" fill="#1d2142"/><circle class="pl-p" cx="42" cy="33.6" r="2.2" fill="#1d2142"/></g><path class="pl-m" d="M32 45q5 3 10-2" fill="none" stroke="#1d2142" stroke-width="2" stroke-linecap="round"/></g></svg><div><h2 id="plumeName" title="Psst… clique 5 fois très vite !">Plume</h2><p id="plumeSub">Je regarde ton texte sans jamais le changer.</p></div><button class="bigBtn" id="bBig" aria-pressed="false" title="Agrandir la zone de Plume">Agrandir</button></div>
   <div class="tabs" role="tablist">
    <button role="tab" aria-selected="true" data-t="pChat">Plume</button>
    <button role="tab" aria-selected="false" data-t="pIdea">Idées</button>
@@ -480,7 +482,7 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
     <button class="act" data-ai="defi">Un petit défi</button>
     <button class="act" data-ai="mots">Des mots magiques</button>
    </div>
-   <form class="ask" id="askF"><input id="askIn" placeholder="Cherche des mots pour… (dire, beau, peur)" aria-label="Chercher d'autres mots" maxlength="60"><button>Chercher</button></form>
+   <form class="ask" id="askF"><input id="askIn" placeholder="Conseil pour un mot ? ex. dire, beau, peur" aria-label="Chercher d'autres mots" maxlength="60"><button>Chercher</button></form>
   </div>
  </aside>
 </main>
@@ -3024,13 +3026,13 @@ function checkFautes(){
  say({k:'Lecture de Plume',m:`J'ai lu toute ton histoire : ${a.n} mots et ${ns} phrase${ns>1?'s':''}.`+(names.length?` J'y ai croisé ${names.join(', ')}.`:'')+' '+compliment(a)});
  const iss=deepScan(12).filter(x=>!x.soft);const reads=deepScan.passes||1;if(reads>1)say({k:'Relecture',m:`J'ai relu ton histoire ${reads} fois : à chaque lecture, je regarde chaque mot avec celui d'avant et celui d'après, et je vérifie que la phrase garde son sens.`});if(LEX.ready&&iss.some(x=>{const a=entry(x.wrong),b=entry(String(x.fix||'').split(' ')[0]);return a&&b&&a.ph&&a.ph===b.ph&&a!==b})){stats.homSeen=1;bump('_x',0)}
  if(!iss.length&&a.n>=50)stats.zeroFaute=1;
- if(!iss.length){say({k:'Super !',m:'Je n\'ai trouvé aucune des fautes que je connais. Bravo ! Si ton ordinateur souligne un mot en rouge, vérifie-le quand même.',cls:'defi'});checkBadges();return}
+ if(!iss.length){const ok=say({k:'Super !',m:'Je n\'ai trouvé aucune des fautes que je connais. Bravo ! Si ton ordinateur souligne un mot en rouge, vérifie-le quand même.',cls:'defi'});ok.insertAdjacentHTML('beforeend','<small class="more plumeWarn">Plume est un petit assistant sans intelligence artificielle : il peut parfois se tromper, et certaines fautes peuvent encore lui échapper. Relis toujours ton texte !</small>');checkBadges();return}
  const self=!!prefs?.selfFix,show=iss.slice(0,8),el=document.createElement('div');el.className='msg';
  el.innerHTML=`<span class="k">Petites choses à vérifier</span>J'ai trouvé ${iss.length} petite${iss.length>1?'s':''} chose${iss.length>1?'s':''} à regarder. `+(self?'Je te montre où elles sont, mais c\'est toi qui corriges ! Clique sur « Montrer », change le mot dans ton texte, puis sur « J\'ai corrigé ! ».':'C\'est toi qui décides : corriger, ou garder.')+
   show.map((f,i)=>self?`<div class="fx" data-i="${i}"><div class="fxw"><b class="bad">${esc(f.wrong)}</b><small>${esc(/^Je ne connais pas ce mot/.test(f.why)?'Ce mot ne s\'écrit pas comme ça. Cherche la bonne orthographe !':whyFor(f))}</small>${f.fix?'<small class="hint"></small>':''}</div><div class="row"><button class="fxb" data-a="show">Montrer</button>${f.fix?'<button class="fxb" data-a="hint">Indice</button>':''}<button class="fxb ok" data-a="check">J'ai corrigé !</button>${f.soft?'<button class="fxb" data-a="keep">Garder</button>':''}</div></div>`
   :`<div class="fx" data-i="${i}"><div class="fxw">${f.fix?`<s>${esc(f.wrong)}</s> → <b>${esc(f.fix)}</b>`:`<b>${esc(f.wrong)}</b>`}<small>${esc(whyFor(f))}</small></div><div class="row"><button class="fxb" data-a="show">Montrer</button>${f.fix?'<button class="fxb ok" data-a="fix">Corriger</button>':''}${(f.alts||[]).map(a=>`<button class="fxb" data-a="alt" data-w="${esc(a)}">ou « ${esc(a)} »</button>`).join('')}${f.soft?'<button class="fxb" data-a="keep">Garder</button>':''}</div></div>`).join('')+
   (iss.length>8?`<small class="more">Et ${iss.length-8} autre${iss.length-8>1?'s':''} : corrige celles-ci, puis relance la lecture.</small>`:'')+
-  '<small class="more">Les mots soulignés en rouge par ton ordinateur sont aussi à vérifier.</small>';
+  '<small class="more">Les mots soulignés en rouge par ton ordinateur sont aussi à vérifier.</small><small class="more plumeWarn">Plume est un petit assistant sans intelligence artificielle : il peut parfois se tromper, et certaines fautes peuvent encore lui échapper. Relis toujours ton texte !</small>';
  el._iss=show;feed.appendChild(el);el.scrollIntoView({block:'end',behavior:'smooth'});checkBadges();
 }
 feed.addEventListener('click',e=>{
@@ -3764,6 +3766,24 @@ const JOKES=[
  ['Que dit un verbe à un autre verbe qui est en retard ?','« Tu conjugues ou tu dors ? »'],
  ['Pourquoi le passé simple n\'est-il pas compliqué ?','Parce que c\'est écrit dans son nom !'],
  ['Que dit une gomme à un crayon ?','« Ne t\'inquiète pas, j\'efface tes bêtises ! »'],
+ ['Quel est le comble pour un ours ?','Faire un rêve… et se réveiller en pleine hibernation !'],
+ ['Pourquoi les livres ont-ils peur de l\'hiver ?','Parce qu\'ils perdent leurs feuilles !'],
+ ['Quel est le comble pour une maîtresse ?','Avoir des élèves qui ne sont pas dans leur assiette… à la cantine !'],
+ ['Que dit un escargot sur le dos d\'une tortue ?','« Youhou, ça va vite ! »'],
+ ['Pourquoi le stylo est-il toujours fatigué ?','Parce qu\'il travaille à l\'encre de ses forces !'],
+ ['Quel animal a le plus de dents ?','La petite souris !'],
+ ['Que dit une phrase qui a perdu son point ?','« Je n\'en finis plus… »'],
+ ['Comment appelle-t-on un chat tombé dans un pot de peinture le jour de Noël ?','Un chat-peint de Noël !'],
+ ['Pourquoi l\'histoire de la tomate est-elle si courte ?','Parce qu\'elle est vite cuite !'],
+ ['Quel est le fruit préféré des profs d\'histoire ?','Les dattes !'],
+ ['Que dit un adjectif qui n\'est pas accordé ?','« Je me sens un peu seul… il me manque un s ! »'],
+ ['Pourquoi le dragon n\'écrit-il jamais au crayon ?','Parce qu\'il préfère les histoires enflammées !'],
+ ['Quel est le comble pour un dictionnaire ?','Rester sans voix !'],
+ ['Qu\'est-ce qui a des pages mais ne marche jamais ?','Un livre… et parfois une histoire pas encore finie !'],
+ ['Pourquoi le chapitre 2 est-il jaloux ?','Parce que le chapitre 1 passe toujours avant lui !'],
+ ['Que dit un poisson qui écrit une histoire ?','« Il était une fois… dans l\'eau ! »'],
+ ['Quel est le comble pour un fantôme ?','Avoir une peur bleue !'],
+ ['Que dit la virgule au point d\'exclamation ?','« Calme-toi, on fait juste une petite pause ! »'],
 ];
 const TIPS=[
  'Lis ta phrase à voix haute : si tu t\'essouffles, elle est peut-être trop longue.',
@@ -3789,6 +3809,24 @@ const TIPS=[
  'Après « elle est », pense à accorder : elle est partie, elle est contente.',
  'Si tu peux remplacer par « vendu », écris « é » ; par « vendre », écris « er ».',
  'Après « il a », c\'est le verbe avoir, sans accent : il a mangé.',
+ 'Donne un nom à tes personnages : « Léna » est plus vivant que « la fille ».',
+ 'Un dialogue rend l\'histoire vivante : fais parler tes personnages avec des tirets.',
+ 'Ton héros veut quelque chose, mais un problème l\'en empêche : voilà le cœur d\'une histoire !',
+ 'Ajoute un bruit ou une odeur : le lecteur aura l\'impression d\'y être.',
+ 'Si un mot revient trop souvent, demande-moi : je te proposerai d\'autres mots.',
+ 'Varie la longueur de tes phrases : une courte après une longue, ça surprend !',
+ 'Avant d\'écrire la fin, demande-toi : qu\'est-ce que mon héros a appris ?',
+ 'Un titre mystérieux donne envie d\'ouvrir le livre.',
+ 'Remplace « il y a » par un vrai verbe : « une forêt s\'étendait » au lieu de « il y avait une forêt ».',
+ 'Écris d\'abord sans t\'arrêter, et corrige ensuite : les idées vont plus vite que les fautes !',
+ 'Relis ton texte le lendemain : on voit beaucoup mieux ses fautes avec des yeux reposés.',
+ 'Pour « a » ou « à », essaie « avait » : si ça marche, c\'est « a » sans accent.',
+ 'Pour « et » ou « est », essaie « était » : si ça marche, c\'est « est ».',
+ 'Pour « son » ou « sont », essaie « étaient » : si ça marche, c\'est « sont ».',
+ 'Un méchant qui a ses raisons est bien plus intéressant qu\'un méchant juste méchant.',
+ 'Termine un chapitre sur une question : le lecteur voudra lire la suite !',
+ 'Utilise des mots précis : « chuchoter », « hurler », « bafouiller » au lieu de « dire ».',
+ 'Décris un lieu avec trois détails seulement : c\'est souvent assez pour l\'imaginer.',
 ];
 const FACTS=[
  'Le mot « anticonstitutionnellement » a 25 lettres : c\'est l\'un des plus longs du français !',
@@ -3802,12 +3840,21 @@ const FACTS=[
  'Le point-virgule fait une pause plus longue qu\'une virgule, mais plus courte qu\'un point.',
  'Le verbe « aller » est très bizarre : je vais, j\'allais, j\'irai… trois racines différentes !',
  'Il existe plus de 9 000 verbes en français, mais la plupart se conjuguent comme « chanter ».',
+ 'Le mot « oiseau » contient les cinq voyelles a, e, i, o, u… et il est très court !',
+ 'Les premiers livres étaient copiés à la main : un seul pouvait prendre des mois à écrire.',
+ 'Le mot « chouchou » vient de « chou » : on appelait ainsi les gens qu\'on aimait beaucoup.',
+ 'Jules Verne a imaginé des voyages sur la Lune bien avant que les fusées existent !',
+ 'Le tiret du dialogue sert à montrer qu\'un nouveau personnage parle.',
+ 'Psst… Si tu cliques cinq fois très vite sur mon nom, un invité surprise pourrait se réveiller !',
+ 'Le plus long roman du monde fait plus de 13 000 pages. Ton histoire a le temps de grandir !',
+ 'Le mot « abracadabra » existe depuis plus de 1 800 ans !',
 ];
 const BORED=['Et si on écrivait juste une phrase de plus ? Une seule !','Je m\'ennuie un peu… Raconte-moi la suite ?','Besoin d\'une idée ? Appuie sur « Je suis bloqué·e » !','Une petite pause, c\'est bien. Mais ton héros attend la suite !'];
 const seen={j:new Set(),t:new Set(),f:new Set()};
 const freshPick=(arr,k)=>{let idx=arr.map((_,i)=>i).filter(i=>!seen[k].has(i));if(!idx.length){seen[k].clear();idx=arr.map((_,i)=>i)}const i=idx[Math.floor(Math.random()*idx.length)];seen[k].add(i);return arr[i]};
 function funMsg(kind){
- kind=kind||pick(['j','j','t','t','f'],1)[0];
+ kind=kind||pick(['j','j','t','t','f','h'],1)[0];
+ if(kind==='h'){if(!(stats.bear>0)&&Math.random()<.6){say({k:'Un secret',m:'Psst… Si tu cliques cinq fois très vite sur mon nom, un invité surprise va se réveiller. Chut, c\'est un secret !',cls:'fun'});return}kind='t'}
  if(kind==='j'){const [q,a]=freshPick(JOKES,'j');const el=say({k:'Petite blague',m:q,cls:'fun'});el.insertAdjacentHTML('beforeend','<button class="rvb">Je donne ma langue au chat</button>');el._ans=a}
  else if(kind==='t')say({k:'Conseil d\'écrivain',m:freshPick(TIPS,'t'),cls:'fun'});
  else say({k:'Le savais-tu ?',m:freshPick(FACTS,'f'),cls:'fun'});
@@ -3816,18 +3863,40 @@ feed.addEventListener('click',e=>{const b=e.target.closest('.rvb');if(!b)return;
 /* ---- œuf de Pâques : 5 clics rapides sur Plume réveillent l'Ours rêveur ---- */
 const BEAR_SVG='<svg class="bearAv" viewBox="0 0 64 64" aria-hidden="true"><circle cx="15" cy="16" r="9" fill="#8a5a3b"/><circle cx="49" cy="16" r="9" fill="#8a5a3b"/><circle cx="15" cy="16" r="4.5" fill="#d9a77e"/><circle cx="49" cy="16" r="4.5" fill="#d9a77e"/><circle cx="32" cy="35" r="22" fill="#9c6643"/><ellipse cx="32" cy="43" rx="11" ry="8.5" fill="#e3b88f"/><ellipse cx="32" cy="38.5" rx="4" ry="3" fill="#3b2418"/><path d="M32 41.5v3.5M28 46.5q4 3 8 0" stroke="#3b2418" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M19 30q4 3.5 8 0M37 30q4 3.5 8 0" stroke="#3b2418" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="38" r="3" fill="#e98b7a" opacity=".55"/><circle cx="44" cy="38" r="3" fill="#e98b7a" opacity=".55"/><path d="M14 9q4-7 11-4" stroke="#5a3a26" stroke-width="2" fill="none" stroke-linecap="round" opacity=".0"/></svg>';
 const BEAR={
- reves:["un escargot gagnait une course contre une fusée","la lune tombait dans mon pot de miel et ne voulait plus repartir","mon lit devenait un bateau et naviguait jusqu'à une île de nuages","un dragon avait peur des souris et cherchait un ami courageux","les arbres de la forêt se mettaient à chanter dès qu'il pleuvait","une petite fille trouvait une clé qui ouvrait toutes les portes du monde","un robot apprenait à faire des crêpes pour son grand-père","les étoiles jouaient à cache-cache et l'une d'elles se perdait dans mon jardin","un chat devenait le roi d'une ville de chats sous la neige","un nuage voulait devenir une vraie montagne","mon ombre partait se promener toute seule pendant la nuit","une bibliothèque où les livres racontaient eux-mêmes leurs histoires","un pirate cherchait un trésor… et trouvait une boîte pleine de rires","un renard et un lapin construisaient une cabane ensemble","une sorcière ratait tous ses sorts, mais ses erreurs rendaient les gens heureux","un ballon rouge emmenait un enfant faire le tour de la Terre","un hérisson voulait des câlins mais avait peur de piquer","une baleine chantait si fort qu'elle réveillait tout l'océan","un train magique s'arrêtait dans des gares qui n'existent sur aucune carte","un fantôme timide organisait une fête d'anniversaire","je me réveillais tout petit, de la taille d'une fourmi","une plume (pas Plume, une autre !) écrivait toute seule des lettres mystérieuses","un village où il neigeait du chocolat chaud une fois par an","un chevalier qui avait peur du noir partait sauver un dragon"],
- mots:["miel","parapluie","étoile","clé","horloge","nuage","chaussette","dragon","bibliothèque","tempête","lanterne","escargot","château","boussole","coquillage","gâteau","fusée","secret","forêt","renard","grenier","pyjama","volcan","carte","trésor","miroir","plume","sorcière","glace","bicyclette","tortue","lune","cabane","télescope","pantoufle","arc-en-ciel","potion","girafe","sous-marin","violon"],
- themes:["l'amitié","le courage","un voyage dans le temps","la mer et ses mystères","une fête qui tourne mal (mais finit bien)","un animal qui parle","la nuit","un monde à l'envers","la neige","un secret bien gardé","le premier jour d'école d'un monstre","une invention bizarre","l'espace","une forêt enchantée","un objet perdu"],
- contraintes:["Ton histoire doit commencer par : « Ce matin-là, rien ne se passait comme d'habitude. »","Ton histoire doit finir par : « … et depuis ce jour, il ne dort plus jamais sans sa lampe. »","Raconte ton histoire en seulement cinq phrases.","Raconte-la comme si c'était un objet qui parlait (une chaussure, une tasse…).","Mets un dialogue entre deux personnages, avec des tirets.","Ton méchant doit devenir gentil à la fin.","Utilise au moins trois des cinq sens : ce qu'on voit, entend, sent, touche, goûte.","Ton héros doit avoir un défaut qui l'aide à la fin.","Ajoute un rebondissement que personne n'attend.","Écris-la sans jamais utiliser le mot « très »."]
+ reves:[
+  {r:"un escargot gagnait une course contre une fusée",m:["escargot","fusée","course","coquille","médaille"],t:"le courage des plus petits",c:"Raconte la course du point de vue de l'escargot : c'est lui qui dit « je »."},
+  {r:"la lune tombait dans mon pot de miel et ne voulait plus repartir",m:["lune","miel","échelle","nuit","collant"],t:"une nuit sans lune",c:"Ton histoire doit expliquer comment on remet la lune dans le ciel."},
+  {r:"mon lit devenait un bateau et naviguait jusqu'à une île de nuages",m:["lit","voile","île","nuage","oreiller"],t:"un voyage pendant le sommeil",c:"Ton histoire doit finir au moment où le réveil sonne."},
+  {r:"un dragon avait peur des souris et cherchait un ami courageux",m:["dragon","souris","château","flamme","courage"],t:"avoir peur et devenir ami",c:"Le dragon et la souris doivent se parler avec des tirets de dialogue."},
+  {r:"les arbres de la forêt se mettaient à chanter dès qu'il pleuvait",m:["forêt","pluie","chanson","feuille","écureuil"],t:"la musique de la nature",c:"Utilise au moins trois sons : ce qu'on entend quand les arbres chantent."},
+  {r:"une petite fille trouvait une clé qui ouvrait toutes les portes du monde",m:["clé","porte","serrure","voyage","secret"],t:"un objet magique",c:"Raconte ce qu'elle trouve derrière trois portes différentes."},
+  {r:"un robot apprenait à faire des crêpes pour son grand-père",m:["robot","crêpe","farine","grand-père","poêle"],t:"faire plaisir à quelqu'un",c:"La première crêpe du robot doit rater de façon très drôle."},
+  {r:"les étoiles jouaient à cache-cache et l'une d'elles se perdait dans mon jardin",m:["étoile","jardin","lanterne","ciel","cachette"],t:"aider quelqu'un à rentrer chez lui",c:"Ton histoire doit finir quand l'étoile retrouve sa place dans le ciel."},
+  {r:"un chat devenait le roi d'une ville de chats sous la neige",m:["chat","couronne","neige","palais","moustache"],t:"un roi pas comme les autres",c:"Le chat-roi doit prendre une décision difficile pour sa ville."},
+  {r:"un nuage voulait devenir une vraie montagne",m:["nuage","montagne","vent","sommet","pluie"],t:"vouloir être quelqu'un d'autre",c:"À la fin, le nuage doit comprendre qu'il est très bien comme il est."},
+  {r:"mon ombre partait se promener toute seule pendant la nuit",m:["ombre","lampe","ruelle","minuit","chat"],t:"une nuit mystérieuse",c:"Raconte l'histoire comme si c'était l'ombre qui parlait."},
+  {r:"une bibliothèque où les livres racontaient eux-mêmes leurs histoires",m:["bibliothèque","livre","page","chuchoter","poussière"],t:"le pouvoir des histoires",c:"Un livre doit raconter une histoire à l'intérieur de ton histoire."},
+  {r:"un pirate cherchait un trésor… et trouvait une boîte pleine de rires",m:["pirate","trésor","carte","île","rire"],t:"ce qui compte vraiment",c:"Ton histoire doit commencer par : « X marque l'endroit… »."},
+  {r:"un renard et un lapin construisaient une cabane ensemble",m:["renard","lapin","cabane","branche","orage"],t:"l'amitié entre deux ennemis",c:"Un orage doit menacer la cabane, et ils doivent s'entraider."},
+  {r:"une sorcière ratait tous ses sorts, mais ses erreurs rendaient les gens heureux",m:["sorcière","potion","chaudron","balai","grenouille"],t:"les erreurs qui font du bien",c:"Raconte trois sorts ratés, du plus petit au plus énorme."},
+  {r:"un ballon rouge emmenait un enfant faire le tour de la Terre",m:["ballon","ficelle","océan","désert","vent"],t:"un tour du monde",c:"L'enfant doit passer dans trois pays différents et décrire chacun."},
+  {r:"un hérisson voulait des câlins mais avait peur de piquer",m:["hérisson","câlin","piquant","pomme","ami"],t:"être différent",c:"Ton héros doit trouver une idée géniale pour faire un câlin sans piquer."},
+  {r:"une baleine chantait si fort qu'elle réveillait tout l'océan",m:["baleine","océan","chanson","poisson","vague"],t:"la mer et ses mystères",c:"Utilise au moins trois animaux de la mer dans ton histoire."},
+  {r:"un train magique s'arrêtait dans des gares qui n'existent sur aucune carte",m:["train","gare","billet","tunnel","contrôleur"],t:"un voyage fantastique",c:"Chaque gare doit avoir un nom inventé et une surprise."},
+  {r:"un fantôme timide organisait une fête d'anniversaire",m:["fantôme","gâteau","bougie","drap","invité"],t:"la timidité",c:"Le fantôme doit écrire une invitation : recopie-la dans ton histoire."},
+  {r:"je me réveillais tout petit, de la taille d'une fourmi",m:["fourmi","brin d'herbe","goutte","géant","miette"],t:"le monde vu d'en bas",c:"Décris un objet de tous les jours comme s'il était gigantesque."},
+  {r:"une plume (pas Plume, une autre !) écrivait toute seule des lettres mystérieuses",m:["plume","lettre","encre","enveloppe","mystère"],t:"un message secret",c:"Ton histoire doit contenir une lettre mystérieuse écrite par la plume."},
+  {r:"un village où il neigeait du chocolat chaud une fois par an",m:["chocolat","neige","village","tasse","fête"],t:"une fête extraordinaire",c:"Raconte la journée avec au moins trois goûts ou odeurs."},
+  {r:"un chevalier qui avait peur du noir partait sauver un dragon",m:["chevalier","épée","dragon","grotte","lanterne"],t:"le courage",c:"Le chevalier doit vaincre sa peur du noir au moment le plus important."}
+ ]
 };
 function bearPick(a,n){const c=a.slice(),r=[];while(r.length<n&&c.length)r.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return r}
 function bearVisit(){
  showTab('pChat');stats.bear=(stats.bear||0)+1;
- const reve=bearPick(BEAR.reves,1)[0],kind=Math.floor(Math.random()*3);let defi,mots=null;
- if(kind===0){mots=bearPick(BEAR.mots,3);defi='Raconte une histoire où tu glisses ces trois mots :'}
- else if(kind===1)defi=`Écris une histoire sur le thème : « ${bearPick(BEAR.themes,1)[0]} ».`;
- else defi=bearPick(BEAR.contraintes,1)[0];
+ const R=bearPick(BEAR.reves,1)[0],reve=R.r,kind=Math.floor(Math.random()*3);let defi,mots=null;
+ if(kind===0){mots=bearPick(R.m,3);defi='Raconte mon rêve en glissant ces trois mots dans ton histoire :'}
+ else if(kind===1)defi=`Écris une histoire inspirée de mon rêve, sur le thème : « ${R.t} ».`;
+ else defi=R.c;
  const hello=stats.bear===1?"Bâââille… Oh ! Bonjour, je suis l'Ours rêveur, le copain de Plume. Je dors beaucoup, alors je fais plein de rêves !":bearPick(["Bâââille… Re-bonjour ! J'ai encore fait un drôle de rêve.","Mmmh… tu m'as réveillé ! Ça tombe bien, j'ai un rêve à te raconter.","Zzz… hein ? Ah, c'est toi ! Écoute ce que j'ai rêvé…"],1)[0];
  const el=document.createElement('div');el.className='msg bear';
  el.innerHTML=`<div class="bearHd">${BEAR_SVG}<span class="k">L'Ours rêveur</span><span class="bearZ" aria-hidden="true">z<i>z</i><b>z</b></span></div>${esc(hello)} Cette nuit, j'ai rêvé ${/^[aeiouéèêhîôâ]/i.test(reve)?"qu'":'que '}${esc(reve)}. Tu pourrais en faire une histoire, non ?<div class="bearDefi"><b>Mon défi :</b> ${esc(defi)}${mots?'<div class="chips">'+mots.map(w=>`<button class="chip" data-w="${esc(w)}">${esc(w)}</button>`).join('')+'</div>':''}</div><div class="row"><button class="fxb ok" data-bear="ok">Je relève le défi !</button><button class="fxb" data-bear="again">Un autre rêve</button></div>`;
@@ -3839,6 +3908,7 @@ feed.addEventListener('click',e=>{const b=e.target.closest('[data-bear]');if(!b)
  const d=box._defi;toast(d.mots?'Les mots à glisser : '+d.mots.join(', '):'Défi accepté !');plumeAnim('jump');try{ed.focus()}catch(_){}});
 let avClicks=[],avFunT;
 let avCool=0;
+{const pn=document.getElementById('plumeName');if(pn){pn.style.cursor='pointer';pn.style.userSelect='none';pn.addEventListener('click',()=>{const now=Date.now();if(now<avCool)return;avClicks=avClicks.filter(t=>now-t<1800);avClicks.push(now);plumeAnim('jump');if(avClicks.length>=5){avClicks=[];avCool=now+1500;clearTimeout(avFunT);bearVisit()}})}}
 if(av){av.addEventListener('click',()=>{const now=Date.now();if(now<avCool){plumeAnim('spin');return}avClicks=avClicks.filter(t=>now-t<1800);avClicks.push(now);plumeAnim('spin');showTab('pChat');clearTimeout(avFunT);
   if(avClicks.length>=5){avClicks=[];avCool=now+1500;bearVisit();return}
   avFunT=setTimeout(()=>funMsg(),450)});av.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();av.click()}})}
@@ -4099,6 +4169,25 @@ function advanced(t,a,S){
  const bars=lens.slice(0,60),bm=Math.max(...bars,1);
  const chart=bars.length>=3?`<div class="rchart" title="Longueur de chaque phrase">${bars.map(n=>`<i style="height:${Math.max(6,Math.round(n/bm*100))}%" class="${n>S.max?'hi':n<=3?'lo':''}" title="${n} mots"></i>`).join('')}</div><small class="more" style="margin-top:2px">Chaque barre est une phrase : plus elle est haute, plus la phrase est longue. En rouge : trop longue.</small>`:'';
  return{lines,tips,chart}}
+/* les répétitions : la même suite de mots (ou le même mot important) deux fois dans une phrase */
+const REP_FW=new Set("le la les l' un une des du de d' au aux à a et est ou où son sa ses ce cet cette ces se s' c' je j' tu il elle on nous vous ils elles me m' te t' lui leur leurs y en ne n' pas plus que qu' qui dont mon ma mes ton ta tes notre nos votre vos dans sur sous avec sans pour par chez vers mais donc car puis alors très bien tout tous toute toutes si comme aussi encore déjà ai as ont sont était étaient avait avaient être avoir fait faire va".split(' '));
+function repetitions(t){
+ const out=[],seenG=new Set();
+ const sents=t.replace(/ /g,' ').split(/(?<=[.!?…])\s+|\n+/).map(x=>x.trim()).filter(Boolean);
+ for(const s of sents){
+  const W=(s.match(/[\p{L}]+(?:[-'’][\p{L}]+)*['’]?/gu)||[]).map(w=>w.toLowerCase().replace(/’/g,"'"));
+  if(W.length<4)continue;const used=new Set();
+  for(let n=Math.min(6,Math.floor(W.length/2));n>=2;n--){
+   const pos=new Map();
+   for(let i=0;i+n<=W.length;i++){const g=W.slice(i,i+n);if(g.every(w=>REP_FW.has(w)))continue;if(REP_FW.has(g[0])&&REP_FW.has(g[n-1])&&g.filter(w=>!REP_FW.has(w)).length<1)continue;const k=g.join(' ');if(!pos.has(k))pos.set(k,[]);pos.get(k).push(i)}
+   for(const [k,L] of pos){let c=0,last=-99;for(const i of L){if(i>=last+n){c++;last=i}}
+    if(c>=2&&!L.some(i=>{for(let j=i;j<i+n;j++)if(used.has(j))return true;return false})){L.forEach(i=>{for(let j=i;j<i+n;j++)used.add(j)});if(!seenG.has(k+'|'+s)){seenG.add(k+'|'+s);out.push({g:k,n:c,s,len:n})}}}}
+  /* un même mot important (4 lettres ou plus) répété dans la phrase */
+  const cnt=new Map();W.forEach((w,i)=>{if(!used.has(i)&&!REP_FW.has(w)&&w.length>=4&&!/^\p{Lu}/u.test(w))cnt.set(w,(cnt.get(w)||0)+1)});
+  for(const [w,c] of cnt)if(c>=2&&!seenG.has(w+'|'+s)){seenG.add(w+'|'+s);out.push({g:w,n:c,s,len:1})}
+ }
+ return out.sort((a,b)=>b.len-a.len||b.n-a.n)}
+feed.addEventListener('click',e=>{const b=e.target.closest('.repShow');if(!b)return;e.stopPropagation();if(!selectLast(b.dataset.g))toast('Je ne retrouve plus ce passage : tu l\'as peut-être déjà changé !')},true);
 function fullReview(){
  const t=ed.innerText.replace(/ /g,' '),a=analyze(t),T=tier();
  if(!a.n){say({m:T3('Ta page est vide ! Écris une phrase.','Ta page est encore vide ! Écris quelques phrases, puis demande-moi de regarder.','Page vide : écris un premier passage pour obtenir une analyse.')});return}
@@ -4122,6 +4211,8 @@ function fullReview(){
  if(tv)pl.push(T3('Attention, certains verbes changent de temps.',`${tv} verbe${tv>1?'s changent':' change'} de temps par rapport au reste de l'histoire.`,`${tv} rupture${tv>1?'s':''} de concordance des temps.`));
  if(nf)pl.push(T3(`J'ai vu ${nf} petite${nf>1?'s':''} faute${nf>1?'s':''}. Appuie sur « Lis et cherche les fautes ».`,`J'ai repéré ${nf} petite${nf>1?'s':''} faute${nf>1?'s':''} : appuie sur « Lis et cherche les fautes ».`,`${nf} faute${nf>1?'s':''} d'orthographe ou de grammaire : lance « Lis et cherche les fautes ».`));
  h+=`<div class="rp sent"><h4>${T3('Tes phrases','Tes phrases','Syntaxe')}</h4><ul>${pl.map(li).join('')}</ul></div>`;
+ const RP=repetitions(t);
+ if(RP.length)h+=`<div class="rp rep"><h4>${T3('Des mots répétés','Répétitions','Répétitions')}</h4><ul>${RP.slice(0,5).map(x=>`<li>« ${esc(x.g)} » revient ${x.n} fois dans la même phrase : « ${esc(x.s.length>90?x.s.slice(0,88)+'…':x.s)} » <button class="chip repShow" data-g="${esc(x.g)}">Montrer</button></li>`).join('')}</ul><small class="more" style="margin-top:2px">${T3('Essaie de changer un des deux, ou de couper la phrase en deux.','Pour éviter la répétition, remplace l\'un des deux par un autre mot (un synonyme, « il », « elle »…) ou coupe la phrase.','Reformule ou remplace l\'une des occurrences (synonyme, pronom, ellipse).')}</small></div>`;
  if(AD)h+=`<div class="rp adv"><h4>Analyse avancée</h4>${AD.chart}<ul>${AD.lines.map(li).join('')}</ul></div>`;
  const el=document.createElement('div');el.className='msg';el.innerHTML=h;
  const focus=M.find(x=>x.rep)||null,wk0=W.wk[0],target=focus?focus.rep:wk0?wk0[0]:null;
@@ -4130,6 +4221,7 @@ function fullReview(){
  feed.appendChild(el);el.scrollIntoView({block:'end',behavior:'smooth'});lastPlumeAt=Date.now();plumeAnim('talk');
  const stn=styleNote(a);if(stn)stats.style=stn;
  sentenceReport(t);if(T>0)tenseReport();maybeReport();
+ el.insertAdjacentHTML('beforeend','<small class="more plumeWarn">Plume est un petit assistant sans intelligence artificielle : il peut parfois se tromper, et certaines fautes peuvent encore lui échapper. Relis toujours ton texte !</small>');
 }
 /* les explications des fautes, selon l'âge */
 function whyFor(f){const w=f.why,T=tier();
