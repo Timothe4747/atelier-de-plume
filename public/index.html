@@ -373,6 +373,22 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
 @media (prefers-reduced-motion:reduce){.msg.bear,.bearAv,.bearZ,.bearZ i,.bearZ b{animation:none}}
 .plumeWarn{display:block;margin-top:8px;opacity:.75;font-style:italic}
 .rp.rep li{margin-bottom:6px}.rp.rep .repShow{padding:2px 10px;min-height:0;font-size:13px;margin-left:4px;vertical-align:middle}
+.act.hutBtn{display:flex;align-items:center;gap:8px;text-align:left;position:relative;overflow:visible;background:linear-gradient(160deg,#fff4e3,#fde6c8);color:#4a2f1e;border-color:#d9a77e}
+.act.hutBtn:hover{border-color:#8a5a3b}
+.hutIc{width:34px;height:34px;flex:none;display:block}.hutIc svg,.hutMini svg{width:100%;height:100%;display:block}
+.hutTx{display:flex;flex-direction:column;line-height:1.1}.hutTx b{font-weight:600;font-size:14px}.hutTx small{font-size:12px;opacity:.8;font-family:inherit}
+.hutMini{display:flex;align-items:center;gap:8px;margin-top:8px;background:#fff4e3;border:2px dashed #d9a77e;border-radius:12px;padding:6px 12px;color:#6b4329;position:relative;overflow:visible;cursor:pointer}
+.hutMini svg{width:44px;height:44px}
+.knock{animation:knockShake .35s ease}
+@keyframes knockShake{0%,100%{transform:none}25%{transform:translateX(-3px) rotate(-2deg)}75%{transform:translateX(3px) rotate(2deg)}}
+.tocTag{position:absolute;left:50%;top:-6px;transform:translate(-50%,0);font-family:Fredoka,system-ui;font-weight:600;font-size:14px;color:#8a5a3b;background:#fff;border:2px solid #d9a77e;border-radius:10px;padding:1px 8px;pointer-events:none;white-space:nowrap;animation:tocUp .9s ease forwards;z-index:5}
+@keyframes tocUp{from{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}to{opacity:0;transform:translate(-50%,-22px)}}
+.hutSmoke{animation:smoke 2.5s ease-in-out infinite}@keyframes smoke{0%,100%{opacity:.3;transform:translateY(2px)}50%{opacity:.9;transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){.knock,.tocTag,.hutSmoke{animation:none}}
+.acts .hutBtn{display:none}.acts.hasHut .hutBtn{display:flex}
+.acts:not(.hasHut) .act[data-ai=mots]{grid-column:1/-1}
+.hutPop{animation:hutPop .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes hutPop{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -445,7 +461,7 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
  </section>
 
  <aside class="side" id="side" aria-label="Plume, ton assistante d'écriture">
-  <div class="ph"><svg id="plumeAv" viewBox="0 0 64 64" role="button" tabindex="0" aria-label="Plume : clique pour une surprise"><g class="pl-b"><path d="M50 4C33 6 18 18 15 36c-1.5 8 0 13 2 17l-7 7 3 3 7-7c5 2.5 12 2 18-2.5C50 45 56 28 54 10c-.6-4-1.6-6-4-6z" fill="#ff6b4a"/><path d="M50 4C40 10 33 20 30 32c5-6 12-11 20-13-7 5-12 11-15 19 6-4 12-6 18-6" fill="none" stroke="#ffb09d" stroke-width="2.5" stroke-linecap="round"/><path d="M15 52 41 22" stroke="#c2381b" stroke-width="2.5" stroke-linecap="round"/><g class="pl-e"><circle cx="30" cy="38" r="4.2" fill="#fff"/><circle cx="41" cy="33" r="4.2" fill="#fff"/><circle class="pl-p" cx="31" cy="38.6" r="2.2" fill="#1d2142"/><circle class="pl-p" cx="42" cy="33.6" r="2.2" fill="#1d2142"/></g><path class="pl-m" d="M32 45q5 3 10-2" fill="none" stroke="#1d2142" stroke-width="2" stroke-linecap="round"/></g></svg><div><h2 id="plumeName" title="Psst… clique 5 fois très vite !">Plume</h2><p id="plumeSub">Je regarde ton texte sans jamais le changer.</p></div><button class="bigBtn" id="bBig" aria-pressed="false" title="Agrandir la zone de Plume">Agrandir</button></div>
+  <div class="ph"><svg id="plumeAv" viewBox="0 0 64 64" role="button" tabindex="0" aria-label="Plume : clique pour une surprise"><g class="pl-b"><path d="M50 4C33 6 18 18 15 36c-1.5 8 0 13 2 17l-7 7 3 3 7-7c5 2.5 12 2 18-2.5C50 45 56 28 54 10c-.6-4-1.6-6-4-6z" fill="#ff6b4a"/><path d="M50 4C40 10 33 20 30 32c5-6 12-11 20-13-7 5-12 11-15 19 6-4 12-6 18-6" fill="none" stroke="#ffb09d" stroke-width="2.5" stroke-linecap="round"/><path d="M15 52 41 22" stroke="#c2381b" stroke-width="2.5" stroke-linecap="round"/><g class="pl-e"><circle cx="30" cy="38" r="4.2" fill="#fff"/><circle cx="41" cy="33" r="4.2" fill="#fff"/><circle class="pl-p" cx="31" cy="38.6" r="2.2" fill="#1d2142"/><circle class="pl-p" cx="42" cy="33.6" r="2.2" fill="#1d2142"/></g><path class="pl-m" d="M32 45q5 3 10-2" fill="none" stroke="#1d2142" stroke-width="2" stroke-linecap="round"/></g></svg><div><h2 id="plumeName">Plume</h2><p id="plumeSub">Je regarde ton texte sans jamais le changer.</p></div><button class="bigBtn" id="bBig" aria-pressed="false" title="Agrandir la zone de Plume">Agrandir</button></div>
   <div class="tabs" role="tablist">
    <button role="tab" aria-selected="true" data-t="pChat">Plume</button>
    <button role="tab" aria-selected="false" data-t="pIdea">Idées</button>
@@ -477,10 +493,10 @@ body.focus.typing .focusBar{opacity:0}#focusBar #focusExit{display:none}
    <div class="acts">
     <button class="act big" data-ai="bloque">Je suis bloqué·e</button>
     <button class="act sun" data-ai="fautes" title="Plume lit ton histoire et cherche les fautes">Lis et cherche les fautes</button>
-    <button class="act" data-ai="suite">Une idée pour la suite</button>
     <button class="act" data-ai="regard">Regarde mon texte</button>
     <button class="act" data-ai="defi">Un petit défi</button>
     <button class="act" data-ai="mots">Des mots magiques</button>
+    <button class="act hutBtn" id="hutBtn" type="button" aria-label="La cabane de l'Ours rêveur : frappe trois fois à la porte"><span class="hutIc"></span><span class="hutTx"><b>La cabane de l'ours</b><small>Toc toc ? Frappe 3 fois</small></span></button>
    </div>
    <form class="ask" id="askF"><input id="askIn" placeholder="Conseil pour un mot ? ex. dire, beau, peur" aria-label="Chercher d'autres mots" maxlength="60"><button>Chercher</button></form>
   </div>
@@ -928,8 +944,7 @@ const BADGES=[
  ...S('aide','L\'aide de Plume','Plume','heart','#ff6b4a',()=>st('ai'),[['b8','Curieux','Demander de l\'aide à Plume',1],['ai10','Bon élève','Demander de l\'aide à Plume 10 fois',10],['n46','Ami de Plume','Demander de l\'aide à Plume 25 fois',25],['ai100','Meilleur ami de Plume','Demander de l\'aide à Plume 100 fois',100]]),
  ...S('blague','Les blagues','Plume','heart','#ffb000',()=>st('jokes'),[['n48','Rigolo','Découvrir la réponse de 5 blagues',5],['jk20','Fou rire','Découvrir la réponse de 20 blagues',20]]),
  ...S('chat','Les chatouilles','Plume','heart','#f08ab8',()=>st('plumeClicks'),[['n49','Chatouilles','Cliquer 10 fois sur Plume',10],['pc50','Plume en a marre !','Cliquer 50 fois sur Plume',50]]),
- ...S('bloq','Je suis bloqué·e','Plume','star','#c2381b',()=>st('blocked'),[['n50','Débloqué','Utiliser « Je suis bloqué·e » 5 fois',5],['bq20','Jamais bloqué','Utiliser « Je suis bloqué·e » 20 fois',20]]),
- ...S('suite','Idées pour la suite','Plume','star','#0f8fa8',()=>st('ideasAsked'),[['n51','Et si… ?','Demander 5 idées pour la suite',5],['su20','Plein d\'idées','Demander 20 idées pour la suite',20]]),
+ ...S('bloq','Je suis bloqué·e','Plume','star','#c2381b',()=>st('blocked')+st('ideasAsked'),[['n50','Débloqué','Utiliser « Je suis bloqué·e » 5 fois',5],['n51','Et si… ?','Utiliser « Je suis bloqué·e » 10 fois',10],['bq20','Jamais bloqué','Utiliser « Je suis bloqué·e » 20 fois',20],['su20','Plein d\'idées','Utiliser « Je suis bloqué·e » 40 fois',40]]),
  ...S('regard','Regarde mon texte','Plume','gem','#3150f0',()=>st('looks'),[['n52','L\'œil de Plume','Utiliser « Regarde mon texte » 5 fois',5],['lk20','Sous la loupe','Utiliser « Regarde mon texte » 20 fois',20]]),
  ...S('magie','Les mots magiques','Plume','gem','#8a3ee8',()=>st('magic'),[['n53','Magicien des mots','Utiliser « Des mots magiques » 5 fois',5],['mg20','Grand enchanteur','Utiliser « Des mots magiques » 20 fois',20]]),
  ...S('motsu','Les mots proposés','Plume','crown','#c2381b',()=>st('used'),[['b9','Chasseur de mots','Utiliser 5 mots proposés',5],['n54','Collectionneur de mots','Utiliser 25 mots proposés',25],['mu100','Musée des mots','Utiliser 100 mots proposés',100]]),
@@ -1461,10 +1476,11 @@ const AGEMAP={'6-8':'6-10','9-11':'6-10','12-14':'10-14','14-16':'14-18','16-18'
 const age=()=>{const a=prefs?.age||'10-14';return AGEMAP[a]||a};
 function help(kind,auto){
  const t=ed.innerText.replace(/ /g,' ');const a=analyze(t);stats.ai++;
- const labels={bloque:'Je suis bloqué·e',suite:'Une idée pour la suite',regard:'Regarde mon texte',defi:'Un petit défi',mots:'Des mots magiques'};
+ const labels={bloque:'Je suis bloqué·e',suite:'Je suis bloqué·e',regard:'Regarde mon texte',defi:'Un petit défi',mots:'Des mots magiques'};
  if(!auto)say({m:labels[kind],me:true});
- if(kind==='bloque'){const s=suggestNext();say({m:s.m,mots:s.w,list:t.trim()?questions(t).slice(0,2):null})}
- else if(kind==='suite'){say({k:'Et si… ?',m:'Voici des pistes. Tu choisis, tu changes, ou tu inventes autre chose :',list:questions(t)})}
+ if(kind==='bloque'||kind==='suite'){const s=suggestNext();say({m:s.m,mots:s.w});
+  if(t.trim())say({k:'Et si… ?',m:'Et voici des pistes pour la suite. Tu choisis, tu changes, ou tu inventes autre chose :',list:questions(t).slice(0,4)});
+  else if(!hutOn&&Date.now()-hutLastAt>60000){showHut(true)}}
  else if(kind==='regard'&&!auto){fullReview()}
  else if(kind==='regard'){const c=compliment(a),tp=tip(a);const nf=scanAll().length;const el=say({k:auto?'Petit coup de pouce':'',m:c+' '+tp.m+(nf?` J'ai aussi repéré ${nf} petite${nf>1?'s':''} faute${nf>1?'s':''} : appuie sur « Lis mon histoire » pour les voir.`:''),mots:tp.w,replace:tp.rep});if(tp.rep)el.dataset.mode='last';const st=styleNote(a);if(st)stats.style=st}
  else if(kind==='defi'){const d=newDefi(a);say({k:'Petit défi',m:d.t+' Je te dirai quand tu l\'auras réussi !',cls:'defi'})}
@@ -3845,7 +3861,7 @@ const FACTS=[
  'Le mot « chouchou » vient de « chou » : on appelait ainsi les gens qu\'on aimait beaucoup.',
  'Jules Verne a imaginé des voyages sur la Lune bien avant que les fusées existent !',
  'Le tiret du dialogue sert à montrer qu\'un nouveau personnage parle.',
- 'Psst… Si tu cliques cinq fois très vite sur mon nom, un invité surprise pourrait se réveiller !',
+ 'Psst… De temps en temps, une petite cabane apparaît près de mes boutons. Quelqu\'un y dort…',
  'Le plus long roman du monde fait plus de 13 000 pages. Ton histoire a le temps de grandir !',
  'Le mot « abracadabra » existe depuis plus de 1 800 ans !',
 ];
@@ -3854,7 +3870,7 @@ const seen={j:new Set(),t:new Set(),f:new Set()};
 const freshPick=(arr,k)=>{let idx=arr.map((_,i)=>i).filter(i=>!seen[k].has(i));if(!idx.length){seen[k].clear();idx=arr.map((_,i)=>i)}const i=idx[Math.floor(Math.random()*idx.length)];seen[k].add(i);return arr[i]};
 function funMsg(kind){
  kind=kind||pick(['j','j','t','t','f','h'],1)[0];
- if(kind==='h'){if(!(stats.bear>0)&&Math.random()<.6){say({k:'Un secret',m:'Psst… Si tu cliques cinq fois très vite sur mon nom, un invité surprise va se réveiller. Chut, c\'est un secret !',cls:'fun'});return}kind='t'}
+ if(kind==='h'){if(!(stats.bear>0)){say({k:'Un secret',m:'Psst… De temps en temps, une petite cabane (ou un arbre avec une porte) apparaît à côté de mes boutons. Quelqu\'un dort dedans… Si tu la vois, frappe trois fois !',cls:'fun'});return}kind='t'}
  if(kind==='j'){const [q,a]=freshPick(JOKES,'j');const el=say({k:'Petite blague',m:q,cls:'fun'});el.insertAdjacentHTML('beforeend','<button class="rvb">Je donne ma langue au chat</button>');el._ans=a}
  else if(kind==='t')say({k:'Conseil d\'écrivain',m:freshPick(TIPS,'t'),cls:'fun'});
  else say({k:'Le savais-tu ?',m:freshPick(FACTS,'f'),cls:'fun'});
@@ -3906,9 +3922,30 @@ feed.addEventListener('click',e=>{const b=e.target.closest('[data-bear]');if(!b)
  if(b.dataset.bear==='again'){box.querySelector('.row').innerHTML='<span class="ok">L\'ours se rendort…</span>';setTimeout(bearVisit,350);return}
  stats.bearDefi=(stats.bearDefi||0)+1;box.querySelector('.row').innerHTML='<span class="ok">Super ! L\'Ours rêveur a hâte de lire ton histoire.</span>';
  const d=box._defi;toast(d.mots?'Les mots à glisser : '+d.mots.join(', '):'Défi accepté !');plumeAnim('jump');try{ed.focus()}catch(_){}});
+const HUT_SVG='<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 30 32 10l24 20" fill="#8a5a3b"/><path d="M5 31 32 8l27 23" fill="none" stroke="#5a3a26" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="13" y="29" width="38" height="27" rx="2" fill="#c98a5a"/><path d="M13 36h38M13 43h38M13 50h38" stroke="#a96f44" stroke-width="1.5"/><path d="M26 56V42a6 6 0 0 1 12 0v14z" fill="#5a3a26"/><circle cx="35" cy="49" r="1.3" fill="#f5c26b"/><rect x="40" y="33" width="7" height="6" rx="1" fill="#f5d98b" stroke="#5a3a26" stroke-width="1.2"/><path d="M42 18v-6h5v10" fill="#7a4a30"/><path class="hutSmoke" d="M45 9c-2-2 1-4-1-6" stroke="#b9b2a8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',TREE_SVG='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="20" r="17" fill="#3f8f4f"/><circle cx="19" cy="27" r="11" fill="#4ea35e"/><circle cx="45" cy="27" r="11" fill="#4ea35e"/><path d="M24 60c3-8 3-18 2-26h12c-1 8-1 18 2 26z" fill="#8a5a3b"/><path d="M28 60V48a4 4 0 0 1 8 0v12z" fill="#3b2418"/><circle cx="34" cy="54" r="1.1" fill="#f5c26b"/><circle cx="25" cy="16" r="2" fill="#e9505a"/><circle cx="40" cy="12" r="2" fill="#e9505a"/><circle cx="44" cy="24" r="2" fill="#e9505a"/></svg>';
+let bearHome=Math.random()<.5?'hut':'tree';
+function hutLabel(h){return h==='hut'?['La cabane de l\'ours','Toc toc ? Frappe 3 fois']:['L\'arbre de l\'ours','Toc toc ? Frappe 3 fois']}
+function setHome(h){bearHome=h;const b=document.getElementById('hutBtn');if(!b)return;b.querySelector('.hutIc').innerHTML=h==='hut'?HUT_SVG:TREE_SVG;const[l1,l2]=hutLabel(h);b.querySelector('b').textContent=l1;b.querySelector('small').textContent=l2;b.setAttribute('aria-label',l1+' : frappe trois fois à la porte')}
+let knockCool=0;
+function knock(el,ev){const now=Date.now();if(now<knockCool)return;el._k=(el._k||[]).filter(t=>now-t<2500);el._k.push(now);
+ el.classList.remove('knock');void el.offsetWidth;el.classList.add('knock');
+ const tag=document.createElement('span');tag.className='tocTag';tag.textContent=el._k.length>=3?'Qui est là ?':'Toc !';el.appendChild(tag);setTimeout(()=>tag.remove(),900);
+ if(el._k.length>=3){el._k=[];knockCool=now+2000;stats.knocks=(stats.knocks||0)+1;setTimeout(()=>{bearVisit();if(el.id==='hutBtn')setTimeout(()=>hideHut(true),1200)},650)}}
+function hutInMsg(msgEl,home){if(!msgEl)return;const h=home||(Math.random()<.5?'hut':'tree');msgEl.insertAdjacentHTML('beforeend',`<button class="hutMini" type="button" aria-label="Frapper à la porte de l'ours">${h==='hut'?HUT_SVG:TREE_SVG}<small>Toc toc ? Frappe 3 fois</small></button>`)}
+feed.addEventListener('click',e=>{const b=e.target.closest('.hutMini');if(b)knock(b,e)});
+/* la maison de l'ours n'apparaît que de temps en temps (environ toutes les 5 minutes) */
+let hutOn=false,hutLastAt=0,hutNext=Date.now()+(270+Math.random()*60)*1000,hutHideT=null;
+function showHut(fromBlank){const hb=document.getElementById('hutBtn');if(!hb||hutOn)return;setHome(Math.random()<.5?'hut':'tree');hutOn=true;hutLastAt=Date.now();
+ document.querySelector('.acts').classList.add('hasHut');hb.classList.remove('hutPop');void hb.offsetWidth;hb.classList.add('hutPop');
+ const home=bearHome==='hut'?'Une petite cabane':'Un drôle d\'arbre avec une porte';
+ say({k:'Tiens, regarde !',m:fromBlank?`Ta page est encore blanche ? Regarde : ${home.toLowerCase()} vient d'apparaître à côté de mes boutons. C'est la maison de l'Ours rêveur, il fait plein de rêves ! Frappe trois fois à la porte.`:pick([`${home} vient d'apparaître à côté de mes boutons… On dirait que quelqu'un ronfle dedans ! Frappe trois fois pour voir qui c'est.`,`Oh ! ${home} est apparu${bearHome==='hut'?'e':''} près de mes boutons. J'entends des « zzz »… Tu frappes trois fois ?`,`Psst… ${home} s'est posé${bearHome==='hut'?'e':''} juste à côté de moi. Je crois que l'Ours rêveur est rentré de promenade !`],1)[0],cls:'fun'});
+ clearTimeout(hutHideT);hutHideT=setTimeout(()=>hideHut(true),150000)}
+function hideHut(quiet){const hb=document.getElementById('hutBtn');hutOn=false;clearTimeout(hutHideT);document.querySelector('.acts')?.classList.remove('hasHut');hutNext=Date.now()+(270+Math.random()*60)*1000;
+ if(!quiet)return}
+setInterval(()=>{if(!hutOn&&Date.now()>hutNext&&document.visibilityState==='visible'&&cur&&!document.querySelector('.ov.on'))showHut(false)},15000);
+{const hb=document.getElementById('hutBtn');if(hb){setHome(bearHome);hb.addEventListener('click',e=>{e.stopPropagation();if(hutOn)knock(hb,e)})}}
 let avClicks=[],avFunT;
 let avCool=0;
-{const pn=document.getElementById('plumeName');if(pn){pn.style.cursor='pointer';pn.style.userSelect='none';pn.addEventListener('click',()=>{const now=Date.now();if(now<avCool)return;avClicks=avClicks.filter(t=>now-t<1800);avClicks.push(now);plumeAnim('jump');if(avClicks.length>=5){avClicks=[];avCool=now+1500;clearTimeout(avFunT);bearVisit()}})}}
 if(av){av.addEventListener('click',()=>{const now=Date.now();if(now<avCool){plumeAnim('spin');return}avClicks=avClicks.filter(t=>now-t<1800);avClicks.push(now);plumeAnim('spin');showTab('pChat');clearTimeout(avFunT);
   if(avClicks.length>=5){avClicks=[];avCool=now+1500;bearVisit();return}
   avFunT=setTimeout(()=>funMsg(),450)});av.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();av.click()}})}
